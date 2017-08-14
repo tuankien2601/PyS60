@@ -1,0 +1,130 @@
+% Copyright (c) 2005 - 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{messaging} --- 
+    A messaging services package}
+\label{sec:messaging}
+
+\declaremodule{extension}{messaging}
+\platform{S60}
+\modulesynopsis{A messaging services package.}
+
+The \module{messaging} module offers APIs to messaging services. Currently, 
+the \module{messaging} module has functions:
+
+\begin{funcdesc}{sms_send}{number, msg, \optional{encoding='7bit', callback=None, name=""}}
+
+Sends an SMS message with body text \var{msg}\footnote{The maximum length of a 
+message that can be sent using sms_send function is either 39015 characters or Max network 
+capacity whichever is lower.} (Unicode)to telephone number \var{number} (string). 
+
+The optional parameter \var{encoding} is used to define encoding in the message. 
+The parameter values can be \code{'7bit'}, \code{'8bit'} or \code{'UCS2'}.
+
+The optional parameter \var{callback} is invoked with the current status of the 
+send operation as parameter. The possible states are data items in the module 
+\code{messaging}. Invoking another send while a previous send request is ongoing 
+will result in \code{RuntimeError} being raised.
+
+If the callback is not given, the \code{sms_send} function will block until the 
+message in the queue is either deleted or the sending has failed\footnote{Please 
+note that this blocking might last for several minutes and hence supplying the 
+callback might be more suitable in many cases.}.
+
+The optional parameter \var{name} will be shown in the sent item message entry as 
+recipient's name after successfully sending message to \var{number}. If this parameter 
+is not specified, then the recipient's phone number will be shown in the sent item 
+message entry\footnote{The name can be of maximum 60 characters and 
+will be shown in the sent item message entry as specified by sender without 
+making any check in the contact database.}.
+
+\end{funcdesc}
+
+\begin{funcdesc}{mms_send}{number, msg, \optional{attachment=None}}
+
+Sends an MMS message with body text \var{msg} (Unicode) to telephone number 
+\var{number} (string). The optional parameter \var{attachment} is full path 
+to e.g. image file attached to the message.
+
+\end{funcdesc}
+
+The following data items for SMS sending state information are available in 
+the module \code{messaging}:
+
+\begin{datadesc}{ECreated}
+\end{datadesc}
+
+\begin{datadesc}{EMovedToOutBox}
+\end{datadesc}
+
+\begin{datadesc}{EScheduledForSend}
+\end{datadesc}
+
+\begin{datadesc}{ESent}
+The SMS message has been sent.
+\end{datadesc}
+
+\begin{datadesc}{EDeleted}
+The SMS message has been deleted from device's outbox queue. The 
+\code{sms\_send} operation has finalized and subsequent SMS sending is possible.
+\end{datadesc}
+
+\begin{datadesc}{EScheduleFailed}
+\end{datadesc}
+
+\begin{datadesc}{ESendFailed}
+This state information is returned when the SMS subsystem has tried to send the message 
+several times in vain. The \code{sms\_send} operation has finalized and 
+subsequent SMS sending is possible.
+\end{datadesc}
+
+\begin{datadesc}{ENoServiceCentre}
+This state information is returned by the SMS subsystem in S60 3.x emulator. In 
+emulator this indicates that the \code{sms\_send} operation has finalized and 
+subsequent SMS sending is possible.
+\end{datadesc}
+
+\begin{datadesc}{EFatalServerError}
+\end{datadesc}
+
+The underlying messaging subsystem in S60 devices might give error messages to 
+the user if the device is not connected to a network while trying to send a 
+message -- An "SMS send failed!" note is a common error message.
+
+When sending messages in offline-mode or with no network connection these 
+messages are actually added to an outgoing message queue and they might be sent 
+if the device is later on connected to a suitable network\footnote{Note also 
+that prior this the user of the device can explicitly delete the messages from 
+the native messaging application. The amount of resending is approx. 4 times --
+After this the sending operation is cancelled and the user of the device will 
+see a visual cue of the failure in the status pane.}. This occurs despite the 
+possibly misleading error messages. The current network conditions can be 
+checked e.g. with \code{sysinfo.active\_profile()} and 
+\code{sysinfo.signal\_bars()} invocations.
+
+The following is example code for state information processing with 
+\code{sms\_send} operation:
+
+\begin{verbatim}
+>>> import messaging
+>>>
+>>> def cb(state):
+...   if state==messaging.ESent:
+...     print "**Message was sent**"
+...   if state==messaging.ESendFailed:
+...     print "**Something went wrong - Truly sorry for this**"
+...
+>>> messaging.sms_send("1234567", "Hello from PyS60!", '7bit', cb, "Mary")
+>>> **Message was sent** # This is printed from the callback
+\end{verbatim}

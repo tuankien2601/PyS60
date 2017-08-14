@@ -1,0 +1,789 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Logging}
+\label{sec:scriptextlogging}
+
+The Logging service allows Python applications to integrate logging functionality of S60 device. It is used to add, read, and delete logging events such as call logs, messaging logs, data logs, and so on in the device. \break
+
+It also provides a simple interface to the application developer to add, read, and delete events occurring in the device.
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+msg_handle = scriptext.load('Service.Logging', 'IDataSource') 
+\end{verbatim}
+
+The following table summarizes the Logging Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.Logging}  \\
+\hline
+{\bf Supported interfaces} & \code{IDataSource}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Logging:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{4cm}|p{10cm}}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{Add} \ref{subsec:logadd} & Adds a new event to the event log.  \\
+\hline
+\code{Getlist} \ref{subsec:loggetlist} & Retrieves an event from the event log as specified by the input filter.  \\ 
+\hline
+\code{Delete} \ref{subsec:logdel} & Deletes an event from the Event Log.  \\
+\hline
+\code{RequestNotification} \ref{subsec:logreqnotify} & Requests for notification for the updates occurring in the log.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Add}
+\label{subsec:logadd}
+
+\code{Add} is used to add a new event to the event log. It takes a set of input parameters that define the Type and properties of the event log to add.
+
+The following is an example for using \code{Add}:
+
+\begin{verbatim}
+log_id = logging_handle.call('Add',{'Type': u'Log', 'Item': {'EventType': 3, 'Direction': 1, 'EventDuration': 2, 'DeliveryStatus': 1, 'PhoneNumber': u'666'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Add}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Adds a new event to the event log.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & IDataSource interface is loaded.  \\
+\hline
+{\bf Post-condition} & A new event is added to the event log.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type, and the properties of the event log. Input parameter properties are Type and Item.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{2cm}|p{6cm}|p{4cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Log} & Specifies the Content Type.  \\
+\hline
+Item & map \break
+For more information, refer map \ref{tab:addmap} & {\bf EventType} (Indicates the type of log Event) \break
+\code{EKLogCallEventType}: 0 \break
+\code{EKLogDataEventType}: 1 \break
+\code{EKLogFaxEventType}: 2 \break
+\code{EKLogShortMessageEventType}: 3 \break
+\code{EKLogPacketDataEventType}: 4 \break
+
+{\bf Direction} \break
+\code{EIncomingEvent}: 0 \break
+\code{EOutgoingEvent}: 1 \break
+\code{EIncomingEvent} \code{Alternateline}: 2 \break
+\code{EOutgoingEvent} \code{Alternateline}: 3 \break
+\code{EFetchedEvent}: 4 \break
+\code{EMissedEvent}: 5 \break
+\code{EMissedEvent} \code{Alternateline}: 6 \break
+
+{\bf DeliveryStatus} \break
+\code{EStatusPending}: 0 \break
+\code{EStatusSent}: 1 \break
+\code{EStatusFalied}: 2 \break
+\code{EStatusNone}: 3 \break
+\code{EStatusDone}: 4 \break
+\code{EStatusNotSent}: 5 \break
+\code{EStatusScheduled}: 6 \break
+
+{\bf LogFlags} \break
+\code{EKLogEventContactSearched}: 0 \break
+\code{EKLogEventRead}: 1 \break
+
+{\bf note:} \break
+Flag \code{EKLogEventRead} is set when you read the event in the log database. \break
+Flag \code{EKLogEventContactSearched} is set when you search through contact database for performing any operation, like voice call or sms. & Adds the given event to the event log.  \\
+\end{tabular}
+\caption{Input parameters for Add}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{3cm}|p{7cm}}
+\hline
+{\bf Key} & {\bf Value} & {\bf Description}  \\
+\hline
+\code{EventType} & 32 bit int & Unique Id to identify event type.  \\
+\hline
+\code{[RemoteParty]} & unicode string & Describes the destination of the out going event or source of incoming event. If the length of the specified string is greater than 64 characters, then the data is truncated.  \\
+\hline
+\code{[Direction]} & 32 bit int & The direction of a call means incoming, outgoing, and so on.  \\
+\hline
+\code{[EventDuration]} & 32 bit int & Time in seconds.  \\
+\hline
+\code{[DeliveryStatus]} & 32 bit int & Delivered, pending, or failed.  \\
+\hline
+\code{[Subject]} & unicode string & Describes the subject for the event. If the length of the specified string is greater than 64 characters, then the data is truncated.  \\
+\hline
+\code{[PhoneNumber]} & unicode string & The phone number is associated with the event. This is used when the number cannot be stored in any other field. If the length of the specified string is greater than 100 characters, then the number is truncated.  \\
+\hline
+\code{[EventData]} & 8-bit Data & Specific data associated with the event.  \\
+\hline
+\code{[Link]} & 32 bit int & Link is used to relate this event to an entity in other application. \break
+For example, it can be used to associate the event with the call ID or the message ID for emails and faxes.  \\
+\hline
+\code{[LogFlags]} & 32 bit int & Sets the specified flags for this event. The function does not change any of the other flag bit settings.  \\
+\hline
+[RepeatDates] & List of dates & NA  \\
+\end{tabular}
+\caption{map}
+\label{tab:addmap}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{Error Message} if the operation fails. \break
+\code{ReturnValue} contains the identifier in the event log corresponding to the user specified input parameters.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{5cm}|p{4cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & 32 bit int & NA & Contains the SAPI specific error code when the operation fails. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\hline
+\code{ReturnValue} & string & Unique identifier for the particular event in the log.  \\
+\end{tabular}
+\caption{Output parameters for Add}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Logging:Add:TypeInvalid} & Invalid Type is passed to \code{contenttype} parameter.  \\
+\hline
+\code{Logging:Add:TypeMissing} & Content Type missing in the inputparam list.  \\
+\hline
+\code{Logging:Add:ItemInvalid} & Invalid Type is passed to Item parameter.  \\
+\hline
+\code{Logging:Add:ItemMissing} & Item map missing in the inputparam list.  \\
+\hline
+\code{Logging:Add:EventTypeInvalid} & Invalid Type is passed to \code{EventType} parameter.  \\
+\hline
+\code{Logging:Add:EventTypeMissing} & \code{EventType} field is missing in the Item map.  \\
+\hline
+\code{Logging:Add:RemotePartyInvalid} & Invalid Type is passed to \code{RemoteParty} parameter.  \\
+\hline
+\code{Logging:Add:EventDurationInvalid} & Invalid Type is passed to \code{EventDuration} parameter.  \\
+\hline
+\code{Logging:Add:DeliveryStatusInvalid} & Invalid Type is passed to \code{DeliveryStatus} parameter.  \\
+\hline
+\code{Logging:Add:SubjectInvalid} & Invalid Type is passed to \code{Subject} parameter.  \\
+\hline
+\code{Logging:Add:PhoneNumberInvalid} & Invalid Type is passed to \code{PhoneNumber} parameter.  \\
+\hline
+\code{Logging:Add:EventDataInvalid} & Invalid Type is passed to \code{EventData} parameter.  \\
+\hline
+\code{Logging:Add:LinkInvalid} & Invalid Type is passed to \code{Link} parameter.  \\
+\hline
+\code{Logging:Add:LogFlagsInvalid} & Invalid Type is passed to \code{LogFlags} parameter.  \\
+\hline
+\code{Logging:Add:DirectionInvalid} & Invalid Type is passed to \code{Direction} parameter.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to add a log entry:
+
+\begin{verbatim}
+import scriptext
+logging_handle = scriptext.load('Service.Logging', 'IDataSource')
+log_id = logging_handle.call('Add', {'Type': u'Log', 'Item': {'EventType': 3, 'Direction': 1, 'EventDuration': 2, 'DeliveryStatus': 1, 'PhoneNumber': u'666'}})
+\end{verbatim}
+
+\subsection{GetList}
+\label{subsec:loggetlist}
+
+\code{GetList} retrieves an event from the event log as specified by the input filter. It takes a set of input parameters that define Type and Filter for retrieving information.
+
+The following are the examples for using \code{GetList}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+logging_info = logging_handle.call('GetList', {'Type': u'Log',})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+logging_handle.call('GetList', {'Type': u'Log',}, callback=logging_callback)
+\end{verbatim}
+
+where, \code{logging_callback} is the callback function.
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\\hline{\bf Description} & Gets the specified event details from event log.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & IDataSource interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and Filter.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{2cm}|p{6cm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Log} & Specifies the Content Type.  \\
+\hline
+[Filter] & map \break
+For more information, refer map \ref{tab:getlistmap} & {\bf RecentList} \break
+\code{EKLogNullRecentList}: -1 \break
+\code{EKLogRecentIncomingCalls}: 1 \break
+\code{EKLogRecentOutgoingCalls}: 2 \break
+\code{EKLogRecentMissedCalls}: 3 \break
+
+A value of \code{EKLogNullRecentList} indicates to include events from all of the recent event lists.
+
+{\bf EventType} \break
+\code{EKLogCallEventType}: 0 \break
+\code{EKLogDataEventType}: 1 \break
+\code{EKLogFaxEventType}: 2 \break
+\code{EKLogShortMessageEventType}: 3 \break
+\code{EKLogPacketDataEventType}: 4 \break
+
+{\bf Direction} \break
+\code{EIncomingEvent}: 0 \break
+\code{EOutgoingEvent}: 1 \break
+\code{EIncomingEvent} \code{Alternateline}: 2 \break
+\code{EOutgoingEvent} \code{Alternateline}: 3 \break
+\code{EFetchedEvent}: 4 \break
+\code{EMissedEvent}: 5 \break
+\code{EMissedEvent} \code{Alternateline}: 6 \break
+
+{\bf DeliveryStatus} \break
+\code{EStatusPending}: 0 \break
+\code{EStatusSent}: 1 \break
+\code{EStatusFalied}: 2 \break
+\code{EStatusNone}: 3 \break
+\code{EStatusDone}: 4 \break
+\code{EStatusNotSent}: 5 \break
+\code{EStatusScheduled}: 6 \break
+
+{\bf LogFlags} \break
+\code{EKLogEventContactSearched}: 0 \break
+\code{EKLogEventRead}: 1 \break
+
+{\bf note:} \break
+Flag \code{EKLogEventRead} is set when you read the event in the log database. \break
+Flag \code{EKLogEventContactSearched} is set when you search through contact database for performing any operation, like voice call or sms. & This is an optional parameter. Filter contains the search criteria for specific event search in the log database. \break
+
+When an empty filter is passed, it gets all the events from the database by default.  \\
+\end{tabular}
+\caption{Input parameters for GetList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{7cm}}
+\hline
+{\bf Key} & {\bf Value} & {\bf Description}  \\
+\hline
+\code{Id} & unicode string & Unique Id for the particular event in the log. \break
+
+{\bf note:} \break
+To specify values for other fields in the map are not valid, when the Id field is used for querying. \break
+If specified, then the values are ignored.  \\
+\hline
+\code{RecentList} & 32 bit int & Gets the 20 recent call list. Initialises or refreshes the view for the specified recent event list, conforming to the specified filter. On successful completion, the view is positioned at the first that is, most recent event in the recent event list. \break
+
+Recent lists also have a mechanism for duplicate event handling, set up via the recent list configuration. for example, two calls to the same number will only take up one entry on the outgoing calls list. \break
+
+{\bf note:} \break
+To specify values for other fields in the map are not valid, when the \code{RecentList} field is used for querying. \break
+If specified then, the values are ignored.  \\
+\hline
+\code{EventType} & 32 bit int & Unique Id to identify event type.  \\
+\hline
+\code{[PhoneNumber]} & unicode string & The phone number is associated with the event. This is used when the number cannot be stored in any other field. If the length of the specified string is greater than 100 characters, then the number is truncated.  \\
+\hline
+\code{[RemoteParty]} & unicode string & Describes the destination of the out going event or source of incoming event. If the length of the specified string is greater than 64 characters, then the data is truncated.  \\
+\hline
+\code{[Direction]} & 32 bit int & The direction of a call means incoming, outgoing, and so on.  \\
+\hline
+\code{[DeliveryStatus]} & 32 bit int & Delivered, pending, or failed.  \\
+\hline
+\code{[EndTime]} & datetime & Sets the specified EndTime to be used by the filter.  \\
+\hline
+\code{[LogFlags]} & 32 bit int & Sets the specified flags for this event.  \\
+\end{tabular}
+\caption{map}
+\label{tab:getlistmap}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails. \break
+\code{ReturnValue} contains an iterable wrapper of entries containing all relevant fields of the user specified Item.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{5cm}|l|p{4cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ReturnValue} & {\bf Iterator} (map) \break
+\code{EventType}: 32 bit int \break
+\code{RemoteParty}: String \break
+\code{Direction}: 32 bit int \break
+\code{EventTime}: datetime \break
+\code{EventDuration}: 32 bit int \break
+\code{DeliveryStatus}: 32 bit int \break
+\code{Subject}: string \break
+\code{PhoneNumber}: string \break
+\code{Description}: string \break
+\code{EventData}: 8-bit Data \break
+\code{Link}: 32 bit int \break
+\code{id}: string \break
+\code{LogFlags}: 32 bit int & NA & The output is an iterable list of entries, which on each invocation returns a map containing all relevant fields of an Item. \break
+
+{\bf note:} \break
+Description and \code{EventTime} are automatically set by the system for a created event. \break
+For example, The Description for \code{CallEvent} is {\bf voice call}, SMS Event is {\bf short message}. \break
+\code{EventTime} is the time at which the event is created. This should be a datetime object. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ErrorCode} & 32 bit int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Logging:GetList:TypeInvalid} & Invalid Type is passed to \code{contenttype} parameter.  \\
+\hline
+\code{Logging:GetList:TypeMissing} & Content Type missing in the inputparam list.  \\
+\hline
+\code{Logging:GetList:FilterInvalid} & Invalid Type is passed to Filter parameter.  \\
+\hline
+\code{Logging:GetList:IdInvalid} & Invalid Type is passed to \code{Id} parameter.  \\
+\hline
+\code{Logging:GetList:RecentListInvalid} & Invalid Type is passed to \code{RecentList} parameter.  \\
+\hline
+\code{Logging:GetList:PhoneNumberInvalid} & Invalid Type is passed to \code{PhoneNumber} parameter.  \\
+\hline
+\code{Logging:GetList:DirectionInvalid} & Invalid Type is passed to \code{Direction} parameter.  \\
+\hline
+\code{Logging:GetList:DeliveryStatusInvalid} & Invalid Type is passed to \code{DeliveryStatus} parameter.  \\
+\hline
+\code{Logging:GetList:LogFlagsInvalid} & Invalid Type is passed to \code{LogFlags} parameter.  \\
+\hline
+\code{Logging:GetList:EndTimeInvalid} & Invalid Type is passed to \code{EndTime} parameter.  \\
+\hline
+\code{Logging:GetList:RemotePartyInvalid} & Invalid Type is passed to \code{RemoteParty} parameter.  \\
+\hline
+\code{Logging:GetList:EventTypeInvalid} & Invalid Type is passed to \code{EventType} parameter.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to get the logging details on the phone:
+
+\begin{verbatim}
+import scriptext
+# Load the desired SAPI
+logging_handle = scriptext.load('Service.Logging', 'IDataSource')
+try:
+    logging_info = logging_handle.call('GetList', {'Type': u'Log',})
+    for item in logging_info:
+        print item['EventType']
+        print item['RemoteParty']
+        print item['Direction']
+        print item['EventTime']
+        print item['Subject']
+        print item['PhoneNumber']
+        print item['Description']
+        print item['EventData']
+except scriptext.ScriptextError, err:
+        print "Error getting the list of Installed Application : ", err
+\end{verbatim}
+
+\subsection{Delete}
+\label{subsec:logdel}
+
+\code{Delete} is used to delete a specified event from the event Log.
+
+The following is an example for using \code{Delete}:
+
+\begin{verbatim}
+logging_handle.call('Delete', {'Type': u'Log', 'Data': {'id': log_id,}}) 
+\end{verbatim}
+
+The following table summarizes the specification of \code{Delete}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\\hline{\bf Description} & Deletes events in the event log.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & IDataSource interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and its Id for performing the delete operation.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Log} & Specifies the Content Type.  \\
+\hline
+Data & map \break
+\code{Id}: unicode string & NA & Deletes the event specified by the Id. \\
+\end{tabular}
+\caption{Input parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ErrorCode} and \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ErrorCode} & 32 bit int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\end{tabular}
+\caption{Output parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Logging:Delete:TypeInvalid} & Invalid Type is passed to \code{contenttype} parameter.  \\
+\hline
+\code{Logging:Delete:TypeMissing} & Content Type missing in the inputparam list.  \\
+\hline
+\code{Logging:Delete:DataInvalid} & Invalid Type is passed to Data parameter.  \\
+\hline
+\code{Logging:Delete:DataMissing} & Data map missing in inputparam list.  \\
+\hline
+\code{Logging:Delete:idInvalid} & Invalid Type is passed to \code{Id} parameter.  \\
+\hline
+\code{Logging:Delete:idMissing} & \code{Id} field is missing in the Data map.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to delete an entry from the log:
+
+\begin{verbatim}
+import scriptext
+
+logging_handle = scriptext.load('Service.Logging','IDataSource')
+logging_handle.call('Delete', {'Type': u'Log', 'Data': {'id': log_id,}})
+\end{verbatim}
+
+\subsection{RequestNotification}
+\label{subsec:logreqnotify}
+
+\code{RequestNotification} is used to request notification for the updates occurring to log and register for any changes happening to event log. \break
+It is used in asynchronous mode only.
+
+The following is an example for using \code{RequestNotification}:
+
+\begin{verbatim}
+logging_id = logging_handle.call('RequestNotification', {'Type': u'Log', 'Filter': {'DelayTime': 600000}}, callback=logging_app_callback)
+\end{verbatim}
+
+where, \code{logging_app_callback} is user defined function. 
+
+The following table summarizes the specification of \code{RequestNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\\hline{\bf Description} & Registers for the changes occurring to the event log.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} & IDataSource interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and delay time in microseconds, which elapses before the notification request can complete.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Log} & Specifies the Content Type.  \\
+\hline
+Filter & map \break
+\code{DelayTime}: 32 bit int & NA & The minimum time in microseconds, which elapses before the notification request can complete. \\
+\end{tabular}
+\caption{Input parameters for RequestNotification}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ErrorCode} and \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ErrorCode} & 32 bit int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\end{tabular}
+\caption{Output parameters for RequestNotification}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{6cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Logging:RequestNotification:TypeInvalid} & Invalid Type is passed to \code{contenttype} parameter.  \\
+\hline
+\code{Logging:RequestNotification:TypeMissing} & Content Type missing in the inputparam list.  \\
+\hline
+\code{Logging:RequestNotification:FilterMissing} & Filter map missing in inputparam list.  \\
+\hline
+\code{Logging:RequestNotification:FilterInvalid} & Invalid Type is passed to Filter parameter.  \\
+\hline
+\code{Logging:RequestNotification:DelayTimeMissing} & \code{DelayTime} is missing in the Filter Map.  \\
+\hline
+\code{Logging:RequestNotification:DelayTimeInvalid} & Invalid Type is passed to \code{DelayTime} parameter.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to register changes in the event log, in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+lock = e32.Ao_lock()
+
+def logging_app_callback(trans_id, event_id, input_params):
+    if trans_id != logging_id and event_id != scriptext.EventCompleted:
+        print "Error in servicing the request"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "Changes in the Log Event Notified "
+
+    lock.signal()
+
+# Load appmanage service
+# Load the desired SAPI
+logging_handle = scriptext.load('Service.Logging', 'IDataSource')
+logging_id = logging_handle.call('RequestNotification',
+    {'Type': u'Log', 'Filter': {'DelayTime': 600000}},
+        callback=logging_app_callback)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+
+print "Request complete!"
+\end{verbatim}
+
+
+
+
+ \newpage

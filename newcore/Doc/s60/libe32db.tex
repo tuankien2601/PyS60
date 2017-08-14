@@ -1,0 +1,321 @@
+% Copyright (c) 2005-2008 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{e32db} ---
+  Interface to the Symbian native DB}
+\label{sec:e32db}
+
+\declaremodule{extension}{e32db}
+\platform{S60}
+\modulesynopsis{Interface to the Symbian native DB}
+
+\label{sec:mylabel3}
+The \module{e32db} module provides an API for relational database 
+manipulation with a restricted SQL syntax. For details of DBMS support, see 
+the S60 SDK documentation. For examples on using this module, see \cite{PyS60Prog}.
+
+The \module{e32db} module defines the following functions:
+
+\begin{funcdesc}{format_rawtime}{timevalue}
+Formats \var{timevalue} (Symbian time) according to the current 
+system's date/time formatting rules and returns it as a Unicode string.
+\end{funcdesc}
+
+\begin{funcdesc}{format_time}{timevalue}
+Returns \var{timevalue} as a Unicode string formatted so that it is
+acceptable as a SQL time. To make a time literal, surround the return
+value with hash (\#) characters.
+\end{funcdesc}
+
+\subsection{Dbms Objects}
+\label{subsec:mylabel13}
+
+\begin{classdesc}{Dbms}{}
+Creates a Dbms object. Dbms objects support basic 
+operations on a database. 
+\end{classdesc}
+
+Dbms objects have the following methods:
+
+\begin{methoddesc}[Dbms]{begin}{}
+Begins a transaction on the database.
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{close}{}
+Closes the database object. It is safe to try to close a database object 
+even if it is not open.
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{commit}{}
+Commits the current transaction.
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{compact}{}
+Compacts the database, reclaiming unused space in the database file. 
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{create}{dbname}
+Creates a database with path \var{dbname}.
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{execute}{query}
+Executes an SQL \var{query}. On success, returns \code{0} if a DDL
+(SQL schema update) statement was executed. Returns the number of rows
+inserted, updated, or deleted, if a DML (SQL data update) statement
+was executed.
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{open}{dbname}
+Opens the database in file \var{dbname}. This should be a full 
+Unicode path name, for example, \code{u'c:\e\e foo.db'}.
+\end{methoddesc}
+
+\begin{methoddesc}[Dbms]{rollback}{}
+Rolls back the current transaction.
+\end{methoddesc}
+
+\subsection{DB_view Objects}
+\label{subsec:mylabel14}
+
+\begin{classdesc}{Db_view}{}
+Creates a \class{Db_view} object. \class{DB_view} objects generate 
+rowsets from a SQL query. They provide functions to parse and evaluate the 
+rowsets.
+\end{classdesc}
+
+Db_view objects have the following methods:
+
+\begin{methoddesc}[Db_view]{col}{column}
+Returns the value in \var{column}. The first column of the rowset has the index 
+\code{1}. If the type of the column is not supported, a \exception{TypeError} is 
+raised. See Table \ref{tab:sqltypes} for a list of supported data types.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{col_count}{}
+Returns the number of columns defined in the rowset.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{col_length}{column}
+Gets the length of the value in \var{column}. Empty columns have 
+a length of zero; non-empty numerical and date/time columns have a length of 
+1. For text columns, the length is the character count, and for binary 
+columns, the length is the byte count.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{col_raw}{column}
+Extracts the value of \var{column} as raw binary data, and 
+returns it as a Python string. The first column of the rowset has the index 
+1. See Table \ref{tab:sqltypes} for a list of supported data types.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{col_rawtime}{column}
+Extracts the value of a date/time column at index \var{column} as a
+long integer, which represents the raw Symbian time value. The first
+column of the rowset has the index 1.  See Table \ref{tab:sqltypes} for a list of the
+supported data types.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{col_type}{column}
+Returns the numeric type of the given column as an integer from a 
+Symbian-specific list of types. This function is used in the implementation 
+of method \method{col}.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{count_line}{}
+Returns the number of rows available in the rowset.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{first_line}{}
+Positions the cursor on the first row in the rowset.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{get_line}{}
+Gets the current row data for access.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{is_col_null}{column}
+Tests whether \var{column} is empty. Empty columns can be 
+accessed like normal columns. Empty numerical columns return a \code{0} or 
+an equivalent value, and text and binary columns have a zero length.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{next_line}{}
+Moves the cursor to the next row in the rowset.
+\end{methoddesc}
+
+\begin{methoddesc}[Db_view]{prepare}{db, query}
+Prepares the view object for evaluating an SQL select statement. 
+\var{db} is a \class{Dbms} object and \var{query}
+the SQL query to be executed.
+\end{methoddesc}
+
+\subsection{Mapping Between SQL and Python Data Types }
+\label{subsec:mapping}
+See Table \ref{tab:sqltypes} for a summary of mapping between SQL and 
+Python data types. The \method{col} function can extract any value except 
+\code{LONG VARBINARY} and return it as the proper Python value. In 
+addition, the \method{col_raw} function can extract any column type 
+except \code{LONG VARCHAR} and \code{LONG VARBINARY} as raw binary data 
+and return it as a Python string.
+
+Inserting, updating, or searching for \code{BINARY}, \code{VARBINARY}, 
+or \code{LONG VARBINARY} values is not supported. \code{BINARY} and 
+\code{VARBINARY} values can be read with \method{col} or 
+\method{col_raw}.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{117pt}|p{144pt}|p{99pt}|p{63pt}|}
+\hline
+SQL type& 
+Symbian column type (in the DBMS C++ API)& 
+Python type& 
+Supported \\
+\hline
+\textsf{BIT}& 
+\textsf{EDbColBit}& 
+int & 
+yes \\
+\hline
+\textsf{TINYINT}& 
+\textsf{EDbColInt8}& 
+int & 
+yes \\
+\hline
+\textsf{UNSIGNED TINYINT}& 
+\textsf{EDbColUint8}& 
+int & 
+yes \\
+\hline
+\textsf{SMALLINT}& 
+\textsf{EDbColInt16}& 
+int & 
+yes \\
+\textsf{UNSIGNED SMALLINT}& 
+\textsf{EDbColUint16}& 
+int & 
+yes \\
+\hline
+\textsf{INTEGER}& 
+\textsf{EDbColInt32}& 
+int & 
+yes \\
+\hline
+\textsf{UNSIGNED INTEGER}& 
+\textsf{EDbColUint32}& 
+int & 
+yes \\
+\hline
+\textsf{COUNTER}& 
+\textsf{EDbColUint32 (}with the\textsf{ TDbCol::EAutoIncrement }attribute\textsf{)}& 
+int & 
+yes \\
+\hline
+\textsf{BIGINT}& 
+\textsf{EDbColInt64}& 
+long & 
+yes \\
+\hline
+\textsf{REAL}& 
+\textsf{EDbColReal32}& 
+float & 
+yes \\
+\hline
+\textsf{FLOAT}& 
+\textsf{EDbColReal64}& 
+float & 
+yes \\
+\hline
+\textsf{DOUBLE}& 
+\textsf{EDbColReal64}& 
+float & 
+yes \\
+\hline
+\textsf{DOUBLE PRECISION}& 
+\textsf{EDbColReal64}& 
+float & 
+yes \\
+\hline
+\textsf{DATE}& 
+\textsf{EDbColDateTime}& 
+float \par (or long, with \textsf{col_rawtime()} & 
+yes \\
+\hline
+\textsf{TIME}& 
+\textsf{EDbColDateTime}& 
+float \par (or long, with \textsf{col_rawtime()} & 
+yes \\
+\hline
+\textsf{TIMESTAMP}& 
+\textsf{EDbColDateTime}& 
+float \par (or long, with \textsf{col_rawtime()} & 
+yes \\
+\hline
+\textsf{CHAR(n)}& 
+\textsf{EDbColText}& 
+Unicode & 
+yes \\
+\hline
+\textsf{VARCHAR(n)}& 
+\textsf{EDbColText}& 
+Unicode & 
+yes \\
+\hline
+\textsf{LONG VARCHAR}& 
+\textsf{EDbColLongText}& 
+Unicode & 
+yes \\
+\hline
+\textsf{BINARY(n)}& 
+\textsf{EDbColBinary}& 
+str & 
+read only \\
+\hline
+\textsf{VARBINARY(n)}& 
+\textsf{EDbColBinary}& 
+str & 
+read only \\
+\hline
+\textsf{LONG VARBINARY}& 
+\textsf{EDbColLongBinary}& 
+n/a& 
+no \\
+\hline
+\end{tabular}
+\caption{Mapping between SQL and Python types}
+\label{tab:sqltypes}
+\end{center}
+\end{table}
+
+
+\subsection{Date and Time Handling}
+\label{subsec:mylabel15}
+The functions \method{col} and \textsf{format_time} use Unix time, 
+seconds since January 1, 1970, 00:00:00 UTC, as the time format. Internally 
+the database uses the native Symbian time representation that provides 
+greater precision and range than the Unix time. The native Symbian time 
+format is a 64-bit value that represents microseconds since January 1st 0 AD 
+00:00:00 local time, nominal Gregorian. BC dates are represented by negative 
+values. Since converting this format to Unix time and back may cause slight 
+round-off errors, you have to use the functions \function{col_rawtime} and 
+\function{format_rawtime} if you need to be able to handle these values 
+with full precision.
+
+The representation of date and time literals in SQL statements depends
+on the current system date and time format. The only accepted ordering
+of day, month, and year is the one that the system is currently
+configured to use. The recommended way to form date/time literals for
+SQL statements is to use the functions \function{format_time} or
+\function{format_rawtime} that format the given date/time values
+properly according to the current system's date/time format settings.

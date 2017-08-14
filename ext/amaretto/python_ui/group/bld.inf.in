@@ -1,0 +1,31 @@
+/*
+ * ====================================================================
+ *  bld.inf
+ *
+ * Copyright (c) 2005 - 2009 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ====================================================================
+ */
+PRJ_MMPFILES
+gnumakefile icons_aif.mk
+python_ui.mmp
+
+PRJ_EXPORTS
+..\src\launcher.py	              \EPOC32\winscw\c\private\${{PYS60_UID_PYTHONUI[2:]}}\launcher.py
+..\..\scriptshell\default.py      \EPOC32\winscw\c\private\${{PYS60_UID_PYTHONUI[2:]}}\default.py
+..\..\..\..\extras\ball.py        \EPOC32\winscw\c\data\python\ball.py 
+..\..\..\..\extras\gles_demo.py   \EPOC32\winscw\c\data\python\gles_demo.py
+..\..\..\..\extras\imgviewer.py   \EPOC32\winscw\c\data\python\imgviewer.py
+..\..\..\..\extras\gles_simplecube.py  \EPOC32\winscw\c\data\python\gles_simplecube.py
+..\..\..\..\extras\snake.py       \EPOC32\winscw\c\data\python\snake.py

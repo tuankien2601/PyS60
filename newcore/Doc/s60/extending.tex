@@ -1,0 +1,118 @@
+% Copyright (c) 2005 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Extending Python for S60}
+\label{extending}
+The general rules and guidelines for writing Python extensions apply
+in the S60 Python environment as well; for more information, see
+\cite{PyExtEmb}.  The Python/C API is available, see \cite{PyCAPI} In
+addition, for an example on porting a simple extension to S60, see
+\cite{PyS60Prog}.
+
+The issues that need to be considered in the implementation of the
+extension modules include:
+
+\begin{itemize}
+\item Preparation of the data structures that make the C/C++ coded extensions visible to the Python interpreter and make it possible to perform calls from Python to C/C++ code
+\item Conversions between C/C++ representations of the Python objects and object types used in the extension code
+\item Maintenance of the reference counts of the C/C++ representations of the Python objects
+\item Passing of exceptions between C/C++ code and Python
+\item Management of interpreter's thread state and the interpreter lock
+\end{itemize}
+In addition to the concerns common for all Python C extensions, the 
+following principles should be considered when implementing new Python 
+interfaces in the S60 environment:
+
+\begin{itemize}
+\item Maximize the usage of Python's built-in types at the interfaces.
+\item Related to the above: design interfaces in such a way that information can be passed between them with minimal conversions.
+\item Convert Symbian operating system exceptions / errors to Python exceptions.
+\item Unicode strings are used at the interfaces to represent text that gets shown on the GUI. They can be passed to and from Symbian operating system without conversions.
+\item While performing potentially long-lasting / blocking calls from an extension implementation to services outside the interpreter, the interpreter lock must be released and then re-acquired after the call.
+\item Rather than always implementing a thin wrapper on top of a Symbian OS facility, consider the actual task for which the script writer needs the particular interface. For example, if the task involves interaction with the users using the GUI, the script writer's interest may well be limited to performing the interaction / information exchange in a way that is compatible with the UI style rather than having full control of the low-level details of the GUI implementation.
+\item The C/C++ implementation of a Python interface should be optimized for performance and covering access to the necessary features of the underlying Platform. Where necessary, the Python programming interface can be further refined by wrapper modules written in Python.
+\end{itemize}
+
+An extension module is packaged in its own dynamically loadable
+library that must be installed into \file{\textbackslash system\textbackslash libs} directory and named
+\file{module_name.pyd}. The module initialization function
+must be exported at ordinal 1. The module identification is based on
+the filename only. As a special feature of PyS60, an optional module
+finalizer function may be exported at ordinal 2.
+
+The macro versions of memory-management functions \cfunction{PyMem_MALLOC} 
+and \cfunction{PyObject_NEW} are not included. Use the functions 
+\cfunction{PyMem_Malloc} and \cfunction{PyObject_New} instead.
+
+\subsection{Services for Extensions}
+S60 Python Platform implements an adaptation layer between S60 
+UI application framework and script language UI extensions to simplify UI 
+extension development. This API is used by the implementation of the 
+\textsf{appuifw} module but not exported in the current release. Some 
+general utility services for extensions are also provided, see 
+Chapter \ref{capiextensions}.
+
+\subsection{Example}
+This extension code snippet demonstrates some of the issues mentioned in this chapter, such as:
+
+\begin{itemize}
+\item Conversion from Python data types, usage of built-in data types at extension interface, usage of Unicode strings (lines 8-12)
+\item Maintenance of the reference counts (line 36)
+\item Passing of exceptions between C/C++ code and Python (line 34)
+\item Releasing the interpreter lock while performing a blocking call to a service outside the interpreter (lines 29, 31)
+\item Simplifying the API to the note facility of the Platform
+\end{itemize}
+
+\begin{verbatim}
+01 extern "C" PyObject *
+02 note(PyObject* /*self*/, PyObject *args)
+03 {
+04   TInt error = KErrNone;
+05   int l_tx, l_ty;
+06   char *b_tx, *b_ty;
+07   
+08   if (!PyArg_ParseTuple(args, "u#s#", &b_tx, &l_tx, &b_ty, &l_ty))
+09     return NULL;
+10 
+11   TPtrC8 stype((TUint8*)b_ty, l_ty);
+12   TPtrC note_text((TUint16 *)b_tx, l_tx);
+13   CAknResourceNoteDialog* dlg = NULL;
+14 
+15   if (stype.Compare(KErrorNoteType) == 0)
+16     dlg = new CAknErrorNote(ETrue);
+17   else if (stype.Compare(KInfoNoteType) == 0)
+18     dlg = new CAknInformationNote(ETrue);
+19   else if (stype.Compare(KConfNoteType) == 0)
+20     dlg = new CAknConfirmationNote(ETrue);
+21   else {
+22     PyErr_BadArgument();
+23     return NULL;
+24   }
+25 
+26   if (dlg == NULL)
+27     return PyErr_NoMemory();
+28   
+29   Py_BEGIN_ALLOW_THREADS
+30   TRAP(error, dlg->ExecuteLD(note_text));
+31   Py_END_ALLOW_THREADS
+32 
+33   if (error != KErrNone)
+34     return SPyErr_SetFromSymbianOSErr(error);
+35   else {
+36     Py_INCREF(Py_None);
+37     return Py_None;
+38   }
+39 }
+\end{verbatim}
+

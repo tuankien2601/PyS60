@@ -1,0 +1,237 @@
+% Copyright (c) 2005-2007 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{sensor} ---
+  Module to access the device sensors.}
+\label{sec:sensor}
+
+\declaremodule{extension}{sensor}
+\platform{S60}
+\modulesynopsis{Module to access the device sensors.}
+
+\subsection{Module for devices that support S60 Sensor API}
+\label{subsec:sensorapi}
+
+The \module{Sensor} module offers direct access to a device's physical sensors. It has been tested with the following sensors:
+\begin{itemize}
+\item acceleration sensor: raises events about the 3-axes acceleration of the device
+\item tapping sensor: raises an event when the device was tapped twice on the front side
+\item rotation sensor: raises an event based on the orientation of the device.
+\end{itemize}
+
+Instead of passing on raised events, event filtering is also supported. Two 
+examples of using an event filter are also provided by the \module{Sensor} 
+module, namely the class \class{OrientationEventFilter} and 
+\class{RotEventFilter}. Both filters can be used to raise events when the 
+orientation changes in the device (For example, when it is turned to the right). The support 
+is device dependent. For example, Nokia 5500 supports \class{OrientationEventFilter} and 
+Nokia N95 supports \class{RotEventFilter}.
+
+\begin{notice}[note]
+The module \module{Sensor} is available from S60 3rd Edition onwards. 
+(inclusive).
+\end{notice}
+
+\subsubsection{Module Level Functions}
+
+On the module level, \module{Sensor} provides the following functions:
+
+\begin{funcdesc}{sensors}{}
+
+Returns a dictionary containing all available sensors. The format of the dictionary is as follows:
+
+\begin{verbatim}
+{
+  { 'sensor name 1': { 'id': sensor_id_1, 'category': category_id_1 } },
+  { 'sensor name 2': { 'id': sensor_id_2, 'category': category_id_2 } },
+  ...
+}
+\end{verbatim}
+
+with \code{sensor_id_X} and \code{category_id_X} being integer values.
+
+\end{funcdesc}
+
+\subsubsection{Constants}
+
+The following \code{orientation} constants are used by the \class{OrientationEventFilter} class.
+Callbacks which have been connected to a \class{Sensor} object that utilises the
+\class{OrientationEventFilter} event filter will receive one of these constants as an argument
+upon a detected orientation change. The names of the constant are the side of the device that
+is currently turned upwards from your point of view. (For example \code{FRONT} means that
+the device is lying on its back - its front side is turned upwards.)
+
+\begin{memberdesc}{orientation.TOP}
+Represents the orientation where the device is held upwards.
+\end{memberdesc}
+
+\begin{memberdesc}{orientation.BOTTOM}
+Represents the orientation where the device is held upside down.
+\end{memberdesc}
+
+\begin{memberdesc}{orientation.LEFT}
+Represents the orientation where the side of the device that is left of the display is turned downwards.
+\end{memberdesc}
+
+\begin{memberdesc}{orientation.RIGHT}
+Represents the orientation where the side of the device that is right of the display is turned downwards.
+\end{memberdesc}
+
+\begin{memberdesc}{orientation.FRONT}
+Represents the orientation where the device is lying on its back that is, the front side points upwards.
+\end{memberdesc}
+
+\begin{memberdesc}{orientation.BACK}
+Represents the orientation where the device is lying on its front that is, the back side points upwards.
+\end{memberdesc}
+
+\subsubsection{Classes}
+
+The following classes are provided by the \module{Sensor} module:
+
+\begin{classdesc*}{Sensor}
+
+The \class{Sensor} class represents a physical sensor which delivers (possibly filtered) events.
+By default, events are not filtered. A filter can be applied by using the \method{set_event_filter}
+method. An example for an event filter is given by \class{OrientationEventFilter}, which can
+be applied to an acceleration sensor of the device.
+
+In case different filters must be used for the same physical sensor, different \class{Sensor}
+objects have to be created for the same physical sensor.
+
+\begin{methoddesc}[Sensor]{__init__}{sensor_id, category_id}
+Initialises the \class{Sensor} object. \code{sensor_id} and \code{category_id}
+must represent a valid sensor id and category id, respectively. This means that
+the ids passed on to \code{__init__} must also appear in the dictionary returned by
+the \code{sensors} function.
+In case \code{sensor_id} and \code{category_id} do not represent a valid sensor,
+the \code{connect} method will raise an exception.
+\end{methoddesc}
+
+\begin{methoddesc}[Sensor]{connect}{callback}
+This method connects the sensor to the given \code{callback}. A sensor can only be connected
+to one callback, so this will destroy any pre-existing connection to another callback.
+If an event filter has been set, the events passed on to \code{callback} will first pass
+this event filter of the \class{Sensor} object.
+If the connection is properly established, this method returns 1, otherwise 0.
+{\bf Note:} The connection can be established also if the callback does not exist or cannot be
+called for any other reason.
+\end{methoddesc}
+
+\begin{methoddesc}[Sensor]{disconnect}{}
+Disconnects this callback connection of the \class{Sensor} object. After a successful call
+to this method, a callback that has been previously connected through \method{connect} will
+not receive any more events.
+If a connection existed and is successfully removed, this method returns 1, otherwise 0.
+\end{methoddesc}
+
+\begin{methoddesc}[Sensor]{connected}{}
+Retrieves this \class{Sensor} object's connection status.
+Returns \code{True} if the sensor is connected, \code{False} otherwise.
+\end{methoddesc}
+
+\begin{methoddesc}[Sensor]{set_event_filter}{event_filter}
+Sets an event filter for this \class{Sensor} object. After the event filter has been
+successfully installed, the connected callback of the \class{Sensor} object will
+receive only events that have passed the filter. \code{event_filter} must be derived
+from \class{EventFilter} in order to function properly.
+If a callback connection has already been established before calling this method,
+the connection will be re-established after the event filter has been installed.
+\end{methoddesc}
+\end{classdesc*}
+
+\begin{classdesc*}{EventFilter}
+
+The \class{EventFilter} class provides a generic interface for event filters.
+The default implementation only passes events on, that is, events are not filtered.
+Classes deriving from \class{EventFilter} can decide if an event should be
+delivered at all as well as they can alter the data that is passed on to
+the callback.
+
+\begin{memberdesc}[EventFilter]{callback}
+This is where the callback of the event filter is stored. In case, the \class{EventFilter}
+object is used together with a \class{Sensor} object, the \class{Sensor} object will
+handle correct setting of this variable.
+\end{memberdesc}
+
+\begin{methoddesc}[EventFilter]{__init__}{}
+Initialises the event filter object. The \code{callback} member is initialised to
+\code{None}.
+\end{methoddesc}
+
+\begin{methoddesc}[EventFilter]{__del__}{}
+Destructs the event filter object. This method calls \method{cleanup},
+which can be overridden by deriving classes to clean up resources.
+\end{methoddesc}
+
+\begin{methoddesc}[EventFilter]{event}{data}
+This method is the place where event filtering takes place, and hence
+this method should be overridden by deriving classes. Overridden \method{event}
+methods can deliver their own data to the callback, the data delivered can be
+\code{data} or any other set of data.
+In case the event is decided to be delivered, overriding instances must
+call \code{self.callback}, which by default takes one argument.
+\end{methoddesc}
+
+\begin{methoddesc}[EventFilter]{cleanup}{}
+Cleans up any resources needed by the event filter. The default implementation
+does not need this feature.
+This method is called by the destructor \method{__del__}.
+\end{methoddesc}
+\end{classdesc*}
+
+\begin{classdesc*}{OrientationEventFilter}
+
+Derived from \class{EventFilter}.
+This event filter is meant to be used together with the acceleration
+sensors of the device. Note that it is not required to use it with any other sensor
+type. It generates events when the devices orientation changes. For example, if it
+is turned from the upright position to lying on the back side.
+If an \class{OrientationEventFiler} is used with a \class{Sensor} object,
+the callback of the \class{Sensor} object will not receive the raw acceleration data
+as an argument, but only one of the \code{orientation} constants, representing
+the new orientation of the device. In case the algorithm needs calibration on the
+device to be used, you must check the \code{OrientationCalibration} variables
+in the file \code{sensor.py}.
+
+\begin{methoddesc}[OrientationEventFilter]{__init__}{}
+Initialises the \class{OrientationEventFilter} object.
+\end{methoddesc}
+
+\begin{methoddesc}[OrientationEventFilter]{event}{sensor_val}
+Overridden method. Filters 3-axis acceleration events such that
+it detects orientation changes. Only upon detection of such an orientation
+change, the callback is invoked. The argument passed to the callback is a
+value from the \code{orientation} constants of this module.
+\end{methoddesc}
+
+\begin{methoddesc}[OrientationEventFilter]{cleanup}{}
+Cleans up the timer resource of this filter. This will be called by destructor of the \class{EventFilter} class.
+\end{methoddesc}
+\end{classdesc*}
+
+\begin{classdesc*}{RotEventFilter}
+
+Derived from \class{EventFilter}.
+
+This event filter generates events when the devices orientation changes. For example, if 
+it is turned from the left side up position to right side up position. This 
+sensor is resident. For example, in Nokia N95.
+
+\begin{methoddesc}[OrientationEventFilter]{event}{sensor_val}
+Overridden method. Upon detection of an orientation change, the callback is 
+invoked. The argument passed to the callback is a value from this module's 
+\code{orientation} constants.
+\end{methoddesc}
+\end{classdesc*}

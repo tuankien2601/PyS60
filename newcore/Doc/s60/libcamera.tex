@@ -1,0 +1,221 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{camera} ---
+    Interface for taking photographs and video recording}
+
+\declaremodule{extension}{camera}
+\label{sec:camera}
+\platform{S60}
+
+The \module{camera} module enables taking photographs and video recording.
+
+The following data items for state information are available in \module{camera}:
+
+\begin{datadesc}{EOpenComplete}
+The opening of the video clip has succeeded.
+\end{datadesc}
+
+\begin{datadesc}{ERecordComplete}
+The video recording has completed (not called on explicit \code{stop_recording} 
+call).
+\end{datadesc}
+
+\begin{datadesc}{EPrepareComplete}
+The device is ready to begin video recording.
+\end{datadesc}
+
+The \module{camera} module has the following functions\footnote{Descriptions 
+for some of the values are based on information found in S60 SDK documentation 
+\cite{S60Doc}}:
+
+\begin{funcdesc}{cameras_available}{}
+Returns the number of cameras available in the device.
+\end{funcdesc}
+
+\begin{funcdesc}{image_modes}{}
+Returns the image modes supported in the device as a list of strings, for 
+example: \code{['RGB12', 'RGB', 'JPEG_Exif', 'RGB16'].}
+\end{funcdesc}
+
+\begin{funcdesc}{image_sizes}{}
+Returns the image sizes (resolution) supported in the device as a list of 
+\code{(x, y)} tuples, for example: \code{[(640, 480), (160, 120)]}.
+\end{funcdesc}
+
+\begin{funcdesc}{flash_modes}{}
+Returns the flash modes available in the device as a list of strings. 
+\end{funcdesc}
+
+\begin{funcdesc}{max_zoom}{}
+Returns the maximum digital zoom value supported in the device as an 
+integer. 
+\end{funcdesc}
+
+\begin{funcdesc}{exposure_modes}{}
+Returns the exposure settings supported in the device as a list of strings. 
+\end{funcdesc}
+
+\begin{funcdesc}{white_balance_modes}{}
+Returns the white balance modes available in the device as a list of 
+strings. 
+\end{funcdesc}
+
+\begin{funcdesc}{take_photo}{\optional{mode, size, zoom, flash, exposure, white_balance, position}}
+Takes a photograph and returns the image in:
+
+\begin{enumerate}
+  \item \code{Image} format (for more information on \code{Image} format, see 
+  Chapter \ref{sec:graphics} \refmodule{graphics} Module) or
+  
+  \item Raw JPEG data\footnote{For more information, see e.g. 
+  \url{http://en.wikipedia.org/wiki/JPEG}.}. 
+\end{enumerate}
+
+The settings listed below describe all settings that are supported by the 
+\code{camera} module. You can retrieve the mode settings available for your 
+device by using the appropriate functions listed at the beginning of this 
+chapter.
+
+\begin{itemize}
+
+\item \var{mode} is the display mode of the image. The default value is 
+\code{'RGB16'}. The following display modes are supported for the \code{Image} 
+format pictures taken:
+	\begin{itemize}
+	\item \code{'RGB12'}: 4096 colors (12 bits per pixel)
+	\item \code{'RGB16'}: 65536 colors (16 bits per pixel). Default value, always supported
+	\item \code{'RGB'}: 16.7 million colors (24 bits per pixel)
+	\end{itemize}
+
+For the JPEG data format images the following modes are supported:
+
+	\begin{itemize}
+	\item \code{'JPEG_Exif'}: JPEG Exchangeable image file format
+	\item \code{'JPEG_JFIF'}: JPEG File Interchange Format
+	\end{itemize}
+
+Note that there is variety between the devices and the supported formats.
+
+\item \var{size} is the resolution of the image. The default value is \code{(640, 480)}. The following sizes are supported, for example, in Nokia 6630: \code{(1280, 960)}, \code{(640, 480)} and \code{(160, 120)}.
+\item \var{flash} is the flash mode setting. The default value is \code{'none'}. The following flash mode settings are supported:
+	\begin{itemize}
+	\item \code{'none' \newline
+}No flash. Default value, always supported
+	\item \code{'auto' \newline
+}Flash will automatically fire when required
+	\item \code{'forced' \newline
+}Flash will always fire
+	\item \code{'fill_in' \newline
+}Reduced flash for general lighting
+	\item \code{'red_eye_reduce' \newline
+}Red-eye reduction mode
+	\end{itemize}
+\item \var{zoom} is the digital zoom factor. It is assumed to be on a linear scale from 0 to the maximum zoom value allowed in the device. The default value is \code{0}, meaning that zoom is not used. 
+\item \var{exposure} is the exposure adjustment of the device. Exposure is a combination of lens aperture and shutter speed used in taking a photograph. The default value is \code{'auto'.} The following exposure modes are supported:
+	\begin{itemize}
+	\item \code{'auto'} \newline
+Sets exposure automatically. Default value, always supported
+	\item \code{'night'} \newline
+Night-time setting for long exposures
+	\item \code{'backlight' } \newline
+Backlight setting for bright backgrounds
+	\item \code{'center'} \newline
+Centered mode for ignoring surroundings
+	\end{itemize}
+\item \var{white_balance} can be used to adjust white balance to match the main source of light. The term white balance refers to the color temperature of the current light. A digital camera requires a reference point to represent white. It will then calculate all the other colors based on this white point. The default value for \var{white_balance} is \code{'auto'} and the following white balance modes are supported:
+	\begin{itemize}
+	\item \code{'auto'} \newline
+Sets white balance automatically. Default value, always supported
+	\item \code{'daylight'} \newline
+Sets white balance to normal daylight
+	\item \code{'cloudy}' \newline
+Sets white balance to overcast daylight
+	\item \code{'tungsten'} \newline
+Sets white balance to tungsten filament lighting
+	\item \code{'fluorescent}' \newline
+Sets white balance to fluorescent tube lighting
+	\item \code{'flash'} \newline
+Sets white balance to flash lighting
+	\end{itemize}
+\item \var{position} is the camera used if the device, such as Nokia N95, has several cameras. In Nokia N95, the camera pointing to the user of the device is located in position \code{1}, whereas the one pointing away from the user is located in position \code{0}. The default \var{position} is \code{0}.
+\end{itemize}
+
+If some other application is using the camera, this operation fails, with error 
+\code{SymbianError: KErrInUse}. Invoking this function right after the device 
+boot, might result in \code{SymbianError: KErrNotReady} error.
+
+In some Nokia devices (e.g. in N95), to be able to get the highest possible size 
+for the captured image, you need to:
+
+\begin{enumerate}
+\item switch to the landscape mode (see \code{appuifw.app.orientation})
+\item import the \code{camera} module
+\item take the picture in the \code{'JPEG_Exif'} format.
+\end{enumerate}
+
+\item
+
+\end{funcdesc}
+
+\begin{funcdesc}{start_finder}{callable\optional{, backlight_on=1, size=main_pane_size}}
+
+Starts the camera viewfinder and binds a callback to receive \code{Image} format 
+feed. When a new viewfinder frame is ready the callback is invoked with the 
+\code{Image} as parameter.
+
+The optional parameter \code{backlight_on} determines whether the device 
+backlight is kept on when the camera view finder is in operation. By default, 
+the backlight is on (1 = on, 0 = off).
+
+The optional parameter \code{size} (of type tuple, e.g. \code{(176, 144)}) can 
+be used to change the size of the \code{Image} received in the callback. The 
+default \code{size} is the same as the application's main pane size. 
+
+Example view finder code:
+
+\begin{verbatim}
+>>> import appuifw
+>>> import camera
+>>> def cb(im):
+...   appuifw.app.body.blit(im)
+...
+>>> import graphics
+>>> appuifw.app.body=appuifw.Canvas()
+>>> camera.start_finder(cb)
+>>>
+\end{verbatim}
+
+\end{funcdesc}
+
+\begin{funcdesc}{stop_finder}{}
+Stops the viewfinder.
+\end{funcdesc}
+
+\begin{funcdesc}{release}{}
+Releases the camera -- After invocation other applications can access the camera 
+hardware.
+\end{funcdesc}
+
+\begin{funcdesc}{start_record}{filename, callable}
+Starts video recording. \var{filename} is the file where the video clip is saved 
+and \var{callable} will be called with possible error code (int) and status 
+information (see data in module \module{camera}) as parameter.
+
+Prior calling this function, the view finder needs to be started.
+\end{funcdesc}
+
+\begin{funcdesc}{stop_record}{}
+Stops the video recording.
+\end{funcdesc}

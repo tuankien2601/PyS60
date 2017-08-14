@@ -1,0 +1,887 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Location}
+\label{sec:scriptextlocation}
+
+The Location Service enables Python applications to retrieve information on the physical location of an S60 device. It also enables to perform calculations based on location information. \break
+
+For the location services to function in S60 device, the device must be location aware. It must include some location information provider, that is, a positioning system in the form of GPS, AGPS, or Bluetooth.
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+location_handle = scriptext.load('Service.Location', 'ILocation')
+\end{verbatim}
+
+The following table summarizes the Location Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.Location} \\
+\hline
+{\bf Supported interfaces} & \code{ILocation} \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Application Manager:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{4cm}|p{9cm}}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{GetList} \ref{subsec:localget} & Retrieves the current location of the user.  \\
+\hline
+\code{Trace} \ref{subsec:localtrace} & Informs the consumer of any change in current location.  \\
+\hline
+\code{CancelNotification} \ref{subsec:localcancelnotify} & Cancels the registered listeners with the service provider.  \\
+\hline
+\code{MathOperations} \ref{subsec:localmathopr} & Performs specific calculations on user provided data.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetList}
+\label{subsec:localget}
+
+\code{GetList} is used to retrieve the current location of the device.
+
+The following are the examples for using \code{GetList}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+GetList_Output = location_handle.call('GetList', {'LocationInformationClass': u'BasicLocationInformation', 'Updateoptions': {'UpdateInterval':u'1', 'UpdateTimeOut': u'15', 'UpdateMaxAge' :u'0', 'PartialUpdates': u'False'}})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = location_handle.call('GetList', {'LocationInformationClass':  u'BasicLocationInformation', 'Updateoptions': {'UpdateInterval': u'1', 'UpdateTimeOut': u'15', 'UpdateMaxAge': u'0', 'PartialUpdates': u'False'}}, callback=get_list)
+\end{verbatim}
+
+where, \code{get_list} is a user defined function.
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{ILocation} \\
+\hline
+{\bf Description} & Retrieves the current location of the device.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & Device must be Location aware (that is, it must have some location information provider in form of GPS, AGPS, or Bluetooth). \break
+ILocation interface loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the category of location information and the update option used for retrieving location information.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{[Location Information Class]} & unicode string & \code{Basic Location Information} \break
+\code{Generic Location Info} & This specifies category of location information. You will receive   detailed location estimations on specifying \code{Generic Location Info}. \break
+
+Default value for this argument is \code{BasicLocationInformation}. \break
+
+Refer to \code{Updateoptions} description to know more about what are the output that are guaranteed to be in the location estimates for each of the \code{LocationInformationClass} provided.  \\
+\hline
+\code{[Updateoptions]} & map \break
+{\bf Name}: {\bf Type} \break
+[UpdateInterval] (Microseconds): int32 \break
+[UpdateTimeOut] (Microseconds): int32 \break
+[UpdateMaxAge] (Microseconds): int32 \break
+[PartialUpdates] (Microseconds): bool & NA & This specifies update option used while retrieving location estimation. \break
+
+Default values are used if no argument is specified as part of input argument list. \break
+
+\code{UpdateInterval} specifies the time interval between two consecutive location estimates. \break
+
+If location server is not able to give location estimates within specified \code{UpdateTimedOut}, you will receive \code{SErrTimedOut} error. \break
+
+\code{UpdateMaxAge} specifies the expiry time for the position information cache. It means that when a position request is made the position information can be returned from the cache, (Managed by location server) as long as the cache is not older that the specified maximum age. \break
+The default value is zero that is, the position information will never be returned from cache. \break
+
+Setting \code{PartialUpdates} to {\bf FALSE} ensures that you will get at least \code{BasicLocationInformation} (Longitude, Latitude, and Altitude.) \break
+
+By default, following values (in seconds) are used for these input parameters.
+\code{UpdateInterval} = 1 \break
+\code{UpdateTimeOut} = 15 \break
+\code{UpdateMaxAge} = 0 \break
+\code{PartialUpdates} = FALSE \break
+
+{\bf note:} \break
+
+In case the following order is not maintained when you supply value for \code{updateoption}, it returns the error \code{SErrArgument}. \break
+UpdateTimeOut>UpdateInterval>MaxAge  \\
+\end{tabular}
+\caption{Input parameters for GetList}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{4cm}|p{2cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & For more information, refer table map: GetList \ref{tab:mapget} & NA & It contains location estimations. In case you specify \code{BasicLocationInformation} in the input list only longitude, latitude and altitude will return. \break
+
+{\bf note:} \break
+If \code{PartialUpdates} is set to {\bf FALSE} you must get longitude, altitude and latitude. \break
+The WGS-84 datum is used to refer co-ordinates. Also representation is in decimal degree. \break
+
+In case generic information is requested, there is no guarantee that all information mentioned here will be obtained as it depends on the underlying GPS technology and other factor like number of satellites, which are available when location fix is obtained. \break
+
+{\bf note:} \break
+Not all GPS technology are capable of retrieving all information listed here. For example, if you select network based positioning technology it does not have capability to retrieve satellites information.
+
+In situation where a particular field can not be retrieved from the underlying GPS technology, it will not be present in the output list mentioned here.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Data} & {\bf Type} & {\bf Description}  \\
+\hline
+\code{Longitude} & Double & This is the longitudinal data. Degree value is in the range [+180, -180].  \\
+\hline
+\code{Latitude} & Double & This is the latitudinal data. Degree value is in the range [+90, -90].  \\
+\hline
+\code{Altitude} & Double & Altitude data, height in meters.  \\
+\hline
+\code{SatelliteNumView} & Double & Number of field satellite currently in view.  \\
+\hline
+\code{SatelliteNumViewUsed} & Double & Number of satellites used.  \\
+\hline
+\code{HorizontalSpeed} & Double & Horizontal speed, value in meters per second.  \\
+\hline
+\code{HorizontalSpeedError} & Double & Horizontal speed error, value in meters per second.  \\
+\hline
+\code{TrueCourse} & Double & This is the information about the current direction in degrees to true north.  \\
+\hline
+\code{TrueCourseError} & Double & This is the true course error in degrees.  \\
+\hline
+\code{MagneticHeading} & Double & This is the current direction in degrees to magnetic north.  \\
+\hline
+\code{MagneticHeadingError} & Double & True magnetic course error in Degrees.  \\
+\hline
+\code{Heading} & Double & This is the current instantaneous direction of travel in degrees to the true north.  \\
+\hline
+\code{HeadingError} & Double & Heading error, value in degrees.  \\
+\hline
+\code{MagneticCourse} & Double & This is the information about the current direction in degrees to magnetic north.  \\
+\hline
+\code{MagneticCourseError} & Double & \code{Magneticcourser} error.  \\
+\end{tabular}
+\caption{map: GetList}
+\label{tab:mapget}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{-302} & No Interface  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1007} & No memory  \\
+\hline
+\code{1009} & Server busy  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1016} & Service timed-out  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{7cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Location:GetList:Wrong category info should be BasicLocationInformation/ GenericLocationInfo} & Indicates argument supplied for category information is wrong.  \\
+\hline
+\code{Location:GetList:BadArgument - Updateoptions} & Indicates argument supplied for \code{Updateoptions} is wrong.  \\
+\hline
+\code{Location:GetList:Negative Time Interval} & Indicates time interval supplied is negative.  \\
+\hline
+\code{Location:GetList:Updateoptions Type Mismatch} & Indicates a wrongly supplied type for \code{Updateoptions}.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to retrieve a list with location information, in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def get_list(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The landmarks are"
+        for i in input_params["ReturnValue"]:
+            print "Longitude"
+            print i["Longitude"]
+            print "Latitude"
+            print i['Latitude']
+            print "Altitude"
+            print i['Altitude']
+            print "SatelliteNumView"
+            print i['SatelliteNumView']
+            print "SatelliteNumViewUsed"
+            print i['SatelliteNumViewUsed']
+            print "HorizontalSpeed"
+            print i['HorizontalSpeed']
+
+    lock.signal()
+
+# Async Query a location with search criteria
+location_handle = scriptext.load('Service.Location', 'ILocation')
+event_id = location_handle.call('GetList', {'LocationInformationClass': u'BasicLocationInformation', 'Updateoptions': {'UpdateInterval': u'1', 'UpdateTimeOut': u'15', 'UpdateMaxAge': u'0', 'PartialUpdates': u'False'}}, callback=get_list)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Trace}
+\label{subsec:localtrace}
+
+\code{Trace} method is used to retrieve periodic updates on the current location of the device. You can use this method to track the movements of the device.
+
+The following is an example for using \code{Trace}:
+
+\begin{verbatim}
+event_id = location_handle.call('Trace', {'LocationInformationClass': u'GenericLocationInfo', 'Updateoptions': {'UpdateInterval': u'10', 'UpdateTimeOut': u'50', 'UpdateMaxAge': u'5', 'PartialUpdates': u'True'}}, callback=callback_function)
+\end{verbatim}
+
+The following table summarizes the specification of \code{Trace}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{ILocation} \\
+\hline
+{\bf Description} & Tracks the movements of the device.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} & Device must be Location aware (that is, it must have some location service provider in form of GPS, AGPS, or Bluetooth). \break
+
+ILocation interface loaded. \break
+
+No other instance of \code{Trace} is presently pending or is in use.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the type of device location information returned and how it is returned.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{3cm}|p{2cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{[Location Information Class]} & unicode string & \code{Basic Location Information} \break
+\code{Generic Location Info} & This specifies category of location information. You will receive   detailed location estimations on specifying \code{Generic Location Info}. \break
+
+Default value for this argument is \code{BasicLocationInformation}. \break
+
+Refer to \code{Updateoptions} description to know more about what are the output that are guaranteed to be in the location estimates for each of the \code{LocationInformationClass} provided.  \\
+\hline
+\code{[Updateoptions]} & map \break
+{\bf Name}: {\bf Type} \break
+[UpdateInterval] (Microseconds): int32 \break
+[UpdateTimeOut] (Microseconds): int32 \break
+[UpdateMaxAge] (Microseconds): int32 \break
+[PartialUpdates] (Microseconds): bool & NA & This specifies update option used while retrieving location estimation. \break
+
+Default values are used if no argument is specified as part of input argument list. \break
+
+\code{UpdateInterval} specifies the time interval between two consecutive location estimates. \break
+
+If location server is not able to give location estimates within specified \code{UpdateTimedOut}, you will receive \code{SErrTimedOut} error. \break
+
+\code{UpdateMaxAge} specifies the expiry time for the position information cache. It means that when a position request is made the position information can be returned from the cache, (Managed by location server) as long as the cache is not older that the specified maximum age. \break
+The default value is zero that is, the position information will never be returned from cache. \break
+
+Setting \code{PartialUpdates} to {\bf FALSE} ensures that you will get at least \code{BasicLocationInformation} (Longitude, Latitude, and Altitude.) \break
+
+By default, following values (in seconds) are used for these input parameters.
+\code{UpdateInterval} = 1 \break
+\code{UpdateTimeOut} = 15 \break
+\code{UpdateMaxAge} = 0 \break
+\code{PartialUpdates} = FALSE \break
+
+{\bf note:} \break
+
+In case the following order is not maintained when you supply value for \code{updateoption}, it returns the error \code{SErrArgument}. \break
+UpdateTimeOut>UpdateInterval>MaxAge  \\
+\end{tabular}
+\caption{Input parameters for Trace}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{4cm}|p{2cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & For more information, refer table map: Trace \ref{tab:maptrace} & NA & It contains location estimations. In case you specify \code{BasicLocationInformation} in the input list only longitude, latitude and altitude will return. \break
+
+{\bf note:} \break
+If \code{PartialUpdates} is set to {\bf FALSE} you must get longitude, altitude and latitude. \break
+The WGS-84 datum is used to refer co-ordinates. Also representation is in decimal degree. \break
+
+In case generic information is requested, there is no guarantee that all information mentioned here will be obtained as it depends on the underlying GPS technology and other factor like number of satellites, which are available when location fix is obtained. \break
+
+{\bf note:} \break
+Not all GPS technology are capable of retrieving all information listed here. For example, if you select network based positioning technology it does not have capability to retrieve satellites information.
+
+In situation where a particular field can not be retrieved from the underlying GPS technology, it will not be present in the output list mentioned here.  \\
+\end{tabular}
+\caption{Output parameters for Trace}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Data} & {\bf Type} & {\bf Description}  \\
+\hline
+\code{Longitude} & Double & This is the longitudinal data. Degree value is in the range [+180, -180].  \\
+\hline
+\code{Latitude} & Double & This is the latitudinal data. Degree value is in the range [+90, -90].  \\
+\hline
+\code{Altitude} & Double & Altitude data, height in meters.  \\
+\hline
+\code{SatelliteNumView} & Double & Number of field satellite currently in view.  \\
+\hline
+\code{SatelliteNumViewUsed} & Double & Number of satellites used.  \\
+\hline
+\code{HorizontalSpeed} & Double & Horizontal speed, value in meters per second.  \\
+\hline
+\code{HorizontalSpeedError} & Double & Horizontal speed error, value in meters per second.  \\
+\hline
+\code{TrueCourse} & Double & This is the information about the current direction in degrees to true north.  \\
+\hline
+\code{TrueCourseError} & Double & This is the true course error in degrees.  \\
+\hline
+\code{MagneticHeading} & Double & This is the current direction in degrees to magnetic north.  \\
+\hline
+\code{MagneticHeadingError} & Double & True magnetic course error in Degrees.  \\
+\hline
+\code{Heading} & Double & This is the current instantaneous direction of travel in degrees to the true north.  \\
+\hline
+\code{HeadingError} & Double & Heading error, value in degrees.  \\
+\hline
+\code{MagneticCourse} & Double & This is the information about the current direction in degrees to magnetic north.  \\
+\hline
+\code{MagneticCourseError} & Double & \code{Magneticcourser} error.  \\
+\end{tabular}
+\caption{map: Trace}
+\label{tab:maptrace}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Location:Trace:Invalid LocationInformationClass} & Indicates argument supplied for category information is wrong.  \\
+\hline
+\code{Location:Trace:Updateoptions Type Mismatch} & Indicates wrong type for \code{Updateoptions}.  \\
+\hline
+\code{Location:Trace:Badargument - updateoptions} & Indicates wrongly supplied \code{updateoptions}.  \\
+\hline
+\code{Location:Trace:Negative Time Interval} & Indicates wrongly supplied time interval as part of \code{Updateoptions}.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to inform the consumer of any change in current location, in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def Trace(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The location change are as "
+        for i in input_params["ReturnValue"]:
+            print "Longitude"
+            print i["Longitude"]
+            print "Latitude"
+            print i['Latitude']
+            print "Altitude"
+            print i['Altitude']
+            print "SatelliteNumView"
+            print i['SatelliteNumView']
+            print "SatelliteNumViewUsed"
+            print i['SatelliteNumViewUsed']
+            print "HorizontalSpeed"
+            print i['HorizontalSpeed']
+
+    lock.signal()
+
+# Async Query a location with search criteria
+location_handle = scriptext.load('Service.Location', 'ILocation')
+event_id = location_handle.call('Trace', {'LocationInformationClass': u'GenericLocationInfo', 'Updateoptions': {'UpdateInterval': u'10', 'UpdateTimeOut': u'50', 'UpdateMaxAge': u'5', 'PartialUpdates': u'True'}})
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{CancelNotification}
+\label{subsec:localcancelnotify}
+
+\code{CancelNotification} method is used to cancel an outstanding asynchronous call.
+
+The following is an example for using \code{CancelNotification}:
+
+\begin{verbatim}
+cancel_output = location_handle.call('CancelNotification', {'CancelRequestType': u'GetLocCancel'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{CancelNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{ILocation} \\
+\hline
+{\bf Description} & Cancels the registered listeners with the service provider.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & Device must be Location aware (that is, it must have some location service provider in form of GPS, AGPS, or Bluetooth). \break
+
+ILocation interface loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+The parameters specify whether to cancel a \code{GetList} call or a \code{Trace} call. The object must contain the \code{CancelRequestType} property (unicode string) that is used to specify the type of call to cancel.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{CancelRequestType} & unicode string & \code{TraceCancel} \break
+\code{GetLocCancel} & Contains specific information about the type of notification expected to be canceled.  \\
+\end{tabular}
+\caption{Input parameters for CancelNotification}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for CancelNotification}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Location:Cancel:BadArgument - cancel type} & Indicates error in supplied cancel type.  \\
+\hline
+\code{Location:Cancel:Missing cancel type} & Indicates missing cancel type in input.  \\
+\hline
+\code{Location:Cancel:Wrong cancel type} & Indicates cancel type supplied is wrong.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to cancel the registered listeners with the service provider:
+
+\begin{verbatim}
+import scriptext
+location_handle = scriptext.load('Service.location', 'ILocation')
+
+try:
+    cancel_output = location_handle.call('CancelNotification', {'CancelRequestType':  u'GetLocCancel'})
+    errorcode = cancel_output["ErrorCode"]
+    if errorcode != 0:
+        print "Error in cancelling the request"
+    else:
+        ret_val = cancel_output["ReturnValue"]
+
+        print "The cancellation request is successful"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{MathOperations}
+\label{subsec:localmathopr}
+
+\code{MathOperations} performs mathematical calculations based on a source location and a target location.
+
+The following is an example for using \code{MathOperations}:
+
+\begin{verbatim}
+Distance_measured = location_handle.call('MathOperations', {'MathRequest': u'FindDistance', 'DistanceParamSource': {'Longitude': u'10', 'Latitude': u'15', 'Altitude': u'20'}, 'DistanceParamDestination': {'Longitude': u'40', 'Latitude': u'55', 'Altitude': u'20'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{MathOperations}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{ILocation} \\
+\hline
+{\bf Description} & Performs mathematical calculations based on a source location and a target location.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & Device must be Location aware (that is, it must have some location service provider in form of GPS, AGPS, or Bluetooth). \break
+
+ILocation interface loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the mathematical operation such as \code{FindDistance}, \code{FindBearingTo} and so on, and position co-ordinates for performing the mathematical operation.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{5cm}|p{2cm}|p{3cm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{MathRequest} & string & \code{FindDistance} \break
+\code{FindBearingTo} \break
+\code{MoveCoordinates} & Specifies the mathematical operation.  \\
+\code{DistanceParamSource} & map. For more information, refer table map- \code{Distance Param Source} \ref{tab:mapdistsourc} & NA & This specifies the position co-ordinates. \break
+Note that expected datum here is WGS-84 with decimal degree representation. \break
+Also note that altitude supplied does not effect the result of calculation. It is used to maintain a uniform input argument, which makes it easy to use.  \\
+\hline
+\code{DistanceParamDestination} & map. For more information, refer table map- \code{Distance Param Destination} \ref{tab:mapdistdest} & NA & Specifies co-ordinates of another position. It is not required when value specified in the first parameter is \code{MoveCoordinates}. \break
+Note that expected datum here is WGS-84 with decimal degree representation.  \\
+\hline
+\code{MoveByThisDistance} \break
+(only if \code{MathRequestType} is \code{MoveCoordinates}) & double & NA & Move source position by the specified the distance.  \\
+\hline
+(Only if \code{MathRequestType} is \code{MoveCoordinates}) & double & NA & Move the source position by the specified bearing.  \\
+\end{tabular}
+\caption{Input parameters for MathOperations}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description}  \\
+\hline
+Longitude & double & Longitude data  \\
+\hline
+Latitude & double & Latitude data  \\
+\hline
+Altitude & double & Altitude data  \\
+\end{tabular}
+\caption{map- DistanceParamSource}
+\label{tab:mapdistsourc}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description}  \\
+\hline
+Longitude & double & Longitude data  \\
+\hline
+Latitude & double & Latitude data  \\
+\hline
+Altitude & double & Altitude data  \\
+\end{tabular}
+\caption{map- DistanceParamDestination}
+\label{tab:mapdistdest}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameter contains \code{ReturnValue}. It also contains \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{2cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ReturnValue} & The table \ref{tab:result} describes output obtained for various input combination & NA & Resultant calculation. \break
+In case you request to \code{Move coordinates}, map described in column 2 will be returned. \break
+Note that if distance between two coordinate is requested, it is returned in meters while \code{FindBearingTo} returned is in degrees counting clockwise relative to true north.  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for MathOperations}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{3cm}|p{8cm}}
+\hline
+{\bf MathRequest type in input} & {\bf Obtained output type} & {\bf Description}  \\
+\hline
+\code{FindDistance} & double & Contains the calculated distance in meters.  \\
+\hline
+\code{FindBearingTo} & double & Bearing between two points.  \\
+\hline
+\code{MoveCoordinates} map & Map described in the table \ref{tab:movcoord} is returned, which represents the translated coordinate.  \\
+\end{tabular}
+\caption{map- Resultant output}
+\label{tab:result}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description}  \\
+\hline
+Longitude & double & Longitude data  \\
+\hline
+Latitude & double & Latitude data  \\
+\hline
+Altitude & double & Altitude data  \\
+\end{tabular}
+\caption{map- MoveCoordinates}
+\label{tab:movcoord}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1002} & Bad argument type  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Location:MathOperations:Missing argument- MathRequest} & Indicates missing \code{Mathrequest} argument.  \\
+\hline
+\code{Location:MathOperations:Wrong argument- MathRequest} & Indicates supplied \code{MathRequest} argument is wrong.  \\
+\hline
+\code{Location:MathOperations:Missing argument- locationcoordinate} & Indicates missing \code{locationCoordinate} in input.  \\
+\hline
+\code{Location:MathOperations:Missing argument- MoveByThisDistance} & Indicates missing \code{MoveByThisDistance} in input.  \\
+\hline
+\code{Location:MathOperations:Missing argument- MoveByThisBearing} & Indicates missing \code{MoveByThisBearing} in input.  \\
+\hline
+\code{Location:MathOperations:TypeMismatch- MoveByThisDistance} & Indicates type for \code{Movebydistance} is wrong.  \\
+\hline
+\code{Location:MathOperations:TypeMismatch- MoveByThisBearing} & Indicates type for \code{Movebythisbearing} is wrong.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to perform specific calculations on user provided data:
+
+\begin{verbatim}
+import scriptext
+location_handle = scriptext.load('Service.location', 'ILocation')
+
+try:
+    Distance_measured = location_handle.call('MathOperations', {'MathRequest': u'FindDistance', 'DistanceParamSource': {'Longitude': u'10', 'Latitude': u'15', 'Altitude': u'20'}, 'DistanceParamDestination': {'Longitude': u'40', 'Latitude': u'55', 'Altitude': u'20'}})
+    errorcode = Distance_measured["ErrorCode"]
+    if errorcode != 0:
+        print "Error in retrieving the Distance covered"
+    else:
+        ret_val = Distance_measured["ReturnValue"]
+        if ret_val["distance covered"]["Value"] == '50':
+            print "The distance covered is  retrieved"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+\pagebreak
+

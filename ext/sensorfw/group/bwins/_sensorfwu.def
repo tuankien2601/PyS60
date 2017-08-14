@@ -1,0 +1,3 @@
+EXPORTS
+	init_sensor @ 1 NONAME
+

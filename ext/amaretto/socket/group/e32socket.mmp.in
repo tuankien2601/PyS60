@@ -1,0 +1,59 @@
+/* Copyright (c) 2005-2008 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+targettype 	dll
+TARGET		${{PREFIX}}e32socket.pyd
+
+CAPABILITY ${{DLL_CAPABILITIES}}
+
+EPOCALLOWDLLDATA
+${{COMPILER_FLAGS}}
+
+// MACRO 		HAVE_ACTIVESCHEDULERWAIT
+// MACRO		  HAVE_SSL
+
+NOSTRICTDEF
+
+SYSTEMINCLUDE    \epoc32\include\python25
+SYSTEMINCLUDE    \epoc32\include\stdapis
+SYSTEMINCLUDE    \epoc32\include
+
+USERINCLUDE   ..\inc
+
+LIBRARY	      python25.lib
+LIBRARY	      euser.lib estlib.lib
+LIBRARY	      esock.lib
+LIBRARY	      insock.lib
+LIBRARY	      bluetooth.lib
+LIBRARY	      btmanclient.lib
+LIBRARY       btextnotifiers.lib
+LIBRARY       sdpagent.lib
+LIBRARY       sdpdatabase.lib
+LIBRARY	      irobex.lib
+LIBRARY       securesocket.lib
+LIBRARY       commdb.lib
+LIBRARY       apengine.lib
+LIBRARY       apsettingshandlerui.lib
+
+SOURCEPATH    ..\src
+
+SOURCE	      e32Socketmodule.cpp
+SOURCE        apselection.cpp
+
+#if defined(ARMCC)
+deffile eabi\e32socket 
+#elif defined(WINSCW)
+deffile bwins\e32socket 
+#endif

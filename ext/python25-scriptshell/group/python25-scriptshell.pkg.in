@@ -1,0 +1,22 @@
+;Installation file for Python25-scriptshell
+;Languages
+&EN
+;
+;UID is the app's UID
+;'
+#{"Python25scriptshell"},(${{PYS60_UID_SCRIPTSHELL}}),1,5,3,TYPE=SISAPP
+
+;Localised Vendor name
+%{"Vendor-EN"}
+
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+; Files to install
+;
+"\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\Python25scriptshell.exe"	-"!:\sys\bin\Python25scriptshell.exe"
+"\Epoc32\Data\z\private\10003a3f\import\apps\python25-scriptshell_reg.RSC"   -"!:\private\10003a3f\import\apps\python25-scriptshell_reg.RSC"
+;Adding dummy file to ensure directory "F0201515" is created
+"..\src\temp.txt"       -"!:\private\F0201515\temp.txt"
+
+;
+"..\src\default.py"	-"c:\Data\python\default.py"
+"..\src\tee.py"	-"c:\Data\python\tee.py"

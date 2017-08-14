@@ -1,0 +1,54 @@
+# Copyright (c) 2008 - 2009 Nokia Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ifeq (WINS,$(findstring WINS, $(PLATFORM)))
+ZDIR=\epoc32\release\$(PLATFORM)\$(CFG)\Z
+else
+ZDIR=\epoc32\data\z
+endif
+
+ICONTARGETFILENAME=$(ZDIR)\RESOURCE\APPS\PYTHON_UI_AIF.MIF
+
+do_nothing :
+	@rem do_nothing
+
+MAKMAKE : do_nothing
+
+BLD : do_nothing
+
+CLEAN : do_nothing
+
+LIB : do_nothing
+
+CLEANLIB : do_nothing
+
+#
+# Modify:
+#  /c8,8 python_logo.svg
+# to
+#  /c8,8 /Hpython_aif.mbg python_logo.svg 
+# to generate index header file
+#
+RESOURCE :
+	mifconv $(ICONTARGETFILENAME) \
+		/c32 python_logo.svg
+
+FREEZE : do_nothing
+
+SAVESPACE : do_nothing
+
+RELEASABLES :
+	@echo $(ICONTARGETFILENAME)
+
+FINAL : do_nothing

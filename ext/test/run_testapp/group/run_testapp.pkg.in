@@ -1,0 +1,17 @@
+;Installation file for run_testapp
+;Languages
+&EN
+;
+;UID is the app's UID
+;'
+#{"run_testapp"},(${{PYS60_UID_RUNTESTAPP}}),1,5,3,TYPE=SISAPP
+
+;Localised Vendor name
+%{"Vendor-EN"}
+
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+; Files to install
+;
+"\Epoc32\release\armv5\urel\run_testapp.exe"	-"!:\sys\bin\run_testapp.exe"
+"\Epoc32\Data\z\private\10003a3f\import\apps\run_testapp_reg.RSC"   -"!:\private\10003a3f\import\apps\run_testapp_reg.RSC"
+;

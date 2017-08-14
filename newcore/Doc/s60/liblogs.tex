@@ -1,0 +1,148 @@
+% Copyright (c) 2006-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{logs} ---
+  Module to access the phone logs.}
+\label{sec:logs}
+
+\declaremodule{extension}{logs}
+\platform{S60}
+\modulesynopsis{Module to access the phone logs.}
+
+The \module{logs} offers generic access to the phone's log. Via \module{logs}'s API
+it is possible to access, for example, the list of received calls or the list of sms received.
+At this stage, it is only possible to read logs.
+
+All of the accessor functions return a list of dictionaries containing
+the log events. The first item on the list is the latest event.
+
+Each dictionary has the following entries:
+\begin{itemize}
+\item \code{number}: The (phone) number associated with the log event
+\item \code{name}
+\item \code{description}: A description of the event
+\item \code{direction}: The direction associated with the event (i.e. whether incoming or outgoing)
+\item \code{status}: Event status
+\item \code{subject}
+\item \code{id}: The event's id
+\item \code{contact}
+\item \code{duration}
+\item \code{duration type}
+\item \code{flags}
+\item \code{link}
+\item \code{time}: The time associated with the event as a unix timestamp.
+\item \code{data}
+\end{itemize}
+
+The current log types are currently supported:
+\label{suptypes}
+\begin{itemize}
+\item \code{'call'}
+\item \code{'sms'}
+\item \code{'data'}
+\item \code{'fax'}
+\item \code{'email'}
+\item \code{'scheduler'}
+\end{itemize}
+
+For those functions providing an optional \var{mode} parameter, the default mode is currently set to
+\code{'in'}. \var{mode} can take one of the following values:
+\begin{itemize}
+\item \code{'in'}
+\item \code{'out'}
+\item \code{'fetched'}
+\item \code{'missed'}
+\item \code{'in_alt'}
+\item \code{'out_alt'}
+\end{itemize}
+
+\subsection{Module Level Functions}
+\label{subsec:logsmodule}
+The following functions are provided:
+
+
+\begin{funcdesc}{raw_log_data}{}
+
+Returns the phone's log events of all supported types. For the list of supported types, see \ref{suptypes}.
+
+\end{funcdesc}
+
+
+\begin{funcdesc}{log_data}{type, \optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of a certain \var{type}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}
+
+
+\begin{funcdesc}{log_data_by_time}{type, start_time, end_time, \optional{mode=_default_mode}}
+
+Returns the list of log events of type \var{type} that have occurred in the time interval
+between \var{start_time} and \var{end_time}.
+Only logs with the specified \var{mode} are taken into account.
+
+The variables \var{start_time}and \var{end_time} are passed as a unix timestamp.
+
+\end{funcdesc}
+
+
+\begin{funcdesc}{calls}{\optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of type \code{'call'}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}
+
+\begin{funcdesc}{faxes}{\optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of type \code{'fax'}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}
+
+\begin{funcdesc}{emails}{\optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of type \code{'email'}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}
+
+\begin{funcdesc}{sms}{\optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of type \code{'sms'}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}
+
+\begin{funcdesc}{scheduler_logs}{\optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of type \code{'scheduler'}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}
+
+\begin{funcdesc}{data_logs}{\optional{start_log=0, num_of_logs=_all_logs, mode=_default_mode}}
+
+Returns a list of \var{num_of_logs} events of type \code{'data'}, the latest one being at position
+\var{start_log} in the event logs.
+Only logs with the specified \var{mode} are taken into account.
+
+\end{funcdesc}

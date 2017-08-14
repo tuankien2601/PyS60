@@ -1,0 +1,11 @@
+01-remove_curses_support.patch
+02-debian_directory.patch
+03-corrects-race-condition-with-signals.patch
+04-import.patch
+05-install.patch
+06-fix-urllib-exception.patch
+07-osso-browser-support.patch
+08-disable-tk_support.patch
+09-lib-site.patch
+10-gdbm-dependency.patch
+11-move-pydoc-and-pdb-to-main-package.patch

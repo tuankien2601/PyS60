@@ -1,0 +1,472 @@
+/* Copyright (c) 2005-2009 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+//
+// appuifwmodule.rss
+//
+// made independent from app's resource file
+//
+
+NAME AUFW
+
+#include <eikon.rh>
+#include <eikon.rsg>
+#include <avkon.hrh>
+
+#include <avkon.rh>
+#include <avkon.rsg>
+#include "appuifwmodule.hrh"
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE DIALOG r_appuifw_sel_list
+{
+  flags = EAknDialogSelectionList;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtSingleListBox;
+      id = ESelectionListControl;
+      control = LISTBOX
+      {
+	flags = EAknListBoxSelectionList;
+	//	array_id = r_list_box_array;
+      };
+    }
+  };
+}
+
+RESOURCE DIALOG r_appuifw_sel_list_query
+{
+  flags = EAknDialogSelectionList;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtSingleListBox;
+      id = ESelectionListControl;
+      control = LISTBOX
+      {
+	flags = EAknListBoxSelectionList;
+	//	array_id = r_list_box_array;
+      };
+    }, 
+    DLG_LINE 
+    {
+      itemflags = EEikDlgItemNonFocusing;
+      id = EFindControl;
+      type = EAknCtSelectionListFixedFind; 
+    }
+  };
+}
+
+
+RESOURCE DIALOG r_appuifw_multi_sel_list 
+{
+ flags = EAknListBoxMultiselectionList | EAknListBoxLoopScrolling;
+// buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK; 
+ buttons = R_AVKON_SOFTKEYS_OK_CANCEL; 
+ items = 
+ {
+  DLG_LINE 
+  {
+    type = EAknCtSingleGraphicListBox; 
+    id = ESelectionListControl;
+    control = LISTBOX
+    {
+      flags = EAknListBoxMultiselectionList;
+    };
+   }
+ };
+}
+
+RESOURCE DIALOG r_appuifw_multi_sel_list_query 
+{
+ flags = EAknListBoxMultiselectionList | EAknListBoxLoopScrolling;
+ buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+ items = 
+ {
+  DLG_LINE 
+  {
+    type = EAknCtSingleGraphicListBox; 
+    id = ESelectionListControl;
+    control = LISTBOX
+    {
+      flags = EAknListBoxMultiselectionList;
+    };
+  }, 
+  DLG_LINE 
+  {
+     itemflags = EEikDlgItemNonFocusing;
+     id = EFindControl;
+     type = EAknCtSelectionListFixedFind; 
+  } 
+ };
+}
+
+RESOURCE DIALOG r_appuifw_markable_sel_list 
+{
+ flags = EAknDialogMarkableList | EAknListBoxLoopScrolling; //works with left select
+ buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+ items = 
+ {
+  DLG_LINE 
+  {
+    type = EAknCtSingleListBox;
+    id = ESelectionListControl;
+    control = LISTBOX
+    {
+      flags = EAknListBoxMarkableList;
+    };
+   }
+ };
+}
+
+RESOURCE DIALOG r_appuifw_markable_sel_list_query 
+{
+ flags = EAknDialogMarkableList | EAknListBoxLoopScrolling; 
+ buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+ items = 
+ {
+  DLG_LINE 
+  {
+    type = EAknCtSingleListBox;
+    id = ESelectionListControl;
+    control = LISTBOX
+    {
+      flags = EAknListBoxMarkableList;
+    };
+  }, 
+  DLG_LINE 
+  {
+     itemflags = EEikDlgItemNonFocusing;
+     id = EFindControl;
+     type = EAknCtSelectionListFixedFind; 
+  } 
+ };
+}
+
+RESOURCE MENU_BAR r_appuifw_menu_for_multisel_list
+{
+titles =
+    {
+        MENU_TITLE { menu_pane = R_AVKON_MENUPANE_MARKABLE_LIST;}
+    };
+};
+
+RESOURCE DIALOG r_appuifw_data_query
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control = AVKON_DATA_QUERY
+      {
+	layout = EDataLayout;
+	label = "Enter text:";
+	control = EDWIN
+	{
+	  flags = EEikEdwinNoHorizScrolling | EEikEdwinResizable;
+	  width = 5;
+	  maxlength = 128;
+	  // added to limit expanding in forms. 
+	  // If you want full screen use 6 here
+	  max_view_height_in_lines = 5; 
+	  // if you have the line above, you must have this. 
+	  // It's calculable from LAF
+	  base_line_delta = 21; 
+	};
+      };
+    }
+  }; 
+}
+
+#define APPUIFW_NUMBER_EDITOR_MIN 0
+#define APPUIFW_NUMBER_EDITOR_MAX 0x7fffffff
+
+RESOURCE DIALOG r_appuifw_number_query
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control= AVKON_DATA_QUERY
+      {
+        layout = ENumberLayout;
+        control = AVKON_INTEGER_EDWIN
+	      {
+	        min = APPUIFW_NUMBER_EDITOR_MIN;
+	        max = APPUIFW_NUMBER_EDITOR_MAX;
+	      };
+      };
+    }
+  };
+}
+
+RESOURCE DIALOG r_appuifw_float_query
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control= AVKON_DATA_QUERY
+      {
+        layout = EFloatingPointLayout;
+        control = FLPTED
+	      {
+	        maxlength=10;
+	        min = -9.9e99;
+	        max = 9.9e99;
+	        default = 0;
+        };
+      };
+    }
+  };
+}
+
+#define APPUIFW_SECRETED_NUM_LETTERS 8
+
+RESOURCE DIALOG r_appuifw_code_query
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control = AVKON_DATA_QUERY
+      {
+	layout = ECodeLayout;
+	//	label = "Enter text:";
+	control = SECRETED
+	{
+	  num_letters = APPUIFW_SECRETED_NUM_LETTERS;
+	};
+      };
+    }
+  };
+}
+
+#define APPUIFW_TIME_EDITOR_MIN_SECOND 0
+#define APPUIFW_TIME_EDITOR_MIN_MINUTE 0
+#define APPUIFW_TIME_EDITOR_MIN_HOUR 0
+#define APPUIFW_TIME_EDITOR_MAX_SECOND 59
+#define APPUIFW_TIME_EDITOR_MAX_MINUTE 59
+#define APPUIFW_TIME_EDITOR_MAX_HOUR 23
+
+RESOURCE DIALOG r_appuifw_time_query
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control= AVKON_DATA_QUERY
+      {
+	layout = ETimeLayout;
+	control = TIME_EDITOR
+	{
+	  minTime = TIME
+	  {
+	    second = APPUIFW_TIME_EDITOR_MIN_SECOND;
+	    minute = APPUIFW_TIME_EDITOR_MIN_MINUTE;
+	    hour = APPUIFW_TIME_EDITOR_MIN_HOUR;
+	  };
+	  maxTime = TIME
+	  {
+	    second = APPUIFW_TIME_EDITOR_MAX_SECOND;
+	    minute = APPUIFW_TIME_EDITOR_MAX_MINUTE;
+	    hour = APPUIFW_TIME_EDITOR_MAX_HOUR;
+	  };
+	  flags = EEikTimeWithoutSecondsField | EEikTimeForce24HourFormat;
+	};
+      };
+    }
+  };
+}
+
+#define APPUIFW_DATE_EDITOR_MIN_DATE 1900
+#define APPUIFW_DATE_EDITOR_MAX_DATE 2990
+#define APPUIFW_DATE_EDITOR_FLAGS 0
+
+RESOURCE DIALOG r_appuifw_date_query
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control = AVKON_DATA_QUERY
+      {
+	layout = EDateLayout;
+	control = DATE_EDITOR
+	{
+	  minDate = DATE
+	  {
+	    year = APPUIFW_DATE_EDITOR_MIN_DATE;
+	  };
+	  maxDate = DATE
+	  {
+	    year = APPUIFW_DATE_EDITOR_MAX_DATE;
+	  };
+	  flags = APPUIFW_DATE_EDITOR_FLAGS;
+	};
+      };
+    }
+  };
+}
+
+RESOURCE DIALOG r_appuifw_confirmation_query	
+{	
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtQuery;
+      id = EGeneralQuery;
+      control =	AVKON_CONFIRMATION_QUERY
+      {
+	layout = EConfirmationQueryLayout;  //EDataLayout;
+      };
+    }
+  };
+}
+
+#define APPUIFW_EDWIN_WIDTH 5
+#define APPUIFW_EDWIN_LINES 5
+#define APPUIFW_EDWIN_MAXLENGTH KAppuifwMaxTextField
+
+RESOURCE DIALOG r_appuifw_multi_line_data
+{
+  flags = EGeneralQueryFlags;
+  buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+  items =
+  {
+    DLG_LINE
+    {
+      type = EAknCtMultilineQuery;
+      id = EMultilineFirstLine;
+      control = AVKON_DATA_QUERY
+      {
+	layout = EMultiDataFirstEdwin;
+	control = EDWIN
+	{
+	  flags = EEikEdwinNoHorizScrolling | EEikEdwinResizable;
+	  width = APPUIFW_EDWIN_WIDTH;
+	  lines = APPUIFW_EDWIN_LINES;
+	  maxlength = APPUIFW_EDWIN_MAXLENGTH;
+	};
+      };
+    },
+    DLG_LINE
+    {
+      type = EAknCtMultilineQuery;
+      id = EMultilineSecondLine;
+      control = AVKON_DATA_QUERY
+      {
+	layout = EMultiDataSecondEdwin;
+	control = EDWIN
+	{
+	  flags = EEikEdwinNoHorizScrolling | EEikEdwinResizable;
+	  width = APPUIFW_EDWIN_WIDTH;
+	  lines = APPUIFW_EDWIN_LINES;
+	  maxlength = APPUIFW_EDWIN_MAXLENGTH;
+	};
+      };
+    }
+  };
+}
+
+RESOURCE FORM r_appuifw_form_single_form
+{
+  flags = 0;
+}	
+
+RESOURCE FORM r_appuifw_form_single_edit_form
+{
+  flags = EEikFormEditModeOnly;
+}	
+
+RESOURCE FORM r_appuifw_form_double_form
+{
+  //  flags = EEikFormShowBitmaps | EEikFormUseDoubleSpacedFormat;
+  flags = EEikFormUseDoubleSpacedFormat;
+}	
+
+RESOURCE FORM r_appuifw_form_double_edit_form
+{
+  //  flags = EEikFormShowBitmaps | EEikFormUseDoubleSpacedFormat;
+  flags = EEikFormUseDoubleSpacedFormat | EEikFormEditModeOnly;
+}	
+
+RESOURCE DIALOG r_appuifw_form_single_dialog
+{
+  flags = EEikDialogFlagNoDrag | EEikDialogFlagNoTitleBar | 
+    EEikDialogFlagFillAppClientRect | EEikDialogFlagCbaButtons | 
+    EEikDialogFlagWait;
+  buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+  form = r_appuifw_form_single_form;
+}
+
+RESOURCE DIALOG r_appuifw_form_single_edit_dialog
+{
+  flags = EEikDialogFlagNoDrag | EEikDialogFlagNoTitleBar | 
+    EEikDialogFlagFillAppClientRect | EEikDialogFlagCbaButtons | 
+    EEikDialogFlagWait;
+  buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+  form = r_appuifw_form_single_edit_form;
+}
+
+RESOURCE DIALOG r_appuifw_form_double_dialog
+{
+  flags = EEikDialogFlagNoDrag | EEikDialogFlagNoTitleBar | 
+    EEikDialogFlagFillAppClientRect | EEikDialogFlagCbaButtons | 
+    EEikDialogFlagWait;
+  buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+  form = r_appuifw_form_double_form;
+}
+
+RESOURCE DIALOG r_appuifw_form_double_edit_dialog
+{
+  flags = EEikDialogFlagNoDrag | EEikDialogFlagNoTitleBar | 
+    EEikDialogFlagFillAppClientRect | EEikDialogFlagCbaButtons | 
+    EEikDialogFlagWait;
+  buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+  form = r_appuifw_form_double_edit_form;
+}

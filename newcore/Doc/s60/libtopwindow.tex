@@ -1,0 +1,158 @@
+% Copyright (c) 2006-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{topwindow} ---
+         Interface for creating windows that are shown on top of other 
+         applications.}
+\label{sec:topwindow}
+
+\declaremodule{extension}{topwindow}
+\platform{S60}
+\modulesynopsis{Interface for creating windows that are shown on top of other 
+         applications.}
+         
+The \module{topwindow} module offers an API for creating windows that are shown 
+on top of other applications and managing the content of these windows. 
+Images can be inserted into the windows and the background color, visibility, 
+corner type and shadow of the window can be manipulated.
+
+\module{topwindow} extension does not provide sophisticated drawing capabilities 
+by any means but rather relies on services provided by the \module{graphics} 
+extension: \module{topwindow} allows \module{graphics} \class{Image} objects to 
+be put into the windows that are represented by \class{TopWindow} objects.
+
+\class{TopWindow} object provides mainly only two services: \class{TopWindow} 
+objects can be shown or hidden and Images can be put into the windows. However, 
+several images can be added into one \class{TopWindow} object and several 
+\class{TopWindow} objects can be created and shown. Since the images can be 
+manipulated using the \module{graphics} extension this makes it possible to 
+create many kind of content to the \class{TopWindow} objects.
+
+\subsection{TopWindow objects}
+
+\begin{classdesc}{TopWindow}{}
+Create a \class{TopWindow} object.
+\end{classdesc}
+
+\class{TopWindow} objects have the following methods and properties:
+
+\begin{methoddesc}[TopWindow]{show}{}
+Shows the window. The window is not shown until show() is called.
+\end{methoddesc}
+
+\begin{methoddesc}[TopWindow]{hide}{}
+Hides the window.
+\end{methoddesc}
+
+\begin{methoddesc}[TopWindow]{add_image}{image, position}
+Inserts an image object \class{graphics.Image} into the window. The position 
+of the image is specified by the \var(position) parameter. 
+If only the coordinates of the top left corner are specified, like (x1, y1) 
+the image is not resized. If four coordinates are given, like(x1, y1, x2, y2), 
+the image is resized to fit to the specified area.
+\\Example:
+\begin{verbatim} 
+add_image(image, (10,20))
+add_image(image, (10,20,20,30))
+\end{verbatim}
+\end{methoddesc}
+
+\begin{methoddesc}[TopWindow]{remove_image}{image\optional{,position}}
+Removes the image from the window.
+Mandatory parameter \var{image} must be a \class{graphics.Image} object. 
+Parameter \var{position} may specify the top-left corner coordinates of the 
+image or the rectangular area of the image. If only \var{image} parameter is 
+given, all the pictures representing this image object are removed from the
+window. If both parameters are given, only the picture that matches both 
+parameters is removed.
+\\Example:
+\begin{verbatim}
+remove_image(image)
+remove_image(image, (10,10))
+remove_image(image, (10,10,20,20))
+\end{verbatim}
+\end{methoddesc}
+
+\begin{memberdesc}[TopWindow]{position}
+Specifies the coordinates of the top left corner of the window. Can be read and written.
+\\Example: 
+\begin{verbatim}
+position = (10, 20)
+\end{verbatim}
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{size}
+Specifies the size of the window. Can be read and written.
+\\Example:
+\begin{verbatim} 
+size = (100, 200)
+\end{verbatim}
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{images}
+The images inserted into the window. Defined as a list of tuple objects. Each 
+tuple contains a \class{graphics.Image} object and the \var{position} of the 
+image. The \var{position} may specify the top-left coordinate of the image and 
+optionally also the bottom-right coordinate of the image. Parameter (x,y) 
+specifies the top-left coordinate, but does not resize the image while 
+parameter like (x1,y1,x2,y2) specifies both the top-left and bottom-right 
+coordinates and possibly also resizes the image. Can be read and written.
+Also see the \method{add_image()} and \method{remove_image()} methods.
+\\Example: 
+\begin{verbatim}
+images = [(image1,(x1,y1)), (image2,(x1,y1,x2,y2)), (image3,(50,50,100,100))]
+\end{verbatim}
+sets the window content to be 3 images. \code{image2} and \code{image3} are possibly resized 
+while the \code{image1} is not)
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{shadow}
+Specifies if the shadow of the window is shown and the length of the shadow. 
+Can be read and written. Setting \code{shadow = 0} makes the shadow invisible.
+\\Example: 
+\code{shadow = 5}
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{corner_type}
+Specifies the corner type of the window. Can be read and written. Corner type 
+can be one of the following values: 
+\begin{itemize}
+\item \code{square}
+\item \code{corner1}
+\item \code{corner2}
+\item \code{corner3}
+\item \code{corner5}
+\end{itemize}
+
+Example: 
+\code{corner_type = "square"}
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{maximum_size}
+Returns the maximum size of the window as a tuple (width, height). Read only 
+property.
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{background_color}
+The background color of the window as an integer (e.g. \code{0xaabbcc}). The two 
+greatest hexadecimal digits specify the red, the next two specify the blue and 
+the last ones specify the green color. Can be read and written.
+\\Example: 
+\code{background_color = 0xffffff} (sets the white color)
+\end{memberdesc}
+
+\begin{memberdesc}[TopWindow]{visible}
+Can be set to 0 or 1. 1 means that window is visible, 0 means that it is not. 
+Can be read and written. Also see the \method{show} and \method{hide} methods.
+\end{memberdesc}

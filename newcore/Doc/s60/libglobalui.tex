@@ -1,0 +1,75 @@
+% Copyright (c) 2008-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{globalui} --- 
+    Interface to the S60 global UI notifiers }
+\label{sec:globalui}
+
+\declaremodule{extension}{globalui}
+\platform{S60}
+\modulesynopsis{Interface to the S60 global UI notifiers.}
+
+The \module{globalui} module offers an interface to the S60 global UI notifiers. 
+This allows a global note and query to be launched from an application which does not 
+have a UI environment. 
+The \module{globalui} module have functions:
+
+\begin{funcdesc}{global_note}{note_text\optional{, type}}
+Displays a note of the chosen type with \var{note_text} 
+(Unicode). The default value for \var{type} is \code{'info'}. \var{type} can be 
+one of the following strings: \code{'error'}, \code{'text'}, \code{'warn'}, \code{'charging'},
+\code{'wait'}, \code{'perm'},\code{'not_charging'}, \code{'battery_full'}, \code{'battery_low'}, 
+\code{'recharge_battery'}, or \code{'confirm'}. 
+\end{funcdesc}
+
+\begin{funcdesc}{global_query}{query_text\optional{, timeout}}
+Displays a global confirmation query with \var{query_text} (Unicode). Returns 
+\code{1} when the user presses 'Yes' and \code{0} otherwise. If the user does 
+not respond to the query within \var{timeout} seconds, returns \code{None}. 
+If the \var{timeout} value is 0, then the query waits indefinitely for user input. 
+The default value for \var{timeout} is 0. The \var{timeout} value should be an integer.
+\end{funcdesc}
+
+\begin{funcdesc}{global_msg_query}{query_text, header_text\optional{, timeout}}
+Displays a global message query with \var{query_text}(Unicode). \var{header_text} is used 
+to set the heading string of the query. Returns \code{1} when the user 
+presses 'OK' and \code{0} otherwise. If the user does not respond to the query within 
+\var{timeout} seconds, returns \code{None}. If the \var{timeout} value is \code{0}, then the query 
+waits indefinitely for user input. The default value for \var{timeout} is \code{0}. 
+The \var{timeout} value should be an integer.
+\end{funcdesc}
+
+\begin{funcdesc}{global_popup_menu}{option_items\optional{, header_text, timeout}} 
+Displays a global menu with \var{option_items}(Unicode). \var{header_text} is used to set the 
+heading string of the menu. If no value is passed for \var{header_text}, then the header will
+not be displayed. Returns the index value of the selected item from the list. If the user does
+not respond to the menu within \var{timeout} seconds, returns \code{None}. If the \var{timeout}
+value is \code{0}, then the menu waits indefinitely for the input. The default value for \var{timeout} 
+is \code{0}. The \var{timeout} value should be an integer.
+\end{funcdesc}
+
+Example:
+\begin{verbatim}
+>>> import globalui, time
+...
+>>> text_to_show = u"text for showing note"
+>>> globalui.global_note(text_to_show,'error')
+>>> time.sleep(6)
+>>> globalui.global_note(text_to_show)
+>>> time.sleep(6)
+>>> result = globalui.global_query(u"do you want to continue ?")
+>>> time.sleep(6)
+>>> listresult = globalui.global_popup_menu([u"MenuItem1", u"MenuItem2"],u"Select item",5)
+...   
+\end{verbatim}

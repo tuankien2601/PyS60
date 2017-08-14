@@ -1,0 +1,130 @@
+<!--
+% Copyright (c) 2008 - 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<link rel="STYLESHEET" href="s60.css" type='text/css' />
+<link rel="SHORTCUT ICON" href="../icons/pyfav.png" type="image/png" />
+<link rel='start' href='../index.html' title='Python documentation Index' />
+<link rel="first" href="s60.html" title='S60 module Reference' />
+<link rel='contents' href='contents.html' title="Contents" />
+<link rel='index' href='genindex.html' title='Index' />
+<link rel='last' href='about.html' title='About this document...' />
+<link rel='help' href='about.html' title='About this document...' />
+<link rel="next" href="package.html" />
+<link rel="prev" href="getstarted.html" />
+<link rel="parent" href="getstarted.html" />
+<link rel="next" href="package.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name='aesop' content='information' />
+<title>1.1 Installing Python runtime and its dependencies</title>
+</head>
+<body>
+<div class="navigation">
+<div id='top-navigation-panel' xml:id='top-navigation-panel'>
+<table align="center" width="100%" cellpadding="0" cellspacing="2">
+<tr>
+<td class='online-navigation'><a rel="prev" title="1. getting Started"
+  href="getstarted.html"><img src='../icons/previous.png'
+  border='0' height='32'  alt='Previous Page' width='32' /></a></td>
+<td class='online-navigation'><a rel="parent" title="1. getting Started"
+  href="getstarted.html"><img src='../icons/up.png'
+  border='0' height='32'  alt='Up one Level' width='32' /></a></td>
+<td class='online-navigation'><a rel="next" title="1.2 packaging a Sample"
+  href="package.html"><img src='../icons/next.png'
+  border='0' height='32'  alt='Next Page' width='32' /></a></td>
+<td align="center" width="100%">S60 Module Reference</td>
+<td class='online-navigation'><a rel="contents" title="Table of Contents"
+  href="contents.html"><img src='../icons/contents.png'
+  border='0' height='32'  alt='Contents' width='32' /></a></td>
+<td class='online-navigation'><a href="modindex.html" title="Module Index"><img src='../icons/modules.png'
+  border='0' height='32'  alt='Module Index' width='32' /></a></td>
+<td class='online-navigation'><a rel="index" title="Index"
+  href="genindex.html"><img src='../icons/index.png'
+  border='0' height='32'  alt='Index' width='32' /></a></td>
+</tr></table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" rel="prev" href="getstarted.html">1. Getting Started</a>
+<b class="navlabel">Up:</b>
+<a class="sectref" rel="parent" href="getstarted.html">1. Getting Started</a>
+<b class="navlabel">Next:</b>
+<a class="sectref" rel="next" href="package.html">1.2 Packaging a Sample</a>
+</div>
+<hr /></div>
+</div>
+<!--End of Navigation Panel-->
+
+<h1><a name="SECTION003100000000000000000"></a>
+<a name="install"></a>
+<br>
+1.1 Installing Python runtime and its dependencies
+</h1>
+
+<p>
+Python runtime and the other libraries can be installed either from an installer or from an archive depending on the host machine
+<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp - For Windows host machine, download <a href="https://garage.maemo.org/frs/download.php/6347/PythonForS60_1.9.6_Setup.exe" target="_blank">Installer</a>
+<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp - For Linux or Mac host machine, download <a href="https://garage.maemo.org/frs/download.php/6348/PythonForS60_1.9.6.tar.gz" target="_blank">Archive</a>
+<br><br>After the installation, Python runtime and the other dependencies can be found in the folder <b>PyS60Dependencies</b> under the installation folder
+<br><br><b>Python_2.0.0.sis</b> - Python runtime
+<br><br><b>Runtime dependent package:</b>
+<br>&nbsp&nbsp- <b>pips.sis</b> - OpenC PIPS library
+<br><br><b>Optional packages/libraries:</b>
+<br>&nbsp&nbsp- <b>stdioserver.sis</b> - stdioserver to run python scripts packaged with console profile. 
+<br>&nbsp&nbsp- <b>ssl.sis</b> - SSL library if you need SSL support in socket module.
+<br><br><b>Note:</b> The unsigned Python runtime component and the PythonScriptShell packages are also available with high capability set in Installer/Archive  
+</p><hr />
+
+<table align="center" width="100%" cellpadding="0" cellspacing="2">
+<tr>
+<td class='online-navigation'><a rel="prev" title="1. getting Started"
+  href="getstarted.html"><img src='../icons/previous.png'
+  border='0' height='32'  alt='Previous Page' width='32' /></a></td>
+<td class='online-navigation'><a rel="parent" title="1. getting Started"
+  href="getstarted.html"><img src='../icons/up.png'
+  border='0' height='32'  alt='Up one Level' width='32' /></a></td>
+<td class='online-navigation'><a rel="next" title="1.2 packaging a Sample"
+  href="package.html"><img src='../icons/next.png'
+  border='0' height='32'  alt='Next Page' width='32' /></a></td>
+<td align="center" width="100%">S60 Module Reference</td>
+<td class='online-navigation'><a rel="contents" title="Table of Contents"
+  href="contents.html"><img src='../icons/contents.png'
+  border='0' height='32'  alt='Contents' width='32' /></a></td>
+<td class='online-navigation'><a href="modindex.html" title="Module Index"><img src='../icons/modules.png'
+  border='0' height='32'  alt='Module Index' width='32' /></a></td>
+<td class='online-navigation'><a rel="index" title="Index"
+  href="genindex.html"><img src='../icons/index.png'
+  border='0' height='32'  alt='Index' width='32' /></a></td>
+</tr></table>
+<div class='online-navigation'>
+<b class="navlabel">Previous:</b>
+<a class="sectref" rel="prev" href="getstarted.html">1. Getting Started</a>
+<b class="navlabel">Up:</b>
+<a class="sectref" rel="parent" href="getstarted.html">1. Getting Started</a>
+<b class="navlabel">Next:</b>
+<a class="sectref" rel="next" href="package.html">1.2 Packaging a Sample</a>
+</div>
+</div>
+<hr />
+<span class="release-info">Release ${{PYS60_VERSION_NUM}} final  , documentation updated on 17 Dec 2008.</span>
+</div>
+<!--End of Navigation Panel-->
+<address>
+See <i><a href="about.html">About this document...</a></i> for information on suggesting changes.
+</address>
+</body>
+</html>

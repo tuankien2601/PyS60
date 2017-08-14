@@ -1,0 +1,117 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{sysinfo} ---
+    Access to system information}
+\label{sec:sysinfo}
+\declaremodule{extension}{sysinfo}
+\platform{S60}
+\modulesynopsis{Package supporting system information fetching in S60 devices.}
+The \textsf{sysinfo} module offers an API for checking the system 
+information of a S60 mobile device. 
+
+The \module{sysinfo} module has the following functions:
+
+\begin{funcdesc}{active_profile}{}
+Returns the current active profile as a string, which can be one of the 
+following: \code{'general'}, \code{'silent'}, \code{'meeting'}, 
+\code{ 'outdoor'}, \code{'pager'},\code{ 'offline'}, ,\code{ 'drive'}, 
+or \code{'user <profile value>'}.
+\end{funcdesc}
+
+\begin{funcdesc}{battery}{}
+Returns the current battery level. The value ranges from 0 (empty) to 100
+(full) on a S60 mobile device. On the emulator the value is always 0. 
+\begin{notice}[note] 
+The returned value may be incorrect while the device is being charged.
+\end{notice}
+
+\end{funcdesc}
+
+
+\begin{funcdesc}{display_twips}{}
+
+Returns the width and height of the display in twips. For a definition of a 
+twip, see Chapter \ref{sec:terms}, Terms and Abbreviations. 
+
+\end{funcdesc}
+
+\begin{funcdesc}{display_pixels}{}
+Returns the width and height of the display in pixels.
+\end{funcdesc}
+
+\begin{funcdesc}{free_drivespace}{}
+Returns the amount of free space left on the drives in bytes, for example 
+\code{{\{}u'C:' 100{\}}.} The keys in the dictionary are the drive letters 
+followed by a colon (:). 
+\end{funcdesc}
+
+\begin{funcdesc}{imei}{}
+Returns the IMEI code of the device as a Unicode string or, if running
+on the emulator, the hardcoded string \code{u'000000000000000'}.
+\end{funcdesc}
+
+\begin{funcdesc}{max_ramdrive_size}{}
+Returns the maximum size of the RAM drive on the device.
+\end{funcdesc}
+
+\begin{funcdesc}{total_ram}{}
+Returns the amount of RAM memory on the device.
+\end{funcdesc}
+
+\begin{funcdesc}{free_ram}{}
+Returns the amount of free RAM memory available on the device.
+\end{funcdesc}
+
+\begin{funcdesc}{total_rom}{}
+Returns the amount of read-only ROM memory on the device.
+\end{funcdesc}
+
+\begin{funcdesc}{ring_type}{}
+Returns the current ringing type as a string, which can be one of the 
+following: \code{'normal'}, \code{'ascending'}, 
+\code{'ring_once'},\code{ 'beep'}, or \code{'silent'}.
+\end{funcdesc}
+
+\begin{funcdesc}{os_version}{}
+
+Returns the operating system version number of the device as a three element tuple (major version, minor version, build number). The 
+elements are as follows\footnote{ 
+Descriptions for these values are based on information found in S60 SDK 
+documentation \cite{S60Doc}.}:
+
+\begin{itemize}
+\item The major version number, ranging from 0 to 127 inclusive
+\item The minor version number, ranging from 0 to 99 inclusive
+\item The build number, ranging from 0 to 32767 inclusive.
+\end{itemize}
+\end{funcdesc}
+
+\begin{funcdesc}{signal_bars}{}
+Returns the current network signal strength ranging from 0 to 7, with 0 
+meaning no signal and 7 meaning a strong signal. If using an emulator, value 
+0 is always returned. 
+\end{funcdesc}
+
+\begin{funcdesc}{signal_dbm}{}
+Returns the current network signal strength in dBm. This is available SDK 2.8
+onwards. If using an emulator value 0 is always returned. 
+\end{funcdesc}
+
+
+\begin{funcdesc}{sw_version}{}
+Returns the software version as a Unicode string. On the emulator,
+returns the hardcoded string \textsf{u'emulator'}. For example, a
+software version can be returned as \code{u'V 4.09.1 26-02-04 NHL-10 (c) NMP'}.
+\end{funcdesc}

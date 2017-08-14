@@ -1,0 +1,4 @@
+EXPORTS
+	initglcanvas @ 1 NONAME
+	zfinalizeglcanvas @ 2 NONAME
+

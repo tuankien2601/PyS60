@@ -1,0 +1,12 @@
+Copyright (c )2004 - 2008 Nokia Corporation.
+
+This is Python(R) for S60 version ${{PYS60_VERSION_MAJOR}}.${{PYS60_VERSION_MINOR}}.${{PYS60_VERSION_MICRO}} ${{PYS60_VERSION_TAG}} created by Nokia Corporation. 
+
+Files added by Nokia Corporation are licensed under Apache License Version 2.0.
+
+The original software, including modifications of Nokia Corporation
+therein, is licensed under the applicable license(s) for Python 2.5.1,
+unless specially indicated otherwise in the relevant source code file.
+
+See http://www.apache.org/licenses/LICENSE-2.0
+and http://www.python.org/2.2.2/license.html

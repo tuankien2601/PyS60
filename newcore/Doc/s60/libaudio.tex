@@ -1,0 +1,176 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{audio} ---
+  An audio related services package}
+\label{sec:audio}
+
+\declaremodule{extension}{audio}
+\platform{S60}
+\modulesynopsis{An audio related services package.}
+
+The \module{audio} module enables recording and playing audio files and access 
+to device text-to-speech engine. The \module{audio} module supports all the 
+formats supported by the device, typically: WAV, AMR, MIDI, MP3, AAC, and Real 
+Audio\footnote{The dynamically loaded audio codec for the sound file is based on 
+the MIME-type information inside the audio file and file extension.}. For more 
+information on the audio types supported by different devices, see the 
+\textit{Forum Nokia} Web site \cite{S60AudioVideo} and \textit{S60 Platform} Web 
+site \cite{S60Developers}. 
+
+The following \class{Sound} class static methods are defined in the 
+\module{audio} module:
+
+\begin{funcdesc}{Sound.open}{filename}
+
+Returns a new initialized \class{Sound} object with the named file opened. 
+Note that \var{filename} should be a full Unicode path name and 
+must also include the file extension, for example \code{u'c:\e\e foo.wav'}.
+\end{funcdesc}
+
+The following data items for state information are available in \module{audio}:
+
+\begin{datadesc}{ENotReady}
+The \class{Sound} object has been constructed but no audio file is open.
+\end{datadesc}
+
+\begin{datadesc}{EOpen} 
+An audio file is open but no playing or recording operation is in progress.
+\end{datadesc}
+
+\begin{datadesc}{EPlaying} 
+An audio file is playing.
+\end{datadesc}
+
+\begin{datadesc}{ERecording}
+An audio file is being recorded.
+\end{datadesc}
+
+The following data item is provided for continuous playback of an audio file:
+
+\begin{datadesc}{KMdaRepeatForever}
+Possible value for \var{times} parameter in \function{open}.
+\end{datadesc}
+
+The following method is available in the \module{audio} module:
+
+\begin{funcdesc}{say}{text, prefix=audio.TTS_PREFIX}
+Passes the \code{text} to the device text-to-speech engine. The default 
+\code{prefix} is the text-to-speech prefix \code{"(tts)"}. 
+
+\code{text} should be either Unicode or a UTF-8 encoded plain
+string. The speech synthesizer pronounces the text according to the
+current device language.
+\end{funcdesc}
+
+\subsection{Sound Objects}
+\label{subsec:sound}
+
+\begin{classdesc*}{Sound}
+
+\class{Sound} objects have the following functions:
+
+\begin{methoddesc}[Sound]{play}{\optional{times=1, interval=0, callback=None}}
+
+Starts playback of an audio file from the beginning. Without the parameters 
+\var{times} and \var{interval} it plays the audio file one time. 
+\var{times} defines the number of times the audio file is played, the 
+default being \var{1}. If the audio file is played several times, 
+\var{interval} gives the time interval between the subsequent plays in 
+microseconds. 
+
+The optional callback is called when the playing starts and when the end of the 
+sound file is reached. The callback should take three parameters: the previous 
+state, the current state and the possible error code. The possible states given 
+as parameters to the callback are data items in the module \code{audio}.
+
+Other issues: 
+
+\begin{itemize}
+\item Calling \code{play(audio.KMdaRepeatForever)} will repeat the file forever. 
+\item If an audio file is played but not stopped before exiting, the Python script will leave audio playing on; therefore \code{stop} needs to be called explicitly prior to exit.
+\item Currently the module does not support playing simultaneous audio files, calling \code{play} to a second \class{Sound} instance while another audio file is playing, stops the earlier audio file and starts to play the second \class{Sound} instance.
+\item Calling \code{play} while a telephone call is ongoing plays the sound file to uplink. In some devices the sound file is also played to the device speaker.
+\item Calling \code{play} when already playing or recording results in \code{RuntimeError}. Calling \code{stop} prior to \code{play} will prevent this from happening.
+\end{itemize}
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{stop}{}
+Stops playback or recording of an audio file.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{record}{}
+Starts recording audio data to a file. If the file already exists, the 
+operation appends to the file. For Nokia devices, WAV is typically supported 
+for recording. For more information on the audio types supported by 
+different devices, see the \textit{Forum Nokia} Web site 
+\cite{S60AudioVideo} and \textit{S60 Platform} Web site 
+\cite{S60Developers}. Other issues:
+
+\begin{itemize}
+\item Calling \code{record} while a telephone call is ongoing starts the recording of the telephone call. 
+\item Calling \code{record} when already playing or recording results in \code{RuntimeError}. Calling \code{stop} prior to \code{record} will prevent this from happening.
+\end{itemize}
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{close}{}
+Closes an opened audio file.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{state}{}
+Returns the current state of the \class{Sound} type instance. The different 
+states (constants) are defined in the \module{audio} module. The possible 
+states\footnote{Descriptions for these options are based on information 
+found in S60 SDK documentation \cite{S60Doc}.} are:
+
+\begin{itemize}
+\item \code{ENotReady} \newline
+The \textsf{Sound} object has been constructed but no audio file is open.
+\item \code{EOpen} \newline
+An audio file is open but no playing or recording operation is in progress.
+\item \code{EPlaying} \newline
+An audio file is playing.
+\item \code{ERecording} \newline
+An audio file is being recorded.
+\end{itemize}
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{max_volume}{}
+Returns the maximum volume of the device.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{set_volume}{volume}
+
+Sets the volume. If the given volume is negative, then the volume is set to 
+zero which mutes the device. If the volume is greater than \code{max_volume}, 
+then \code{max_volume} is used.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{current_volume}{}
+Returns the current volume set.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{duration}{}
+Returns the duration of the file in microseconds.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{set_position}{microseconds}
+Set the position for the playhead.
+\end{methoddesc}
+
+\begin{methoddesc}[Sound]{current_position}{}
+Returns the current playhead position in microseconds.
+\end{methoddesc}
+
+\end{classdesc*}

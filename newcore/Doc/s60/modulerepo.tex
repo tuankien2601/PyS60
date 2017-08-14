@@ -1,0 +1,206 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\chapter{Module Repository}
+\label{modulerepo}
+{\bf Introduction} \break
+
+Starting with PyS60 1.9.x series, the Python core is upgraded to 2.5.4.
+With this, PyS60 1.9.x is loaded with much more core Python modules than the
+previous PyS60 releases that were based on Python 2.2.2 core. This also means
+that the size of the runtime SIS file increases by many folds. Bigger runtime
+SIS means longer time to download it and also longer time to install it on to
+a device. This also results in slowing down the interpreter load time.
+
+The following were the main ideas behind this packaging tool:
+\begin {itemize}
+\item Reduce the runtime SIS file size, with no compromise on the number of modules supported by the Python runtime
+\item Easier SIS packaging for Python applications
+\item Easier and more robust ways to use and distribute extension modules with your application
+\end {itemize}
+
+These have been achieved in PyS60 1.9.x by:
+\begin {itemize}
+\item Reducing the runtime SIS size by including only the most essential modules in it.
+\item Providing a repository for those modules that are not included in the runtime
+SIS. This repository is a part of the PyS60 Application packager installed on
+to the host system.
+\item At the time of packaging a Python application it into a SIS, the application
+is scanned to find the dependency modules and packaged them along with the
+application files.
+\end {itemize}
+
+Module repository (hereafter module-repo) is the name given to the directory
+structure where all the Python modules are placed. This can be
+extended by the users by adding their own modules in it. This also includes
+information required to package all the Python modules on which a given Python
+script is dependent on. This module-repo is installed on the host machine
+along with the PyS60 Application Packager.
+
+\begin{notice}[note]
+The following codecs related modules _codecs_cn, _codecs_hk, _codecs_jp, _codecs_kr and
+_codecs_tw are not packaged automatically. If the application depends on any of them, then
+they can be packaged by explicitly specifying them using the --extra-modules option of
+ensymble. (Use 'Additional options' field in the GUI)
+\end{notice}
+
+{\bf Extending Module-repo} \break
+
+Developers can extend the module-repo by adding the new modules that they
+develop or receive from other extension developers. Module-repo can be extended
+by the steps mentioned below:
+
+\begin {itemize}
+\item Place all the Python modules in a directory, named with the module name
+and copy it to module-repo$\backslash$dev-modules directory.
+
+\item The module directory should also contain a configuration file named as
+module_config.cfg. This file contains the information about the module
+dependencies. It should be a dictionary with key 'type' which has a value 'repo'
+indicating that it is part of module-repo and 'deps' which is a list
+of Python modules on which the module is directly dependent. The packager will
+automatically scan the application(only .py files) for dependencies related to
+Python core modules. If the application is dependent on any dev-module then it
+should be mentioned here.
+\end {itemize}
+
+\begin{verbatim}
+    {'type': 'repo',  'deps': ["socket", "btsocket", "my_mod1"]}
+\end{verbatim}
+
+
+{\bf Directory structure on the PC} \break
+
+\begin{verbatim}
+<PythonForS60>\
+                module-repo\
+                        standard-modules\
+                            ...
+                        dev-modules\
+                            module_search_path.cfg
+                            mod1\
+                                module_config.cfg
+                                mod1.py
+                            mod2\
+                                module_config.cfg
+                                kf_mod2.pyd
+                            mod3\
+                                module_config.cfg
+                                mod3\
+                                    __init__.py
+                                    mod3_run.py
+                            mod4\
+                                module_config.cfg
+                                kf_mod4core.pyd
+                                kf_mod4base.pyd
+                                mod4\
+                                    __init__.py
+                                    mod4_wrapper.py
+\end{verbatim}
+
+\begin {itemize}
+\item Dev module type-1 : mod1 - A single py file \break
+For developer modules that have a single Python file, the directory should be
+named after the file and placed under dev-modules folder. If mod1.py imports any
+third party PYD modules then it has to explicitly mention the dev module name
+so that it is packaged along with the application. This can be mentioned in the
+module_config.cfg file.
+
+\item Dev module type-2 : mod2 - A single PYD \break
+The PYD should be directly under the module folder and should be prefixed
+with 'kf_'. If the PYD is dependent on some other dev module then it should be
+mentioned in the module_config.cfg file.
+
+\item Dev module type-3 : mod3 - A Python package \break
+If the developer module is a Python package then the package folder should be
+under another folder named after the pacakge. The module_config.cfg should be
+outside the package and serves the same purpose as mentioned above.
+
+\item Dev module type-4 : mod4 - A Python package with PYDs \break
+This is a mixture of type-2 and type-3 and in this scenario the PYDs should be
+at the top level of the module directory. If an application imports mod4 then
+the application packager will find the mod4 directory under dev-modules folder
+and package the mod4 Python package along with the PYDs(kf_mod4core.pyd and
+kf_mod4base.pyd).
+\end {itemize}
+
+
+{\bf Distributing extension modules to application developers} \break
+
+Distributing extension modules to application developers is much easier now with
+the PyS60 application packager scanning for dependencies automatically. The
+extension module developers should create a zip/rar/tar archive of their module
+directory in the format mentioned above so that the application developers can
+directly extract it to the dev-modules folder. After this the application
+developers just need to use PyS60 application packager to package their script.
+The application packager will automatically scan the dependencies and package
+the dev-modules the script is dependent on.
+
+
+{\bf Module search path} \break
+
+A module when being included in the application package, is first searched
+in the paths specified in the configuration file - module_search_path.cfg unless
+it is distributed by PyS60( e.g. : messaging, contacts, sysinfo etc.).
+If it is not found in these locations, then it searches for this module in
+the module-repo.
+
+The paths in the config file are in a list(['path1', 'path2']). This feature is
+useful in the scenario when the Python modules (especially the extension
+modules - PYD files) are not present in the module-repo. The developer can
+just specify the path to be searched for the modules, instead of copying them
+to the module-repo.
+
+For example, if the developer is developing an extension module, he can specify
+the path to $\backslash$epoc32$\backslash$release$\backslash$armv5$\backslash$urel
+in the module search path and the module is automatically picked up while packaging.
+Without this option, the developer needs to copy the module to module-repo every
+time he compiles the code.
+
+
+{\bf Directory structure on a device} \break
+
+The application SIS will contain all its dependencies packaged along with it. All
+the py files except default.py are zipped into lib.zip and placed in the application's
+private directory. A white-list.cfg is maintained which contains entries for
+all the PYDs packaged with the application which will be used by PyS60's import
+mechanism.
+
+The files are placed on a device as shown below:
+\begin{verbatim}
+!:\
+    private\
+        [app-UID]\
+            white-list.cfg [List of PYDs packaged with the app]
+            default.py [application script]
+            lib.zip [standard, dev and application py files]
+
+        resource\
+            python25\
+                core-modules [PY files compiled and zipped - placed by base runtime]
+
+        sys\
+            bin\
+                core-modules [PYDs - placed by base runtime]
+                repo-modules [standard-pyd and dev-pyd files, renamed with application's UID]
+\end{verbatim}
+
+
+{\bf Include additional modules} \break
+
+A new option is added to PyS60 application packager which can be used to include
+additional modules with the application. If the application packager does not include
+a module needed by the application automatically, then the user can use the
+ \code{--extra-modules} option to forcefully include additional modules with the
+ application.

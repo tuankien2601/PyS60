@@ -1,0 +1,565 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\subsection{Module for devices that support S60 Sensor FrameWork}
+\label{subsec:sensorfw}
+
+The Python S60 sensor module supports access of sensors on the devices that have S60 Sensor Framework libraries. The S60 Sensor Framework is introduced in S60 Fifth Edition. It is also backported to S60 Third Edition, Feature Pack 2 for some mobile devices and to the Nokia E66 device, which is an S60 3rd Edition, Feature Pack 1 device with sensor APIs based on the S60 Sensor Framework.
+
+The sensor module offers direct access to physical sensors of a device. The following sensor channels are supported by the sensor module, provided the device supports them:
+
+\begin{itemize}
+\item Accelerometer XYZ sensor channel
+\item Rotation sensor channel
+\item Orientation sensor channel
+\item Accelerometer double-tap sensor channel
+\item Proximity monitor sensor channel
+\item Ambient light sensor channel
+\item Magnetic North sensor channel
+\item Magnetometer XYZ sensor channel.
+\end{itemize}
+
+The following table lists the sensors available on different S60 devices:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{l|p{18mm}|p{19mm}|l|l|p{1cm}|p{13mm}|p{15mm}|p{2cm}|p{15mm}}
+\hline
+& {\bf Accelerometer double tap} & {\bf Accelerometer XYZ} & {\bf Orientation} & {\bf Rotation} & {\bf Ambient light} & {\bf Magnetic north} & {\bf Proximity monitor} & {\bf Magnetometer XYZ} & {\bf S60 platform}  \\
+\hline
+N85 & x & x & x & x & NA & NA & NA & NA & 3rdFP2  \\
+\hline
+E66 & x & x & x & x & NA & NA & NA & NA & 3rdFP1  \\
+\hline
+N96 & x & x & x & x & NA & NA & NA & NA & 3rdFP2  \\
+\hline
+E75 & x & x & x & x & NA & NA & NA & NA & 3rdFP2  \\
+\hline
+6720 & NA & x & x & NA & x & x & NA & NA & 3rdFP2  \\
+\hline
+5800 & x & x & x & x & x & NA & x & NA & 5thEd  \\
+\hline
+6210 & x & x & x & x & NA & x & NA & x & 3rdFP2  \\
+\hline
+6710 & x & x & x & x & NA & x & NA & x & 3rdFP2  \\
+\hline
+E55 & x & x & NA & x & x & x & NA & x & 3rdFP2  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+These sensors are mapped to a class using which the sensor channel data can be accessed. To access a particular sensor data, an object of the respective class is created. Then the data callback function can be set using the \method{set_callback()} method. To start and stop receiving updates the \method{start_listening()} and \method{stop_listening()} methods can be used.
+
+\subsubsection{Module Level Functions}
+
+{\bf List Channels} \break
+Function signature: \method{list_channels}
+
+This returns a list of dictionaries containing all the available sensors on the device. The returned dictionary has the following format:
+
+\begin{verbatim}
+[
+ {'id': channel id, 'type': channel type, 'name': channel name}
+
+ {'id': channel id, 'type': channel type, 'name': channel name}
+
+....
+]
+\end{verbatim}
+
+where, \code{channel_id}, \code{channel_type}, and \code{channel_name} have strings as values of the respective channels.
+
+{\bf Query Logical Name} \break
+Function signature : \method{get_logicalname(<DataLookupClass>, value)}
+
+This function can be used for querying the logical name based on value. The file {\bf sensor_defs.py} has the mapping of different sensor properties to their respective hex/decimal values. The following table contains the sensor classes, supported by \method{get_logicalname()} and the respective data lookup classes.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Sensor Class} & {\bf DataLookupClass}  \\
+\hline
+\code{ProximityMonitor} & \code{ProximityState}  \\
+\hline
+\code{OrientationData} & \code{DeviceOrientation}  \\
+\hline
+\code{AmbientLightData} & \code{AmbientLightData}  \\
+\hline
+\code{AccelerometerDoubleTappingData} & \code{AccelerometerDirection}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Base Class}
+
+The base class to all types of sensor class is \class{_Sensor}. This class provides the methods: \method{set_callback}, \method{start_listening}, and \method{stop_listening} that are common to all the sensor class objects. The individual sensor class objects must be used for a specific sensor.
+
+{\bf Object Creation} \break
+Function signature: \method{__init__([data_filter=None])}
+
+The \code{data_filter} argument is only applicable for \class{*XYZAxisData} and \class{RotationData} sensor classes.
+
+Possible Values: \method{MedianFilter()}, \method{LowPassFilter()}
+
+\begin{itemize}
+\item If nothing is passed then the data remains in its present condition without any filtering.
+\item \code{MedianFilter} and \code{LowPassFilter} are standard noise filtering algorithms that provide a smoother form of a signal removing the short-term oscillations, leaving only the long-term trend.
+\end{itemize}
+
+{\bf Set Data and Error Callback} \break
+Function signature: \method{set_callback(data_callback, [error_callback=None])}
+
+Sets the data and error callback function. The error callback function will get an argument that contains a map with Channel ID and error string. The data callback function is not passed with any arguments.
+
+{\bf Open and Listen} \break
+Function signature: \method{start_listening()}
+
+Opens the sensor channel and start listening. Returns \code{True} on success and \code{False} on failure.
+
+{\bf Stop and Close} \break
+Function signature: \method{stop_listening()}
+
+Stop listening to the open channel and close the channel. To start receiving updates again the \method{start_listening} method can be called on the same sensor object.
+
+{\bf Set/Get Sensor Channel Property} \break
+
+Each sensor class has methods which can be used to set or get the sensor channel properties like data rate, measure range, axis active etc...
+
+{\bf Class Attributes} \break
+
+The sensor classes have one or more attributes which contains the data returned by the respective sensor. These attributes will be set before the registered data callback function is called and can be accessed using the respective sensor class object.
+
+\subsubsection{class AccelerometerXYZAxisData}
+
+\begin{itemize}
+\item Detects movement gestures, such as moving the device up or down.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attributes} \break
+
+\begin{itemize}
+\item {\bf x}: X-axis value
+\item {\bf y}: Y-axis value
+\item {\bf z}: Z-axis value
+\end{itemize}
+
+{\bf Set/Get Property} \break
+
+This sensor class provides additional functions that can be used to set or get some of the properties specific to this sensor.
+
+The following table lists the set/get properties of the sensor class:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{p{6cm}|p{9cm}}
+\hline
+{\bf Set/Get properties} & {\bf Description}  \\
+\hline
+\code{get_available_data_rates()} & Returns the data rates that can be used for this channel.  \\
+\hline
+\code{set_data_rate(data_rate)} & Sets the data rate to be used for this channel.  \\
+\hline
+\code{get_data_rate()} & Returns the current data rate for this channel.  \\
+\hline
+\code{set_measure_range(measurerange)} & Sets the measure range. Pass 0 to set +-2g, 1 for +-8g  \\
+\hline
+\code{get_measure_range()} & Returns the current measure range. Returns 0 for +-2g, 1 for +-8g \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+import time
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.accelerometer = \
+            AccelerometerXYZAxisData(data_filter=LowPassFilter())
+        self.accelerometer.set_callback(data_callback=self.my_callback)
+        self.counter = 0
+
+    def my_callback(self):
+        # For stream sensor data the callback is hit 35 times per sec(On 5800).
+        # The device cannot handle resource hungry operations like print in the
+        # callback function for such high frequencies. A workaround is to
+        # sample the data as demonstrated below.
+        if self.counter % 5 == 0:
+            print  "X:%s, Y:%s, Z:%s" % (self.accelerometer.x,
+                                    self.accelerometer.y, self.accelerometer.z)
+            print "Timestamp:", self.accelerometer.timestamp
+        self.counter = self.counter + 1
+
+    def run(self):
+        self.accelerometer.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(5)
+    d.accelerometer.stop_listening()
+    print "Exiting Accelorometer"
+\end{verbatim}
+
+\subsubsection{class AccelerometerDoubleTappingData}
+
+\begin{itemize}
+\item Detects a double-tap on the device where the taps occur in quick succession, in the same direction.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attribute} \break
+
+{\bf Direction}: Hex value indicating the tap direction. The direction can be determined in human readable form using \code{get_logicalname} API and class name as \code{AccelerometerDirection}.
+
+{\bf Set/Get Property} \break
+
+This sensor class provides additional functions that can be used to set or get some of the properties specific to this sensor.
+
+\newpage
+The following table lists the set/get properties of the sensor class:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{p{7cm}|p{9cm}}
+\hline
+{\bf Set/Get properties} & {\bf Description}  \\
+\hline
+\code{get_axis_active()} & Returns {\bf x}, {\bf y}, {\bf z} values: 1 if axis is active else 0.  \\
+\hline
+\code{set_axis_active([x=None, y=None, z=None])} & Sets one or more axis as active. Pass 1 to set the axis and 0 to disable it.  \\
+\hline
+\code{get_properties()} & Returns a dictionary with \code{"DoubleTapThreshold"}, \code{"DoubleTapDuration"}, \code{"DoubleTapLatency"}, \code{"DoubleTapInterval"} as the keys and their respective values.  \\
+\hline
+\code{set_properties([DoubleTapThreshold = None, DoubleTapDuration = None, DoubleTapLatency = None, DoubleTapInterval = None])} & Sets the tap related properties.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.doubletap = AccelerometerDoubleTappingData()
+        self.doubletap.set_axis_active(x=0, y=1, z=1)
+        print "Active Axis are: ", self.doubletap.get_axis_active()
+        self.doubletap.set_callback(data_callback=self.my_callback)
+
+    def my_callback(self):
+        print "Raw Direction value:", self.doubletap.direction
+        print "Direction:", get_logicalname(AccelerometerDirection,
+                                             self.doubletap.direction)
+        print "Timestamp:", self.doubletap.timestamp
+
+    def run(self):
+        self.doubletap.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(15)
+    d.doubletap.stop_listening()
+    print "Exiting Double Tap"
+\end{verbatim}
+
+\subsubsection{class MagnetometerXYZAxisData}
+
+\begin{itemize}
+\item Indicates the strength of the geomagnetic flux density in the X, Y and Z axes.
+\item Only calibrated axis data is exposed right now and not raw data.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attributes} \break
+
+\begin{itemize}
+\item {\bf x} : X-axis value
+\item {\bf y} : Y-axis value
+\item {\bf z} : Z-axis value
+\item {\bf calib_level}: Indicates the calibration level.
+\begin{itemize}
+\item {\bf Possible values:}
+\begin{itemize}
+\item \code{0} - Not calibrated
+\item \code{1} - Low calibration
+\item \code{2} - Medium calibration
+\item \code{3} - High accuracy
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.magnetometer = \
+            MagnetometerXYZAxisData(data_filter=LowPassFilter())
+        self.magnetometer.set_callback(data_callback=self.my_callback)
+        self.counter = 0
+
+    def my_callback(self):
+        # For stream sensor data the callback is hit 35 times per sec(On 5800).
+        # The device cannot handle resource hungry operations like print in the
+        # callback function for such high frequencies. A workaround is to
+        # sample the data as demonstrated below.
+        if self.counter % 5 == 0:
+            print  "Calib:", self.magnetometer.calib_level
+            print "X:%s, Y:%s, Z:%s" % (self.magnetometer.x,
+                                      self.magnetometer.y, self.magnetometer.z)
+            print "Timestamp:", self.magnetometer.timestamp
+        self.counter = self.counter + 1
+
+    def run(self):
+        self.magnetometer.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(5)
+    d.magnetometer.stop_listening()
+    print "Exiting MagnetometerAxis"
+\end{verbatim}
+
+\subsubsection{class MagneticNorthData}
+
+\begin{itemize}
+\item Indicates the number of degrees between the device and magnetic north.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attribute} \break
+
+{\bf Azimuth}: 0 to 359 clockwise degrees from magnetic north.
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.magnetic_north = MagneticNorthData()
+        self.magnetic_north.set_callback(data_callback=self.my_callback)
+
+    def my_callback(self):
+        azimuth = str(self.magnetic_north.azimuth)
+        print "Azimuth:", azimuth
+        print "Timestamp:", timestamp
+
+    def run(self):
+        self.magnetic_north.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(1)
+    d.magnetic_north.stop_listening()
+    print "Exiting MagneticNorth"
+\end{verbatim}
+
+\subsubsection{class AmbientLightData}
+
+\begin{itemize}
+\item Indicates the current light level.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attribute} \break
+
+{\bf Ambient_light}: 0 to 100 percent light. To get the logical names use \code{get_logicalname} API with class name as \code{AmbientLightData}.
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.ALS = AmbientLightData()
+        self.ALS.set_callback(data_callback=self.my_callback)
+
+    def my_callback(self):
+        print 'ALS:', get_logicalname(AmbientLightData,
+                                        self.ALS.ambient_light)
+        print 'Timestamp:', self.ALS.timestamp
+
+    def run(self):
+        self.ALS.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(30)
+    d.ALS.stop_listening()
+    print "Exiting Ambient Light"
+\end{verbatim}
+
+\subsubsection{class ProximityMonitor}
+
+\begin{itemize}
+\item Indicates how close the device is to your hand or ear.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attribute} \break
+
+{\bf Proximity_state}: The possible values are 0, 1 and 2. To get the logical names of these values use \code{get_logicalname} API with \code{ProximityState} as the class name.
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.proxi = ProximityMonitor()
+        self.proxi.set_callback(data_callback=self.my_callback)
+
+    def my_callback(self):
+        print 'Proxi:', get_logicalname(ProximityState,
+                                          self.proxi.proximity_state)
+        print 'Timestamp:', self.proxi.timestamp
+
+    def run(self):
+        self.proxi.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(10)
+    d.proxi.stop_listening()
+    print "After Stop Listening"
+    e32.ao_sleep(5)
+    print "Exiting Proximity"
+\end{verbatim}
+
+\subsubsection{class OrientationData}
+
+\begin{itemize}
+\item Indicates the orientation of the device, for example: display up or down.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{Class Attribute} \break
+
+{\bf device_orientation}: Values range from -1 to 6. To determine the logical names of these values \code{get_logicalname} API can be used with class name as \code{DeviceOrientation}.
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.orientation = OrientationData()
+        self.orientation.set_callback(data_callback=self.my_callback)
+
+    def my_callback(self):
+        print 'Orientation:', get_logicalname(DeviceOrientation,
+                                self.orientation.device_orientation)
+        print 'Timestamp:', self.orientation.timestamp
+
+    def run(self):
+        self.orientation.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(10)
+    d.orientation.stop_listening()
+    print "Exiting Orientation"
+\end{verbatim}
+
+\subsubsection{class RotationData}
+
+\begin{itemize}
+\item Detects the rotation of the device about each axis.
+\item Inherits from the \class{_Sensor} base class.
+\end{itemize}
+
+{\bf Class Attribute} \break
+
+\begin{itemize}
+\item {\bf x}: X-axis value
+\item {\bf y}: Y-axis value
+\item {\bf z}: Z-axis value
+\end{itemize}
+
+{\bf Example} \break
+
+\begin{verbatim}
+from sensor import *
+import e32
+
+
+class DemoApp():
+
+    def __init__(self):
+        self.rotation = RotationData()
+        self.rotation.set_callback(data_callback=self.my_callback)
+        self.counter = 0
+
+    def my_callback(self):
+        # For stream sensor data the callback is hit 35 times per sec(On 5800).
+        # The device cannot handle resource hungry operations like print in the
+        # callback function for such high frequencies. A workaround is to
+        # sample the data as demonstrated below.
+        if self.counter % 5 == 0:
+            print "X:%s, Y:%s, Z:%s" % (self.rotation.x,
+                                        self.rotation.y, self.rotation.z)
+            print "Timestamp:", self.rotation.timestamp
+        self.counter = self.counter + 1
+
+    def run(self):
+        self.rotation.start_listening()
+
+if __name__ == '__main__':
+    d = DemoApp()
+    d.run()
+    e32.ao_sleep(5)
+    d.rotation.stop_listening()
+    print "Exiting Rotation"
+\end{verbatim}
+
+

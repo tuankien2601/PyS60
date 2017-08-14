@@ -1,0 +1,247 @@
+#!/usr/bin/make -f
+
+PYMAJOR=2
+PYMINOR=5
+PYVER=$(PYMAJOR).$(PYMINOR)
+PYTHON=python$(PYVER)
+
+p_base=$(PYTHON)
+p_dev=$(PYTHON)-dev
+d_base=$(CURDIR)/debian/$(p_base)
+d_dev=$(CURDIR)/debian/$(p_dev)
+
+include /usr/share/quilt/quilt.make
+
+only_dev_list=$(CURDIR)/debian/onlysdk
+
+scriptdir=usr/lib/$(PYTHON)
+
+ifeq ($(DEB_BUILD_ARCH),armel)
+	CFLAGS=-Os -mthumb -mfloat-abi=softfp -Wall -Wstrict-prototypes
+else
+	CFLAGS=-Os -Wall -Wstrict-prototypes
+endif
+
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f stamp-*
+	-$(MAKE) clean
+	-rm -rf config.log Lib/test/db_home build locales
+	-find -name '*.py[co]' | xargs -n 50 rm -f
+	dh_clean
+
+
+common_configure_args = \
+		--prefix=/usr \
+		--with-fpectl \
+		--enable-ipv6 \
+		--enable-unicode=ucs4 \
+		--without-cxx \
+		--enable-shared \
+		--with-system-ffi \
+		--without-doc-strings \
+		--srcdir=..
+
+stamp-configure:
+	autoconf
+	mkdir -p build
+	cd build && \
+	  CFLAGS="$(CFLAGS)" \
+	  OPT="$(CFLAGS) -DNDEBUG" \
+	  ../configure $(common_configure_args)
+	touch stamp-configure
+
+build: stamp-build
+stamp-build: stamp-configure
+	dh_testdir
+
+	OPT="$(CFLAGS) -DNDEBUG" $(MAKE) -C build
+	touch stamp-build
+
+install: build stamp-install
+stamp-install: stamp-build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	$(MAKE) -C build install DESTDIR=$(d_dev)
+
+	# remove unneeded modules
+	rm -rf \
+	    $(d_dev)/$(scriptdir)/test \
+	    $(d_dev)/$(scriptdir)/ctypes/test \
+	    $(d_dev)/$(scriptdir)/sqlite3/test \
+	    $(d_dev)/$(scriptdir)/email/test \
+	    $(d_dev)/$(scriptdir)/lib-dynload/rgbimage.so \
+	    $(d_dev)/$(scriptdir)/lib-dynload/rgbimg.so \
+	    $(d_dev)/$(scriptdir)/lib-dynload/linuxaudiodev.so \
+	    $(d_dev)/$(scriptdir)/lib-dynload/ossaudiodev.so \
+	    $(d_dev)/$(scriptdir)/lib-dynload/audioop.so \
+	    $(d_dev)/$(scriptdir)/lib-dynload/_ctypes_test.so \
+	    $(d_dev)/$(scriptdir)/lib-dynload/_testcapi.so \
+	    $(d_dev)/$(scriptdir)/idlelib \
+	    $(d_dev)/$(scriptdir)/lib-tk \
+	    $(d_dev)/$(scriptdir)/bsddb \
+	    $(d_dev)/$(scriptdir)/xml/{dom,parsers,sax}
+
+	# base
+	# ====
+
+	# create base package directories
+	mkdir -p $(d_base)/$(scriptdir)/plat-linux2
+	mkdir -p $(d_base)/usr/bin
+
+	# shared library
+	mv $(d_dev)/usr/lib/lib$(PYTHON).so.1.0 $(d_base)/usr/lib
+	ln -sf lib$(PYTHON).so.1.0 $(d_base)/usr/lib/lib$(PYTHON).so.1
+
+	# modules that must be outside .zip
+	mv $(d_dev)/$(scriptdir)/site.pyo          $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/os.pyo            $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/posixpath.pyo     $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/stat.pyo          $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/UserDict.pyo      $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/copy_reg.pyo      $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/types.pyo         $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/glob.pyo          $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/fnmatch.pyo       $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/re.pyo            $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/sre.pyo           $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/sre_compile.pyo   $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/sre_constants.pyo $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/sre_parse.pyo     $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/site-packages     $(d_base)/$(scriptdir)
+	mv $(d_dev)/$(scriptdir)/plat-linux2/*.pyo $(d_base)/$(scriptdir)/plat-linux2
+
+	mkdir $(d_base)/$(scriptdir)/lib-dynload
+	for i in `find $(d_dev)/$(scriptdir)/lib-dynload -type f | grep -v -f $(only_dev_list)`; do \
+	    mv $$i $(d_base)/$(scriptdir)/lib-dynload; \
+	done
+
+	(cd $(d_dev)/$(scriptdir) && \
+		find . -name "*.pyo" -type f | \
+		grep -v -f $(only_dev_list) | \
+		zip -0q $(d_base)/usr/lib/python$(PYMAJOR)$(PYMINOR).zip -@ \
+	)
+	find $(d_dev)/$(scriptdir) -name "*.pyo" -type f | grep -v -f $(only_dev_list) | xargs rm -f
+
+	# move the interpreter
+	mv $(d_dev)/usr/bin/python2.5 $(d_base)/usr/bin/python2.5
+
+	# scripts
+	mv $(d_dev)/usr/bin/pydoc $(d_base)/usr/bin/pydoc$(PYVER)
+	mv $(d_dev)/$(scriptdir)/pdb* $(d_base)/$(scriptdir)/
+	ln -sf /usr/lib/python$(PYVER)/pdb.py $(d_base)/usr/bin/pdb$(PYVER)
+	ln -sf pdb$(PYVER) $(d_base)/usr/bin/pdb
+	mv $(d_dev)/$(scriptdir)/pydoc* $(d_base)/$(scriptdir)/
+	ln -sf /usr/lib/python$(PYVER)/pydoc.py $(d_base)/usr/bin/pydoc$(PYVER)
+	ln -sf pydoc$(PYVER) $(d_base)/usr/bin/pydoc
+	
+	# dev
+	# ===
+
+	# manpage
+	mkdir -p $(d_dev)/usr/share/man/man1
+	mv $(d_dev)/usr/man/man1/python.1 $(d_dev)/usr/share/man/man1/$(PYTHON).1
+	rm -rf $(d_dev)/usr/man
+
+	# shared library
+	ln -sf lib$(PYTHON).so.1 $(d_dev)/usr/lib/lib$(PYTHON).so
+	ln -sf ../../lib$(PYTHON).so $(d_dev)/$(scriptdir)/config
+
+	# remove unused items
+	rm -f $(d_dev)/usr/bin/python \
+	      $(d_dev)/usr/bin/idle
+
+	# install the Makefile inside development package
+	sed -e 's,^CXX *=,CXX=		g++ -pthread,' \
+	    -e 's,^RUNSHARED *=.*,RUNSHARED=,' build/Makefile > $(d_dev)/$(scriptdir)/config/Makefile
+
+	# cleanups
+	# ========
+
+	find $(d_base) $(d_dev) -name CVS | xargs rm -rf
+	find $(d_base) $(d_dev) -name .cvsignore | xargs rm -f
+	find $(d_base) $(d_dev) -name "*.exe" | xargs rm -f
+	find $(d_base) $(d_dev) -name '*.py[co]' | xargs rm -f
+	find $(d_base) $(d_dev) -name 'runpy.py' | xargs rm -f
+
+	# default python
+	# ============== 
+
+	ln -sf $(PYTHON).1 $(d_dev)/usr/share/man/man1/python.1
+	(cd $(d_base)/usr/bin && ln -sf python$(PYVER) python)
+	cp -p Tools/i18n/pygettext.py $(d_dev)/usr/bin/pygettext$(PYVER)
+	ln -sf pygettext$(PYVER) $(d_dev)/usr/bin/pygettext
+
+	for i in `find $(d_base) $(d_dev) -type f`; do \
+	  sed '1s,#!.*python[^ ]*\(.*\),#!/usr/bin/env $(PYTHON)\1,' $$i > $$i.temp; \
+	  if cmp --quiet $$i $$i.temp; then \
+	    rm -f $$i.temp; \
+	  else \
+	    mv -f $$i.temp $$i; \
+	    chmod 755 $$i; \
+	  fi; \
+	done
+
+	touch stamp-install
+
+
+binary: binary-indep binary-arch
+binary-indep: install
+	dh_testdir
+	dh_testroot
+	dh_installdirs
+	dh_installexamples
+	dh_link
+	dh_compress -p$(p_dev) -X.py -X.cls -X.css -X.txt -Xgdbinit
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_installdirs
+	dh_strip
+	dh_link
+	dh_compress -p$(p_dev) -X.py -X.cls -X.css -X.txt -Xgdbinit
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+postinst:
+	PYTHON=python2.5
+	if which $PYTHON >/dev/null 2>&1 && [ -e /usr/lib/$PYTHON/compileall.py ]; then
+		DIRLIST=" /usr/lib/python2.5"
+		for i in $DIRLIST ; do
+			$PYTHON -O /usr/lib/$PYTHON/compileall.py -q $i
+			$PYTHON /usr/lib/$PYTHON/compileall.py -q $i
+		done
+	fi
+	if [ "$1" = "configure" ]; then
+		ldconfig
+	fi
+
+
+prerm:
+	dpkg -L python2.5 |
+		awk '$0~/\.py$/ {print $0"c\n" $0"o"}' |
+		xargs rm -f >&2
+
+
+postrm:
+	if [ "$1" = "remove" ]; then
+		ldconfig
+	fi
+
+.PHONY: configure build clean binary-indep binary-arch binary install

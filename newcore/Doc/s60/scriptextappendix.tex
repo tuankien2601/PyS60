@@ -1,0 +1,110 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Appendix}
+\label{sec:scriptextappendix}
+
+\subsection{Platform Service API Error Codes and Description}
+\label{subsec:appenerrors}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf SErrorcode} & {\bf Error Description}  \\
+\hline
+\code{-306} & Error in processing version information.  \\
+\hline
+\code{-305} & Undefined data type is passed as input.  \\
+\hline
+\code{-304} & General Error  \\
+\hline
+\code{-302} & Interface is not found.  \\
+\hline
+\code{-301} & Service is not found.  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1001} & Unknown argument name  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1005} & Service in use  \\
+\hline
+\code{1006} & Service not ready  \\
+\hline
+\code{1007} & No memory  \\
+\hline
+\code{1008} & Hardware not available  \\
+\hline
+\code{1009} & Server busy  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1012} & Not found  \\
+\hline
+\code{1013} & Unknown format  \\
+\hline
+\code{1014} & General error  \\
+\hline
+\code{1015} & Cancel success  \\
+\hline
+\code{1016} & Service timed-out  \\
+\hline
+\code{1017} & Path not found  \\
+\end{tabular}
+\caption{Platform Service API Error Codes}
+\end{center}
+\end{table}
+
+\newpage
+
+\subsection{EventID}
+\label{subsec:appenevent}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf EventID} & {\bf Description}  \\
+\hline
+\code{EventStarted} & Asynchronous service informs the user to prepare for action.  \\
+\hline
+\code{EventCompleted} & Asynchronous service request completed.  \\
+\hline
+\code{EventCanceled} & Asynchronous service request cancelled.  \\
+\hline
+\code{EventError} & Error during asynchronous service request.  \\
+\hline
+\code{EventStopped} & Service no longer available or stopped.  \\
+\hline
+\code{EventQueryExit} & Specifies if exit is possible.  \\
+\hline
+\code{EventInProgress} & Asynchronous service execution in progress.  \\
+\hline
+\code{EventOutParamCheck} & This relates to \code{KLiwOptOutParamCheck}.  \\
+\hline
+\code{EventInParamCheck} & This relates to \code{KLiwOptInParamCheck}.  \\
+\end{tabular}
+\caption{EventID}
+\end{center}
+\end{table}
+
+\pagebreak

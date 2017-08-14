@@ -1,0 +1,126 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{inbox} ---
+   Interface to device inbox}
+\label{sec:inbox}
+
+\declaremodule{extension}{inbox}
+\platform{S60}
+\modulesynopsis{An inbox related services package.}
+
+The \module{inbox} module offers APIs to device inbox, outbox, sent and drafts 
+folders. Currently, the \module{inbox} module supports only SMS handling and 
+notifications of incoming messages to the device inbox.
+
+\begin{classdesc}{Inbox}{\optional{folder_type}}
+Create an \class{Inbox} object.
+
+The optional parameter \code{folder_type} defines the type of the folder to 
+which the created \code{Inbox} object has access to. The default is the device's 
+inbox folder, \code{inbox.EInbox}.
+\end{classdesc}
+
+The following data items are available in the \module{inbox} module to define 
+the type of the folder for \code{Inbox} objects:
+
+\begin{datadesc}{EInbox}
+The device's inbox folder.
+\end{datadesc}
+
+\begin{datadesc}{EOutbox}
+The device's outbox folder.
+\end{datadesc}
+
+\begin{datadesc}{ESent}
+The sent messages folder.
+\end{datadesc}
+
+\begin{datadesc}{EDraft}
+The draft messages folder.
+\end{datadesc}
+
+\subsection{Inbox Objects}
+\label{subsec:inbox}
+
+\class{Inbox} objects have the following functions:
+
+\begin{methoddesc}[Inbox]{sms_messages}{}
+Returns a list of SMS message IDs in device inbox.
+\end{methoddesc}
+
+\begin{methoddesc}[Inbox]{content}{sms_id}
+Retrieve the SMS message content in Unicode. 
+\end{methoddesc}
+
+\begin{methoddesc}[Inbox]{time}{sms_id}
+Retrieve the SMS message time of arrival in seconds since epoch. 
+\end{methoddesc}
+
+\begin{methoddesc}[Inbox]{address}{sms_id}
+Retrieve the SMS message sender address in Unicode. 
+\end{methoddesc}
+
+\begin{methoddesc}[Inbox]{delete}{sms_id}
+Delete the SMS message from inbox.
+\end{methoddesc}
+
+\begin{methoddesc}[Inbox]{unread}{sms_id}
+Returns the status (1=unread, 0=read) of the SMS with id.
+\end{methoddesc}
+
+\begin{methoddesc}[inbox]{set_unread}{sms_id, status}
+Set the status (1=unread, 0=read) of the SMS with id.
+\end{methoddesc}
+
+\begin{methoddesc}[Inbox]{bind}{callable}
+Bind a callback to receive new message events in device inbox. When a new 
+message arrives to the device inbox the \code{callback} gets 
+called with the received message ID. The received message can be other than 
+an SMS message.
+
+If the message received is deleted immediately after e.g. checking the message 
+content, the "new message" sound and dialog are not activated. This 
+functionality might be useful in notification type of applications. 
+\end{methoddesc}
+
+Examples:
+\begin{verbatim}
+>>> import inbox
+>>> i=inbox.Inbox() # Give inbox.ESent as parameter for sent SMSes
+>>> m=i.sms_messages()
+>>> i.content(m[0])
+u'foobar'
+>>> i.time(m[0])
+1130267365.03125
+>>> i.address(m[0])
+u'John Doe'
+>>> i.delete(m[0])
+>>>
+
+>>> import inbox 
+>>> id=0 
+>>> def cb(id_cb):
+...   global id 
+...   id=id_cb
+... 
+>>> i=inbox.Inbox()
+>>> i.bind(cb)
+>>> # Send an SMS to your inbox here. The "id" gets updated
+>>> i.address(id)
+u'John Doe'
+>>> i.content(id)
+u'print 1'
+>>>
+\end{verbatim}

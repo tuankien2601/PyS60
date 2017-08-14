@@ -1,0 +1,1512 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Landmarks}
+\label{sec:scriptextlandmarks}
+
+The Landmark service enable run-time client applications to manage landmarks in a consistent manner, within a terminal. Landmarks can be stored in one or more databases within a terminal. You can manage landmarks and landmark categories within a database using this service.
+
+A category is characteristic of a landmark. Categories denote a class of geographical or architectural interest, attraction or activity-related types of objects. Categorization is very useful when searching for landmarks by type. The classification of Landmark categories is as follows:
+
+\begin{itemize}
+\item {\bf Local category}: You can create the local category. It does not have global IDs, which distinguish it from the global categories.
+\item {\bf Global category}: Each global landmark category has a unique global identifier associated with it.
+\end{itemize}
+
+Landmarks and Categories are stored in landmark databases. The classifications of Landmark databases are as follows:
+
+\begin{itemize}
+\item {\bf Local database}: Resides in the phone or in a device mapped to the file system of the phone.
+\item {\bf Remote database}: Stored in third party servers, accessed using a specific protocol. Currently remote database and associated operations are not supported.
+\end{itemize}
+
+The \code{Landmarks} service provides the user facilities to access, create, add, delete, import, export, and organize landmarks.
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+\end{verbatim}
+
+The following table summarizes the Landmarks Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Service provider} & \code{Service.Landmarks}  \\
+\hline
+{\bf Supported interfaces} & \code{IDataSource}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Landmarks:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{New} \ref{subsec:landmarknew} & Get a template of landmark or category.  \\
+\hline
+\code{Getlist} \ref{subsec:landmarkgetlist} & Get a list of landmark databases, landmarks or landmark categories based on given criteria.  \\ 
+\hline
+\code{Add} \ref{subsec:landmarkadd} & Add or update a landmark and landmark category.  \\
+\hline
+\code{Delete} \ref{subsec:landmarkdel} & Delete a landmark and landmark category.  \\
+\hline
+\code{Import} \ref{subsec:landmarkimport} & Imports landmark(s).  \\
+\hline
+\code{Export} \ref{subsec:landmarkexport} & Launches application based on the Document.  \\
+\hline
+\code{Organise} \ref{subsec:landmarkorg} & Associate or disassociate a landmark category with a set of landmarks.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{New}
+\label{subsec:landmarknew}
+
+\code{New} method is used to create an empty landmark or landmark category item. You can use the new item as a template. It is available only in synchronous mode.
+
+The following is an example for using \code{New}:
+
+\begin{verbatim}
+new_output = landmark_handle.call('New', {'Type': u'Landmark'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{New}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Operation} & Creates an empty landmark or category item.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & IDataSource interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the content type to create.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} \break
+\code{Category} & Specifies the content type to create.  \\
+\end{tabular}
+\caption{Input parameters for New}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & map \break
+Landmark or category, as discussed in the Key Values \ref{subsec:landmarkkeyval} section. & NA & For content template description, see Landmark and Category in the Key Values \ref{subsec:landmarkkeyval} section.
+\end{tabular}
+\caption{Output parameters for New}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1007} & No memory
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:New:Type is missing} & Indicates Type is missing or data type of Type is mismatched.  \\
+\hline
+\code{Landmarks:New:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to create an empty landmark/category item:
+
+\begin{verbatim}
+import scriptext
+
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+try:
+    new_output = landmark_handle.call('New', {'Type': u'Landmark'})
+    error = new_output['ErrorCode']
+    if error != 0:
+        print "Error in creating the landmark item"
+    else:
+        print "The Landmark item is created"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{GetList}
+\label{subsec:landmarkgetlist}
+
+\code{GetList} is used to retrieve information about landmarks, landmark categories, or landmark databases. Landmarks and landmark categories are retrieved from the specified landmark database or, if no database is specified, from the default one.
+
+The following are the examples for using \code{GetList}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+landmarkinfo = landmark_handle.call('GetList', {'Type': u'Landmark', 
+                                                'Filter':{'uDatabaseURI':  u'dataBaseUri', 
+                                                          'LandmarkName': u'AnyLandMarkNm'}, 
+                                                'Sort' :{'Key': u'LandmarkName', 
+                                                         'Order': u'Descending'}})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = landmark_handle.call('GetList', {'Type': u'Landmark',
+                                            'Filter':{'uDatabaseURI':u'dataBaseUri',
+                                                      'LandmarkName':u'AnyLandMarkNm'},
+                                            'Sort':{'Key':u'LandmarkName',
+                                                    'Order':u'Descending'}}, 
+                                callback=get_list)
+\end{verbatim}
+
+where, \code{get_list} is a user defined callback function. 
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource} \\
+\hline
+{\bf Description} & Retrieves an iterable on items qualified by search criteria.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous, depending on the criteria and use case.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & The iterable points to the first element in the list from an active or specified database. \break
+The default or active database opened for reading landmarks and categories. Creates the database, if it does not exist and is set as active.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies what landmark information is returned and how the returned information is sorted.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{5cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} \break
+\code{Category} \break
+\code{Database} & Performs operation based on the specified content types.  \\
+\hline
+[Filter] & map \break
+Landmark search criteria: For more information, see Key Values \ref{subsec:landmarkkeyval} section in Landmarks. \break
+Category search criteria: For more information, see Key Values \ref{subsec:landmarkkeyval} section in Landmarks. \break
+Database search criteria \break
+\code{[DbProtocol]}: unicode string & {\bf Landmark search criteria}: \break
+It is the map containing the landmark search fields for setting the search criteria. \break
+
+{\bf Text Criterion}: \break
+The following fields can be specified: \break
+\code{LandmarkName} \break
+\code{LandmarkDesc} \break
+
+{\bf Nearest Criterion}: \break
+The following fields need to be specified: \break
+\code{LandmarkPosition} \break
+\code{CoverageRadiusOption} \break
+\code{MaximumDistance} \break
+
+{\bf Category Criterion}: \break
+The following field needs to be specified: \break
+\code{CategoryName} \break
+
+{\bf Area Criterion}: \break
+The following field needs to be specified: \break
+\code{BoundedArea} \break
+
+{\bf Category search criteria}: \break
+It is the map containing the landmark category search fields for setting the search criteria. \break
+
+{\bf Database search criteria}: \break
+\code{DbProtocol}: Search criteria are the protocol string. & Optional Parameter. If filter is not specified, an iterator to all entries of the specified type is returned. \break
+
+Landmark search criteria: \break
+Specify one or more search criteria to retrieve a list of landmarks. \break
+
+\code{CoverageRadiusOption} and \code{MaximumDistance} are required only when landmark Position is specified. \break
+
+Category Search Criteria: \break
+Specify text with wild cards to iterate through the list of categories. \break
+
+Database Search Criteria: \break
+If you do not specify protocol then all available databases will be listed.  \\
+\hline
+[Sort] & map \break
+[Key]: unicode string \break
+Order: unicode string \break & {\bf Key:} \break
+Possible Values for the types: \break
+{\bf Landmark}: \break
+\code{LandmarkName} \break
+{\bf Category}: \break
+\code{CategoryName} \break
+{\bf Database}: \break
+\code{DatabaseURI}
+
+{\bf Order:} \break
+Ascending \break
+Descending \break & Optional Parameter. \break
+
+Default Value for Order \break
+Type Landmarks: Ascending \break
+Type Category: None \break
+Type Database: Ascending \break
+
+Sorts qualified list based on sort key and sort order.  \\
+\end{tabular}
+\caption{Input parameters for Getlist}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ReturnValue} & Iterable \break
+To maps of requested type & map: \break
+\code{Landmark} \break
+\code{Category} \break
+\code{Database} & Iterator to the retrieved list of items of the requested type. For map of type, see \code{Landmark}, \code{Category}, and \code{Database} in the Key Values \ref{subsec:landmarkkeyval} section.  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{-304} & General Error  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:GetList:Type is missing} & Indicates Type is missing or data type of Type is mismatched.  \\
+\hline
+\code{Landmarks:GetList:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\hline
+\code{Landmarks:GetList:Data is missing} & Indicates Data is missing or data type of Data is mismatched.  \\
+\hline
+\code{Landmarks:GetList:LandmarkPosition is missing} & Indicates \code{LandmarkPostion} is missing or data type of \code{LandmarkPostion} is mismatched.  \\
+\hline
+\code{Landmarks:GetList:Latitude is missing} & Indicates Latitude is missing or data type of Latitude is mismatched.  \\
+\hline
+\code{Landmarks:GetList:Longitude is missing} & Indicates Longitude is missing or data type of Longitude is mismatched.  \\
+\hline
+\code{Landmarks:GetList:BoundedArea is missing} & Indicates \code{BoundedArea} is missing or data type of \code{BoundedArea} is mismatched.  \\
+\hline
+\code{Landmarks:GetList:NorthLatitude is missing} & Indicates \code{NorthLatitude} is missing or data type of \code{NorthLatitude} is mismatched.  \\
+\hline
+\code{Landmarks:GetList:SouthLatitude is missing} & Indicates \code{SouthLatitude} is missing or data type of \code{SouthLatitude} is mismatched.  \\
+\hline
+\code{Landmarks:GetList:EastLongitude is missing} & Indicates \code{EastLongitude} is missing or data type of \code{EastLongitude} is mismatched.  \\
+\hline
+\code{Landmarks:GetList:WestLongitude is missing} & Indicates \code{WestLongitude} is missing or data type of \code{WestLongitude} is mismatched.  \\
+\hline
+\code{Landmarks:GetList:MaximumMatches is invalid} & Indicates \code{MaximumMatches} value provided is invalid that is, equal or less than 0.  \\
+\hline
+\code{Landmarks:GetList:Sort is missing} & Indicates Sort is missing or data type of Sort is mismatched.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to query a list of Landmarks with search criteria, in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def get_list(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The landmarks are"
+        for i in input_params["ReturnValue"]:
+            print "Name of Landmark"
+            print i["LandmarkName"]
+            print "Description of Landmark"
+            print i['LandmarkDesc']
+
+    lock.signal()
+
+# Async Query a list of Landmarks with search criteria
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+event_id = landmark_handle.call('GetList', {'Type': u'Landmark',
+                                            'Filter': {'uDatabaseURI':u'dataBaseUri',
+                                                      'LandmarkName':u'AnyLandMarkNm'},
+                                            'Sort': {'Key':u'LandmarkName',
+                                                     'Order':u'Descending'}}, 
+                                callback=get_list)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Add}
+\label{subsec:landmarkadd}
+
+\code{Add} is used to add or modify an object to the active or specified landmark database. It accepts a set of input parameters that define the Type and its details to add. It is available only in synchronous mode.
+
+The following is an example for using \code{Add}:
+
+\begin{verbatim}
+add_output = landmark_handle.call('Add', {'Type': u'Landmark', 
+                                          'Data': {'LandmarkName': u'land1'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Add}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource} \\
+\hline
+{\bf Description} & Adds or Modifies an object to the active or specified landmark database.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded. Update is performed only on an existing landmark or category. You must provide ID of the landmark or category to update. The ID is retrieved by calling \code{GetList}.  \\
+\hline
+{\bf Post-condition} & The default or active database is opened for reading landmarks and categories. A default database is created, if it does not exist and is set as active. \break
+
+Landmark/category is added or edited in the specified database or the active databases, in case database is not specified. A new database is created within a terminal, in case of addition of a new database.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies what landmark information is returned and how the returned information is sorted.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} \break
+\code{Category} & Performs operation based on the specified content types.  \\
+\hline
+Data & {\bf Landmark} \break
+map (\code{LandmarkMap}) \break
+\code{[DatabaseURI]}: unicode string \break
+
+{\bf Category} \break
+map (\code{CategoryMap}) \break
+\code{[DatabaseURI]}: unicode string & {\bf Landmark} \break
+\code{DatabaseURI}: The Uri of the database to which the landmark must be added or edited. If this is not specified then, landmark or category is added to default database. \break
+
+{\bf LandmarkMap}: The map containing the landmark fields which are added or edited. \break
+
+{\bf Category} \break
+\code{DatabaseURI}: The Uri of the database to which the category must be added or edited. \break
+
+{\bf CategoryMap}: The map containing the category fields which are added or edited. & Data Fields contain information about the object to be added. \break
+
+Do not set the ID field to add a new landmark/category. For adding landmark/category you can make use of \code{New}. \break
+
+Do not modify the ID field when editing an existing landmark/category which is retrieved from \code{GetList}.  \\
+\end{tabular}
+\caption{Input parameters for Add}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & string & NA & ID of the landmark/category that was added or modified.  \\
+\end{tabular}
+\caption{Output parameters for Add}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{-304} & General Error  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1006} & Service not ready  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:Add:Type or Data is missing} & Indicates Type is missing or data type of Type is mismatched.  \\
+\hline
+\code{Landmarks:Add:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\hline
+\code{Landmarks:Add:Data is missing} & Indicates Data is missing or data type of Data is mismatched.  \\
+\hline
+\code{Landmarks:Add:LandmarkPosition is missing} & Indicates \code{LandmarkPostion} is missing or data type of \code{LandmarkPostion} is mismatched.  \\
+\hline
+\code{Landmarks:Add:CategoryInfo is missing} & Indicates \code{CategoryInfo} is missing or data type of \code{CategoryInfo} is mismatched.  \\
+\hline
+\code{Landmarks:Add:IconIndex is missing} & Indicates \code{IconIndex} is missing or data type of \code{IconIndex} is mismatched.  \\
+\hline
+\code{Landmarks:Add:LandmarkFields is missing} & Indicates \code{LandmarkFields} is missing or data type of \code{LandmarkFields} is mismatched.  \\
+\hline
+\code{Landmarks:Add:CategoryName is missing} & Indicates \code{CategoryName} is missing or data type of \code{CategoryName} is mismatched.  \\
+\hline
+\code{Landmarks:Add:DatabaseURI is missing} & Indicates \code{DatabaseURI} is missing or data type of \code{DatabaseURI} is mismatched.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to add or modify an object to the active / specified landmark database:
+
+\begin{verbatim}
+import scriptext
+
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+try:
+    add_output = landmark_handle.call('Add', {'Type': u'Landmark',
+                                              'Data': {'LandmarkName': u'land1'}})
+    error = add_output['ErrorCode']
+    if error != 0:
+        print "Error in adding the landmark"
+    else:
+        print "Landmark added"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{Delete}
+\label{subsec:landmarkdel}
+
+\code{Delete} is used to delete the user specified object or data from the active or specified landmark database. It accepts a set of input parameters that define the Type and data for performing the delete operation. It is available only in synchronous mode.
+
+The following is an example for using \code{Delete}:
+
+\begin{verbatim}
+getlist_output = landmark_handle.call('GetList', {'Type': u'Landmark',
+                                                  'Filter': {'LandmarkName': u'land1'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Delete}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}\hline
+{\bf Interface} & \code{IDataSource} \\
+\hline
+{\bf Description} & Deletes an object from the active or specified landmark database.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & The default or active database opened for reading landmarks and categories. A default database is created, if it does not exist and is set as active. \break
+
+A Landmark/category is deleted from an active or specified database. \break
+
+Deleting a database, deletes it from terminal.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type Landmark/category to delete and details of the particular Type.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} \break
+\code{Category} & Performs operation based on the specified content types.  \\
+\hline
+Data & {\bf Landmark} \break
+map \break
+\code{[DatabaseURI]}: unicode string \break
+\code{ID}: unicode string \break
+
+{\bf Category} \break
+map \break
+\code{[DatabaseURI]}: unicode string \break
+\code{ID}: unicode string & NA & the Type Landmark/Category to delete and details of the particular Type. \break
+
+\code{ID} is a mandatory field for deleting a landmark and category object.  \\
+\end{tabular}
+\caption{Input parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1006} & Service not ready  \\
+\hline
+\code{1011} & Access denied  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:Delete:Type or Data is missing} & Indicates Type is missing or data type of Type is mismatched.  \\
+\hline
+\code{Landmarks:Delete:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\hline
+\code{Landmarks:Delete:Data is missing} & Indicates Data is missing or data type of Data is mismatched.  \\
+\hline
+\code{Landmarks:Delete:Id is missing} & Indicates \code{ID} is missing or data type of \code{ID} is mismatched.  \\
+\hline
+\code{Landmarks:Delete:DatabaseURI is missing} & Indicates \code{DatabaseURI} is missing or data type of \code{DatabaseURI} is mismatched.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to delete an object from the active / specified landmark database:
+
+\begin{verbatim}
+import scriptext
+
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+try:
+    getlist_output = landmark_handle.call('GetList', {'Type': u'Landmark',
+                                                      'Filter': {'LandmarkName': u'land1'}})
+    getlist_error = getlist_output['ErrorCode']
+    if getlist_error != 0:
+        print "GetList error"
+    else:
+        retval = getlist_output['ReturnValue']
+        id = retval['id']
+        delete_output = landmark_handle.call('Delete',{'Type': u'Landmark',
+                                                       'Data': {'id': unicode(id)}})
+        delete_error = delete_output['ErrorCode']
+        if delete_error != 0:
+            print "Error in deleting landmark"
+        else:
+            print "Landmark deleted"
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{Import}
+\label{subsec:landmarkimport}
+
+\code{Import} is used to import a set of Landmarks. It accepts a set of input parameters that define the Type and data for performing the operation. It is available only in synchronous mode.
+
+The following is an example for using \code{Import}:
+
+\begin{verbatim}
+getlist_output = landmark_handle.call('GetList', {'Type': u'Landmark', 
+                                                 'Filter': {'LandmarkName': u'land1'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Import}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}\hline
+{\bf Interface} & \code{IDataSource} \\
+\hline
+{\bf Description} & Imports a set of Landmarks.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & The default or active database is opened for reading landmarks and categories. A default database is created, if it does not exist and is set as active. \break
+
+The iterator points to the first item in the list of imported objects. \break
+Updates the Database with the list of imported landmarks.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and Data of the particular landmark to import.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} & Performs operation based on the specified content types.  \\
+\hline
+Data & map \break
+\code{[DatabaseURI]}: unicode string \break
+\code{SourceFile}: unicode string \break
+\code{MimeType}: unicode string & NA & {\bf DatabaseURI}: Import landmarks to the database. If this is not specified landmarks / categories is imported to the default database. \break
+
+{\bf SourceFile}: Import landmarks from this file. \break
+
+{\bf MimeType}: Encoding algorithm. \break
+
+You must specify the Mime type of the landmark content that must be parsed. Mime enables the inclusion of media other than plain text and the inclusion of several entities in one single message. \break
+
+Supported Mime types:
+
+{\bf application/vnd.nokia.landmarkcollection+xml}.  \\
+\end{tabular}
+\caption{Input parameters for Import}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ReturnValue}. It also \code{ErrorCode}, and \code{ErrorMessage} if the operation fails. \code{ReturnValue} is an iterator to an array of Landmarks.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{2cm}|p{3cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & Iterable \break
+To maps of imported Landmark. & map \break
+{\bf Landmark}. For more information, refer Key Values \ref{subsec:landmarkkeyval} section. & Iterator to the list of imported landmarks. For map, see {\bf Landmark} in the Key Values \ref{subsec:landmarkkeyval} section.  \\
+\end{tabular}
+\caption{Output parameters for Import}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1012} & Item not found  \\
+\hline
+\code{1013} & Unknown format  \\
+\hline
+\code{1017} & Path not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:Import:Type or Data is missing} & Indicates Type is missing or data type of Type is mismatched.  \\
+\hline
+\code{Landmarks:Import:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\hline
+\code{Landmarks:Import:Data is missing} & Indicates Data is missing or data type of Data is mismatched.  \\
+\hline
+\code{Landmarks:Import:MimeType is missing} & Indicates \code{MimeType} is missing or data type of \code{MimeType} is mismatched.  \\
+\hline
+\code{Landmarks:Import:SourceFile is missing} & Indicates \code{SourceFile} is missing or data type of \code{SourceFile} is mismatched.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to import a set of landmarks:
+
+\begin{verbatim}
+import scriptext
+
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+try:
+    import_output = landmark_handle.call('Import', {'Type': u'Landmark',
+                                         'Data': {'SourceFile': u'c:\data\land_import.txt',
+                                         'MimeType': 
+                                          u'application/vnd.nokia.landmarkcollection+xml'}})
+    error = import_output['ErrorCode']
+    if error != 0:
+        print "Error in importing landmark"
+    else:
+        print "Landmark imported"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{Export}
+\label{subsec:landmarkexport}
+
+\code{Export} is used to exports a specified set of Landmarks. It is available only in synchronous mode.
+
+The following is an example for using \code{Export}:
+
+\begin{verbatim}
+getlist_output = landmark_handle.call('GetList', {'Type': u'Landmark',
+                                                  'Filter': {'LandmarkName': u'land1'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Export}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}\hline
+{\bf Interface} & \code{IDataSource} \\
+\hline
+{\bf Description} & Imports a set of Landmarks.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & The default or active database is opened for reading landmarks and categories. A default database is created, if it does not exist and is set as active. \break
+
+Landmarks is exported to the specified file.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and Data for performing the operation.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{4cm}|p{2cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} & Performs operation based on the specified content types.  \\
+\hline
+Data & map \break
+\code{[DatabaseURI]}: unicode string \break
+\code{DestinationFile}: unicode string \break
+\code{IdList}: List (Lmid1, Lmid2) \break
+\code{MimeType}: unicode string & NA & {\bf DatabaseURI}: Export landmarks from this database. If this is not specified landmarks/categories is exported from default database. \break
+
+{\bf DestinationFile}: Export landmarks to this file. Complete file path must be specified. \break
+
+{\bf IdList}: List of landmark Ids. \break
+
+{\bf MimeType}: Encoding algorithm. \break
+
+You must specify the Mime type of the landmark content. Mime enables the inclusion of media other than plain text and the inclusion of several entities in one single message. \break
+
+Supported Mime types:
+
+{\bf application/vnd.nokia.landmarkcollection+xml}.  \\
+\end{tabular}
+\caption{Input parameters for Export}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Export}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{-301} & No Service  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1017} & Path not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:Export:Type or Data is missing} & Indicates Type is missing or data type of Type is mismatched.  \\
+\hline
+\code{Landmarks:Export:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\hline
+\code{Landmarks:Export:Data is missing} & Indicates Data is missing or data type of Data is mismatched.  \\
+\hline
+\code{Landmarks:Export:MimeType is missing} & Indicates \code{MimeType} is missing or data type of \code{MimeType} is mismatched.  \\
+\hline
+\code{Landmarks:Export:DestinationFile is missing} & Indicates \code{DestinationFile} is missing or data type of \code{DestinationFile} is mismatched.  \\
+\hline
+\code{Landmarks:Export:IdList is missing} & Indicates \code{IdList} is missing or data type of \code{IdList} is mismatched.  \\
+\hline
+\code{Landmarks:Export:IdList is empty} & Indicates \code{IdList} is empty.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to export a set of landmarks:
+
+\begin{verbatim}
+import scriptext
+
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+try:
+    getlist_output = landmark_handle.call('GetList', {'Type': u'Landmark', 
+                                                      'Filter': {'LandmarkName': u'land1'}})
+    getlist_error = getlist_output['ErrorCode']
+    if getlist_error != 0:
+        print "GetList error"
+    else:
+        retval = getlist_output['ReturnValue']
+        id_val = retval['id']
+        export_output = landmark_handle.call('Export', {'Type':  u'Landmark',
+                                                        'Data': {'DestinationFile':
+                                                                   u'c:\data\export_land.txt',
+                                                                 'idList': [id_val],
+                                                                 'MimeType': 
+                                                                   'application/vnd.nokia.landmarkcollection+xml'}})
+        export_error = export_output['ErrorCode']
+        if export_error != 0:
+            print "Export unsuccessful"
+        else:
+            print "Landmark ecported"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{Organise}
+\label{subsec:landmarkorg}
+
+\code{Organise} is used to associate or disassociate a list of landmarks in a database to a category. It accepts a set of parameters that defines the Type, data, and operation type for performing the operation. It is available only in synchronous mode.
+
+The following is an example for using \code{Organise}:
+
+\begin{verbatim}
+org_output = landmark_handle.call('Organise', {'Type': u'Landmark', 
+                                               'Data': {'id': unicode(cat_id),
+                                               'idList': [id_val1,id_val2]},
+                                               'Operation Type': 'Associate'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Organise}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}\hline
+{\bf Interface} & \code{IDataSource} \\
+\hline
+{\bf Description} & Associates or disassociates a list of landmarks in a database to a category.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & The default or active database is opened for reading landmarks and categories. A default database is created, if it does not exist and is set as active. \break
+
+Landmarks is exported to the specified file.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the type, data, and type of operation for performing the operation.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Landmark} & Performs operation based on the specified content types.  \\
+\hline
+Data & map \break
+\code{[DatabaseURI]}: unicode string \break
+\code{Id}: unicode string \break
+\code{IdList}: List (Id1, Id2) & NA & {\bf DatabaseURI}: Organise landmarks in this database.  \break
+
+{\bf Id}: Associate or disassociate landmarks to the category \code{Id}. \break
+
+{\bf IdList}: List of landmarks need to be organized.  \\
+\hline
+\code{OperationType} & unicode string & {\bf OperationType}: \break
+\code{Associate} \break
+\code{Disassociate} & NA  \\
+\end{tabular}
+\caption{Input parameters for Organise}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Organise}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Landmarks:Organise:Type or Data or OperationType is missing} & Indicates Type is missing or data type of Content Type is mismatched.  \\
+\hline
+\code{Landmarks:Organise:Type is invalid} & Indicates that Type is not a value in the given range.  \\
+\hline
+\code{Landmarks:Organise:Data is missing} & Indicates Data is missing or data type of Data is mismatched.  \\
+\hline
+\code{Landmarks:Organise:Id is missing} & Indicates category Id is missing or data type of category Id is mismatched.  \\
+\hline
+\code{Landmarks:Organise:IdList is missing} & Indicates \code{IdList} is missing or data type of \code{IdList} is mismatched.  \\
+\hline
+\code{Landmarks:Organise:IdList is empty} & Indicates \code{IdList} is empty.  \\
+\hline
+\code{Landmarks:Organise:OperationType is missing} & Indicates \code{OperationType} is missing or data type of \code{OperationType} is mismatched.  \\
+\hline
+\code{Landmarks:Organise:OperationType is invalid} & Indicates \code{OperationType} is not a value in the given range.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to associate or disassociate list of landmarks in a database to a category:
+
+\begin{verbatim}
+import scriptext
+
+landmark_handle = scriptext.load('Service.Landmarks', 'IDataSource')
+try:
+    getlist_cat_output = landmark_handle.call('GetList', {'Type': u'Category'})
+    retval_cat = getlist_cat_output['ReturnValue']
+    cat_id = retval_cat['id']
+
+    getlist_land1_output = landmark_handle.call('GetList', {'Type': u'Landmark',  
+                                                       'Filter': {'LandmarkName': u'land1'}})
+    retval1 = getlist_land1_output['ReturnValue']
+    id_val1 = retval['id']
+
+    getlist_land2_output = landmark_handle.call('GetList', {'Type': u'Landmark',
+                                                       'Filter': {'LandmarkName': u'land2'}})
+    retval2 = getlist_land2_output['ReturnValue']
+    id_val2 = retval['id']
+
+    org_output = landmark_handle.call('Organise', {'Type': u'Landmark', 
+                                                   'Data': {'id': unicode(cat_id),
+                                                            'idList': [id_val1,id_val2]},
+                                                   'Operation Type': 'Associate'})
+    error = org_output['ErrorCode']
+    if error != 0:
+        print "Error in organising contacts"
+    else:
+        print "Conatcs organised"
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{Key Values}
+\label{subsec:landmarkkeyval}
+
+{\bf Landmark} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{10cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{[LandmarkName]} & string & Specifies a name for the landmark. Landmark name is not unique in a database. Maximum string Length is 255.  \\
+\hline
+\code{[id]} & string & A unique identifier created in the database on addition of a new landmark. \break
+
+This field must not be specified when a new landmark is added to the database.  \\
+\hline
+\code{[CategoryInfo]} & List of strings & List of Category IDs to which a landmark belongs.  \\
+\hline
+\code{[LandmarkDesc]} & string & Description about the landmark. Maximum string Length is 4095.  \\
+\hline
+\code{[LandmarkPosition]} & map & map describes latitude, longitude, altitude of a landmark. For more information, see {\bf Position Information of a Landmark}.  \\
+\hline
+\code{[CoverageRadius]} & Double & Radius from a position defined in landmark.  \\
+\hline
+\code{[IconFile]} & string & Specifies Icon associated with landmark. Maximum string Length is 255.  \\
+\hline
+\code{[IconIndex]} & int & Index of icon within the Icon file.  \\
+\hline
+\code{[IconMaskIndex]} & int & Index of the icon mask within the Icon file.  \\
+\hline
+\code{[LandmarkFields]} & map & This is a name-value pair. For more information, see {\bf LandmarkPositionFields}.  \\
+\end{tabular}
+\caption{Key values- Landmark}
+\end{center}
+\end{table}
+
+{\bf Category} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{10cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{[CategoryName]} & string & Specifies a name for the category. Category name is unique in a database. Maximum string Length is 124.  \\
+\hline
+\code{[id]} & string & A unique identifier created in the database on addition of a new category to a database. \break
+
+This field must not be specified when a new landmark is added to the database.  \\
+\hline
+\code{[GlobalId]} & string & Specifies global category ID. This field is a non-modifiable field. It is ignored if passed as input.  \\
+\hline
+\code{[IconFile]} & string & Specifies Icon associated with landmark. Maximum string Length is 255.  \\
+\hline
+\code{[IconIndex]} & int & Index of icon within the Icon file.  \\
+\hline
+\code{[IconMaskIndex]} & int & Index of the icon mask within the Icon file.  \\
+\end{tabular}
+\caption{Key values- Category}
+\end{center}
+\end{table}
+
+{\bf Database} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{11cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{[DatabaseName]} & string & Specifies a name for a database. Database name need not be unique.  \\
+\hline
+\code{DatabaseURI} & string & Database file name defined in specific format: \break
+{\bf <protocol>://<filename>}. \break
+
+For example: \break
+{\bf file://c:landmark.ldb} [local database]. \break
+{\bf protocol://location} [Remote database].  \\
+\hline
+\code{[DbDrive]} & string & Specifies drive in which database is stored. For example, {\bf C}.  \\
+\hline
+\code{[DbProtocol]} & string & Specifies protocol by which database can be accessed.  \\
+\hline
+\code{[DbMedia]} & int & 0: \code{MediaNotPresent} \break
+1: \code{MediaUnknown} \break
+2: \code{MediaFloppyDisk} \break
+3: \code{MediaHardDisk} \break
+4: \code{MediaCdRom} \break
+5: \code{MediaRam} \break
+6: \code{MediaFlash} \break
+7: \code{MediaRom} \break
+8: \code{MediaRemote} \break
+9: \code{MediaNANDFlash} \break
+10: \code{MediaRotatingMedia}  \\
+\hline
+\code{[DbSize]} & int & Specifies the size of the database in bytes.  \\
+\hline
+\code{[DbActive]} & bool & Indicates if this database is opened by default (that is, device default database). \break
+{\bf True}: Default database. \break
+{\bf False}: Not a default database.  \\
+\end{tabular}
+\caption{Key values- Database}
+\end{center}
+\end{table}
+
+{\bf Position Information of a Landmark} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{11cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{Latitude} & Double & Specifies latitude of a location in WGS-84 format. This needs to be specified in decimal degrees. Normal range of values [-90,+90]. Out of range values will be normalized to range as per standards. Negative degrees indicate west latitude and positive value indicated east latitude.  \\
+\hline
+\code{Longitude} & Double & Specifies longitude of a location in WGS-84 format. This needs to be specified in decimal degrees. Normal range of values [-180 ,+180]. Out of range values will be normalized to range as per standards. Negative value indicates south longitude and positive value indicates north longitude.  \\
+\hline
+\code{[Altitude]} & Double & Specifies altitude of a location in WGS-84 format, in meters.  \\
+\hline
+\code{[HAccuracy]} & Double & Error estimate of horizontal accuracy to Latitude, Longitude, and  Altitude in meters.  \\
+\hline
+\code{[VAccuracy]} & Double & Error estimate of vertical accuracy to Latitude, Longitude, and  Altitude in meters.  \\
+\end{tabular}
+\caption{Key values- Position Information of a Landmark}
+\end{center}
+\end{table}
+
+{\bf LandmarkPositionFields} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{[Street]} & string & Address of the landmark. Maximum string Length is 255.  \\
+\hline
+\code{[BuildingName]} & string & Address of the landmark. Maximum string Length is 255.  \\
+\hline
+\code{[District]} & string & Address of the landmark. Maximum string Length is 255.  \\
+\hline
+\code{[City]} & string & Address of the landmark. Maximum string Length is 255.  \\
+\hline
+\code{[AreaCode]} & string & Address of the landmark. Maximum string Length is 255.  \\
+\hline
+\code{[Telephone]} & string & Contact number. Maximum string Length is 255.  \\
+\hline
+\code{[Country]} & string & Address of the landmark. Maximum string Length is 255.  \\
+\end{tabular}
+\caption{Key values- LandmarkPositionFields}
+\end{center}
+\end{table}
+
+{\bf Landmark Search Criteria} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{10cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{[DatabaseURI]} & string & Search is performed on the specified database. If database is not specified then, search is performed on default database. Maximum string Length is 255.  \\
+\hline
+\code{[LandmarkName]} & string & Text is case insensitive, wild cards supported- '?' for single character, '*' for zero or more characters. Maximum string Length is 255.  \\
+\hline
+\code{[LandmarkPosition]} & map & Map describes latitude, longitude, altitude of a landmark. For more information, see {\bf Position Information of a Landmark}. \break
+
+Only Latitude and Longitude fields are considered for search.  \\
+\hline
+\code{[CoverageRadiusOption]} & bool & {\bf True}: The coverage radius of landmarks is  considered in the distance calculation. For example, if the circular search area and centre coordinates, which are mentioned in {\bf LandmarkPosition} and radius mentioned in {\bf MaximumDistance} intersects the landmark circular area, centre coordinates specified by the coordinates of the landmark and radius specified by \code{CoverageRadius} then, such landmark will be returned. \break
+
+{\bf False}: The \code{CoverageRadius} of the landmark is not considered in the distance calculation. \break
+The default value is {\bf False}.  \\
+\hline
+\code{[MaximumDistance]} & Double & It is the distance from centre coordinate if \code{CoverageRadius} option is {\bf False} else it is the effective distance calculated as landmark centre minus the coverage radius.  \\
+\hline
+\code{[CategoryName]} & string & Search results only for landmarks that belong to this category. Maximum string Length is 124. \break
+
+If specified {\bf False} then, only unlisted landmarks are listed.  \\
+\hline
+\code{[LandmarkDesc]} & string & Text is case insensitive, wild cards supported- '?' for single character, '*' for zero or more characters. Maximum string Length is 4095.  \\
+\hline
+\code{[BoundedArea]} & map & Area specified within NSEW latitudes and longitudes. For more information, see {\bf Bounded area}.  \\
+\hline
+\code{[MaximumMatches]} & int & The maximum number of items retrieved when provided with criteria information. If not mentioned then all landmarks are returned.  \\
+\hline
+\code{[PreviousMatchesOnly]} & bool & You can request to search within previous search results only. \break
+{\bf True}: Searches in previous search results. \break
+{\bf False}: A new search will be carried out on database. \break
+
+If you do not specify this option then, {\bf False} will be taken as default.  \\
+\end{tabular}
+\caption{Key values- Landmark Search Criteria}
+\end{center}
+\end{table}
+
+{\bf BoundedArea} \break
+
+Bounded area is the area enclosed at the intersection of the latitudes and longitudes as mentioned in the following table:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{NorthLatitude} & Double & The northern-most latitude of the bounded area in WGS-84 format.  \\
+\hline
+\code{SouthLatitude} & Double & The southern-most latitude of the bounded area in WGS-84 format.  \\
+\hline
+\code{EastLongitude} & Double & The eastern longitude of the bounded area in WGS-84 format.  \\
+\hline
+\code{WestLongitude} & Double & The western longitude of the bounded area in WGS-84 format.  \\
+\end{tabular}
+\caption{Key values- BoundedArea}
+\end{center}
+\end{table}
+
+{\bf Category Search Criteria} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{11cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description} \\
+\hline
+\code{[DatabaseURI]} & string & Search is performed on a specified database. If the database is not specified then, search is performed on default database. Maximum string Length is 255.  \\
+\hline
+\code{[CategoryName]} & string & Text is case insensitive, wild cards supported- '?' for single character, '*' for zero or more characters. Maximum string Length is 124.  \\
+\hline
+\code{[MaximumMatches]} & int & The maximum number of items retrieved when provided with  criteria information. If not mentioned then all landmarks are returned.  \\
+\hline
+\code{[PreviousMatchesOnly]} & bool & You can request to search within previous search results only. \break
+{\bf True}: Searches in previous search results. \break
+{\bf False}: A new search will be carried out on a database. \break
+
+If you do not specify this option then {\bf False} will be taken as default.
+\end{tabular}
+\caption{Key values- Category Search Criteria}
+\end{center}
+\end{table}
+\pagebreak
+

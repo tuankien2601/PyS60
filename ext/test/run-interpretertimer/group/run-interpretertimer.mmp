@@ -1,0 +1,39 @@
+/* Copyright (c) 2008 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+TARGET		  run-interpretertimer.exe
+TARGETTYPE	  exe
+UID			 0x100039CE 0xF020151A
+VENDORID      0
+CAPABILITY    LocalServices NetworkServices ReadUserData WriteUserData UserEnvironment PowerMgmt Allfiles 
+
+SOURCEPATH ..\data
+START RESOURCE  run-interpretertimer_reg.rss
+#ifdef WINSCW
+TARGETPATH 	    \private\10003a3f\apps
+#else
+TARGETPATH 	    \private\10003a3f\import\apps
+#endif
+END //RESOURCE
+
+USERINCLUDE	 ..\inc
+SYSTEMINCLUDE   \epoc32\include
+
+
+LIBRARY		 euser.lib efsrv.lib charconv.lib apparc.lib 
+
+SOURCEPATH	  ..\src
+SOURCE		  run-interpretertimer.cpp
+

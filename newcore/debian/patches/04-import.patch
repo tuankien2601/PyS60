@@ -1,0 +1,159 @@
+Index: python/Modules/getpath.c
+===================================================================
+--- python.orig/Modules/getpath.c	2007-03-06 17:14:44.000000000 -0300
++++ python/Modules/getpath.c	2007-03-06 17:14:57.000000000 -0300
+@@ -156,13 +156,26 @@
+ static int
+ ismodule(char *filename)        /* Is module -- check for .pyc/.pyo too */
+ {
++    char module_filename[MAXPATHLEN+1];
++    size_t filename_size;
++
++    strncpy(module_filename, filename, MAXPATHLEN);
++    module_filename[MAXPATHLEN+1] = '\0';
++    filename_size = strlen(module_filename);
++
+     if (isfile(filename))
+         return 1;
+ 
+     /* Check for the compiled version of prefix. */
+-    if (strlen(filename) < MAXPATHLEN) {
+-        strcat(filename, Py_OptimizeFlag ? "o" : "c");
+-        if (isfile(filename))
++    if (filename_size < MAXPATHLEN - 1) {
++
++        module_filename[filename_size+1] = '\0';
++        module_filename[filename_size] = 'c';
++        if (isfile(module_filename))
++            return 1;
++
++        module_filename[filename_size] = 'o';
++        if (isfile(module_filename))
+             return 1;
+     }
+     return 0;
+Index: python/Python/import.c
+===================================================================
+--- python.orig/Python/import.c	2007-03-06 17:14:44.000000000 -0300
++++ python/Python/import.c	2007-03-06 17:14:57.000000000 -0300
+@@ -89,6 +89,7 @@
+ static const struct filedescr _PyImport_StandardFiletab[] = {
+ 	{"/py", "U", PY_SOURCE},
+ 	{"/pyc", "rb", PY_COMPILED},
++	{"/pyo", "rb", PY_COMPILED},
+ 	{0, 0}
+ };
+ #else
+@@ -98,6 +99,7 @@
+ 	{".pyw", "U", PY_SOURCE},
+ #endif
+ 	{".pyc", "rb", PY_COMPILED},
++	{".pyo", "rb", PY_COMPILED},
+ 	{0, 0}
+ };
+ #endif
+@@ -133,14 +135,20 @@
+ 	_PyImport_Filetab = filetab;
+ 
+ 	if (Py_OptimizeFlag) {
+-		/* Replace ".pyc" with ".pyo" in _PyImport_Filetab */
++		/* Swap ".pyc" with ".pyo" in _PyImport_Filetab */
+ 		for (; filetab->suffix != NULL; filetab++) {
+ #ifndef RISCOS
+-			if (strcmp(filetab->suffix, ".pyc") == 0)
++			if (strcmp(filetab->suffix, ".pyc") == 0) {
+ 				filetab->suffix = ".pyo";
++			} else if (strcmp(filetab->suffix, ".pyo") == 0) {
++				filetab->suffix = ".pyc";
++			}
+ #else
+ 			if (strcmp(filetab->suffix, "/pyc") == 0)
+ 				filetab->suffix = "/pyo";
++			} else if (strcmp(filetab->suffix, "/pyo") == 0) {
++				filetab->suffix = "/pyc";
++			}
+ #endif
+ 		}
+ 	}
+@@ -694,7 +702,7 @@
+    Doesn't set an exception. */
+ 
+ static char *
+-make_compiled_pathname(char *pathname, char *buf, size_t buflen)
++make_compiled_pathname(char *pathname, char *buf, size_t buflen, char optimized)
+ {
+ 	size_t len = strlen(pathname);
+ 	if (len+2 > buflen)
+@@ -707,7 +715,7 @@
+ 		--len;	/* pretend 'w' isn't there */
+ #endif
+ 	memcpy(buf, pathname, len);
+-	buf[len] = Py_OptimizeFlag ? 'o' : 'c';
++	buf[len] = optimized ? 'o' : 'c';
+ 	buf[len+1] = '\0';
+ 
+ 	return buf;
+@@ -903,9 +911,9 @@
+ load_source_module(char *name, char *pathname, FILE *fp)
+ {
+ 	time_t mtime;
+-	FILE *fpc;
++	FILE *fpc = NULL;
+ 	char buf[MAXPATHLEN+1];
+-	char *cpathname;
++	char *cpathname = NULL;
+ 	PyCodeObject *co;
+ 	PyObject *m;
+ 
+@@ -928,9 +936,15 @@
+ 	}
+ #endif
+ 	cpathname = make_compiled_pathname(pathname, buf,
+-					   (size_t)MAXPATHLEN + 1);
+-	if (cpathname != NULL &&
+-	    (fpc = check_compiled_module(pathname, mtime, cpathname))) {
++					   (size_t)MAXPATHLEN + 1, Py_OptimizeFlag);
++
++	if (!(fpc = check_compiled_module(pathname, mtime, cpathname))) {
++		cpathname = make_compiled_pathname(pathname, buf,
++						(size_t)MAXPATHLEN + 1, !Py_OptimizeFlag);
++		fpc = check_compiled_module(pathname, mtime, cpathname);
++	}
++
++	if (fpc != NULL) {
+ 		co = read_compiled_module(cpathname, fpc);
+ 		fclose(fpc);
+ 		if (co == NULL)
+@@ -1653,6 +1667,8 @@
+ 		return 0;
+ 	buf[i++] = SEP;
+ 	pname = buf + i;
++
++	/* Try .py */
+ 	strcpy(pname, "__init__.py");
+ 	if (stat(buf, &statbuf) == 0) {
+ 		if (case_ok(buf,
+@@ -1664,7 +1680,22 @@
+ 		}
+ 	}
+ 	i += strlen(pname);
+-	strcpy(buf+i, Py_OptimizeFlag ? "o" : "c");
++	buf[i + 1] = '\0';
++
++	/* Try .pyc/.pyo */
++	buf[i] = (Py_OptimizeFlag) ? 'o' : 'c';
++	if (stat(buf, &statbuf) == 0) {
++		if (case_ok(buf,
++			    save_len + 9,	/* len("/__init__") */
++		            8,   		/* len("__init__") */
++		            pname)) {
++			buf[save_len] = '\0';
++			return 1;
++		}
++	}
++
++	/* Try .pyo/.pyc */
++	buf[i] = (Py_OptimizeFlag) ? 'c' : 'o';
+ 	if (stat(buf, &statbuf) == 0) {
+ 		if (case_ok(buf,
+ 			    save_len + 9,	/* len("/__init__") */

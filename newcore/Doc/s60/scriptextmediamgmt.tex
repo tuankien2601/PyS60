@@ -1,0 +1,436 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Media Management}
+\label{sec:scriptextmediamgmt}
+
+The Media Management service allows Python applications to retrieve information from the media files stored in the media gallery of an S60 device. \break
+
+It is used to access information about different types of media including music, sounds, images, video, and streaming. \break
+
+You can create applications like custom photo viewer or audio player that displays or, otherwise incorporate media, using the Media Management service.
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+msg_handle = scriptext.load('Service.MediaManagement', 'IDataSource') 
+\end{verbatim}
+
+The following table summarizes the Media Management Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.MediaManagement}  \\
+\hline
+{\bf Supported interfaces} & \code{IDataSource}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Media Management:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{Getlist} \ref{subsec:mediamgmtgetlist} & Retrieves information from a given service or data source on S60 device.  \\ 
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetList}
+\label{subsec:mediamgmtgetlist}
+
+\code{GetList} takes a set of input parameters that define filter and sort criteria, and retrieves the metadata of media files based on media and metadata type. \break
+
+\code{GetList} implements the main functionality of Media Management service. It is available only in asynchronous mode.
+
+The following is an example for using \code{GetList}:
+
+\begin{verbatim}
+media_handle.call('GetList'[{'Type': string, 'Filter': map, 'Sort': map},
+                            callback=callback_function])
+\end{verbatim}
+
+where, \code{callback_function} is user defined function.
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\\hline{\bf Description} & Retrieves the metadata of media files based on media and metadata type.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} & Valid service object representing the provider and interface.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type, the metadata of media file to fetch and the criteria for sorting. Input parameter has three properties: Type, Filter, and Sort.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{3cm}|p{9cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Fileinfo} & Operation performed on the specified type. \break
+This field is mandatory.  \\
+\hline
+Filter & map & For more information, refer table \ref{tab:getlistmediafiletype} & It specifies the type of media file to fetch, and key for filtering the media files with their range. \code{FileType} field is mandatory. \break
+
+If key is specified, then it is mandatory to specify the range. \break
+You must only mention the StartRange for keys, where EndRange is not applicable. \break
+
+For example, if key is \code{FileName} then, mention the desired file name in the StartRange and leaving the EndRange empty.  \\
+\hline
+[Sort] & map & For more information, refer table \ref{tab:getlistkeyname} & It specifies the key name on which the resulting output will be sorted and can be one of the values mentioned in the {\bf Value} column. \break
+By default, sorting is done in ascending order based on the \code{FileName}.  \\
+\end{tabular}
+\caption{Input parameters for GetList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{6cm}|p{2cm}}
+\hline
+{\bf Key} & {\bf Value} & {\bf Type}  \\
+\hline
+\code{FileType} & \code{Music} \break
+\code{Sound} \break
+\code{Image} \break
+\code{Video} \break
+\code{StreamingURL} & unicode string  \\
+\hline
+\code{[Key]} & \code{FileName} \break
+\code{FileExtension} \break
+\code{Drive} \break
+\code{FileSize} \break
+\code{FileDate} \break
+\code{MimeType} \break
+\code{FileNameAndPath} \break
+\code{SongName} \break
+\code{Artist} \break
+\code{Album} \break
+\code{Genre} \break
+\code{TrackNumber} \break
+\code{Composer} \break
+\code{LinkFirstURL} & unicode string  \\
+\hline
+\code{[StartRange]} & Valid for all keys & unicode string  \\
+\hline
+\code{[EndRange]} & Valid for the following keys: \break
+
+\code{FileSize}(bytes) \break
+\code{FileDate}(YYYYMMDD:HHMMSS) \break
+
+For example, 20070303:010101 & unicode string  \\
+\end{tabular}
+\caption{Media file type}
+\label{tab:getlistmediafiletype}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{4cm}|l}
+\hline
+{\bf Key} & {\bf Value} & {\bf Type}  \\
+\hline
+\code{[Key]} & \code{FileName} \break
+\code{FileExtension} \break
+\code{Drive} \break
+\code{FileSize} \break
+\code{FileDate} \break
+\code{MimeType} \break
+\code{FileNameAndPath} \break
+\code{SongName} \break
+\code{Artist} \break
+\code{Album} \break
+\code{Genre} \break
+\code{TrackNumber} \break
+\code{Composer} \break
+\code{LinkFirstURL} & unicode string  \\
+\hline
+\code{[Order]} & Ascending or descending & unicode string  \\
+\end{tabular}
+\caption{Key name}
+\label{tab:getlistkeyname}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ReturnValue} & Iterable maps & Type: string \break
+\code{FileName}: string \break
+\code{FileExtension}: string \break
+\code{Drive}: string \break
+\code{FileSize}: int \break
+\code{FileDate}: datetime \break
+\code{MediaType}: int \break
+\code{FileNameAndPath}: string \break
+\code{SongName}: string \break
+\code{Artist}: string \break
+\code{Album}: string \break
+\code{Genre}: string \break
+\code{TrackNumber}: string \break
+\code{Composer}: string \break
+\code{MimeType}: string \break
+\code{LinkFirstURL}: string & The output is an iterable which on each invocation returns a map, which will be filled by the service provider. \break
+
+Map stores the key names and its values. \break
+The key-value pair that is, Property name and Value in the output map depends upon the file type in the input -Filter map.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{7cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{MediaMgmt:GetList:Server busy} & Indicates provider is busy in processing another request.  \\
+\hline
+\code{MediaMgmt:GetList:Type Missing} & Indicates Type parameter is missing.  \\
+\hline
+\code{MediaMgmt:GetList:Type not supported(should be FileInfo)} & Indicates that the content type is incorrect.  \\
+\hline
+\code{MediaMgmt:GetList:Filter parameter missing} & Indicates that the Filter parameter which is mandatory is missing.  \\
+\hline
+\code{MediaMgmt:GetList:Filter parameter type mismatch} & Indicates that the type of Filter parameter is incorrect.  \\
+\hline
+\code{MediaMgmt:GetList:Sort parameter type mismatch} & Indicates that the type of Sort  parameter is incorrect.  \\
+\hline
+\code{MediaMgmt:GetList:FileType missing in Filter map} & Indicates that \code{FileType} parameter is not present in  Filter map or, \code{FileType} parameter type is incorrect.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example}
+
+The following sample code illustrates how to get a list of all MP3s:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+def media_callback(trans_id, event_id, output_params):
+    if trans_id == media_trans_id:
+        if event_id == scriptext.EventCompleted:
+            song_list = []
+            for item in output_params['ReturnValue']:
+                song_list.append(item['FileName'])
+            print "List of files retrieved:", song_list
+        else:
+            print "Event ID was not EventCompleted"
+    else:
+        print "Invalid Transaction ID"
+    lock.signal()
+
+lock = e32.Ao_lock()
+media_handle = scriptext.load('Service.MediaManagement', 'IDataSource')
+
+# Request for the list of mp3s in ascending order
+media_trans_id = media_handle.call('GetList', {'Type': u'FileInfo',
+                                               'Filter': {'FileType': u'Music',
+                                                          'Key': u'FileExtension',
+                                                          'StartRange': u'.mp3'},
+                                               'Sort': {'Key': u'FileName',
+                                                        'Order': u'Ascending'}},
+                                   callback=media_callback)
+
+lock.wait()
+\end{verbatim}
+
+\subsection{Key Values}
+\label{subsec:mediamgmtkeyval}
+
+{\bf File Types} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{8cm}}
+\hline
+{\bf Key} & {\bf Description} & {\bf Supported Metadata}  \\
+\hline
+\code{Music} & Retrieves media files of Music type. & Artist, SongName, TrackNumber, Album, Genre, Composer, FileNameAndPath, FileName, FileExtension, Drive, MimeType, FileSize, FileDate.  \\
+\hline
+\code{Sound} & Retrieves media files of Sound type. & FileNameAndPath, FileName, FileExtension, Drive, MimeType, FileSize, FileDate.  \\
+\hline
+\code{Image} & Retrieves media files of Image type. & FileNameAndPath, FileName, FileExtension, Drive, MimeType, FileSize, FileDate.  \\
+\hline
+\code{Video} & Retrieves media files of Video type. & FileNameAndPath, FileName, FileExtension, Drive, MimeType, FileSize, FileDate.  \\
+\hline
+\code{StreamingUrl} & Retrieves media files of Link type. & LinkFirstURL, FileNameAndPath, FileName, FileExtension, Drive, MimeType, FileSize ,FileDate.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Keys} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{8cm}}
+\hline
+{\bf Key} & {\bf Description}  \\
+\hline
+Type & Always a media file.  \\
+\hline
+\code{FileName} & Filter/sort the result as per file name.  \\
+\hline
+\code{FileExtension} & Filter/sort the result based on file extension.  \\
+\hline
+\code{Drive} & Filter/sort the result as per file drive.  \\
+\hline
+\code{FileSize} & Filter/sort the result as per file size.  \\
+\hline
+\code{FileData} & Filter/sort the result as per file date.  \\
+\hline
+\code{MediaType} & Filter/sort the result as per file type. \break
+
+{\bf Value}: {\bf Description} \break
+0: Unknown media type \break
+1: Music media type \break
+2: Sound media type \break
+3: Image media type \break
+4: Video media type \break
+5: Streaming URLs  \\
+\hline
+\code{FileNameAndPath} & Filter/sort the result as per full path of file.  \\
+\hline
+\code{SongName} & Filter/sort the result as per song name.  \\
+\hline
+\code{Artist} & Filter/sort the result as per artist name.  \\
+\hline
+\code{Album} & Filter/sort the result as per album name.  \\
+\hline
+\code{MimeType} & Filter/Sort the result based on mime type.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Output maps for various values of FileType} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{8cm}}
+\hline
+{\bf FileType} & {\bf Output map}  \\
+\hline
+\code{Image} & {\bf Key}: {\bf Value} \break
+Type: string \break
+\code{FileName}: string \break
+\code{FileExtension}: string \break
+\code{Drive}: string \break
+\code{FileSize}: int \break
+\code{FileDate}: datetime \break
+\code{FileNameAndPath}: string \break
+\code{MimeType}: string  \\
+\hline
+\code{Sound} & {\bf Key}: {\bf Value} \break
+Type: string \break
+\code{FileName}: string \break
+\code{FileExtension}: string \break
+\code{Drive}: string \break
+\code{FileSize}: int \break
+\code{FileDate}: datetime \break
+\code{FileNameAndPath}: string \break
+\code{MimeType}: string \\
+\hline
+\code{Video} & {\bf Key}: {\bf Value} \break
+Type: string \break
+\code{FileName}: string \break
+\code{FileExtension}: string \break
+\code{Drive}: string \break
+\code{FileSize}: int \break
+\code{FileDate}: datetime \break
+\code{FileNameAndPath}: string \break
+\code{MimeType}: string  \\
+\hline
+\code{Music} & {\bf Key}: {\bf Value} \break
+Type: string \break
+\code{FileName}: string \break
+\code{FileExtension}: string \break
+\code{Drive}: string \break
+\code{FileSize}: int \break
+\code{FileDate}: datetime \break
+\code{MimeType}: string \break
+\code{FileNameAndPath}: string \break
+\code{SongName}: string \break
+\code{Artist}: string \break
+\code{Album}: string \break
+\code{TrackNumber}: string \break
+\code{Genre}: string \break
+\code{Composer}: string  \\  \\
+\hline
+\code{StreamingUrl} & {\bf Key}: {\bf Value} \break
+Type: string \break
+\code{FileName}: string \break
+\code{FileExtension}: string \break
+\code{Drive}: string \break
+\code{FileSize}: int \break
+\code{FileDate}: datetime \break
+\code{FileNameAndPath}: string \break
+\code{LinkFirstURL}: string \break
+\code{MimeType}: string  \\
+\end{tabular}
+\end{center}
+\end{table}
+\pagebreak
+
+
+
+
+
+

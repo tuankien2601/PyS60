@@ -1,0 +1,1454 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Contacts}
+\label{sec:scriptextcontact}
+
+The Contacts service enables Python applications to access and manage contacts information. This information can reside in one or more contacts databases stored on a device or, in the SIM card database. \break
+It enables applications to perform the following operations on the Contacts Database:
+\begin {itemize}
+\item Retrieve contact or group information
+\item Add contact or group
+\item Edit a particular contact or group
+\item Import and export a contact
+\item Delete a contact or group item
+\end {itemize}
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+contact_handle = scriptext.load('Service.Contact', 'IDataSource')
+\end{verbatim}
+
+The following table summarizes the Contacts Interface:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.Contact}  \\
+\hline
+{\bf Supported interfaces} & \code{IDataSource}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Calendar:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Services} & {\bf Description}  \\
+\hline
+\code{GetList} \ref{subsec:contactgetlist} & Retrieves a list of contacts or groups in the default or specified database, also used to get the list of existing databases.  \\
+\hline
+\code{Add} \ref{subsec:contactadd} & Adds contact or group to the specified or default contacts database.  \\
+\hline
+\code{Delete} \ref{subsec:contactdel} & Deletes an array of contacts or groups from the specified or default contacts database. \\
+\hline
+\code{Import} \ref{subsec:contactimport} & Imports contact to the specified contacts database.  \\
+\hline
+\code{Export} \ref{subsec:contactexport} & Exports the selected item from the contacts database specified as VCard.  \\
+\hline
+\code{Organise} \ref{subsec:contactorg} & Associate or Disassociate a list of contacts in a database to and from a group.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetList}
+\label{subsec:contactgetlist}
+
+\code{GetList} retrieves a list of contacts, contact groups, or contacts databases. Contacts and contact groups are retrieved from the specified contacts database. If no database is specified, from the default one.
+This method can be called both in synchronous and asynchronous mode.
+
+\begin{notice}[note]
+Calls that retrieve a list of databases must be synchronous.
+\end{notice}
+
+The following are the examples for using \code{GetList}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+list_contacts = contacts_handle.call('GetList', {'Type': u'Contact', 'Filter': {'SearchVal': u'Daniel'}})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = contacts_handle.call('GetList', {'Type': u'Contact', 'Filter':{'SearchVal': u'Craig'}}, callback=get_list)
+\end{verbatim}
+
+where, \code{get_list} is a user defined function. 
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Retrieves a list of contacts or groups in the default or specified database, also used to get the list of existing databases.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous in case of Third Edition FP2 and Fifth Edition devices, except for \code{GetList} with Type as {\bf Database}, which will always be synchronous. \break
+
+In case of Third Edition and Third Edition FP1 devices: \break
+Synchronous for Get Single Contact and Group. \break
+Asynchronous and synchronous for the rest of the functionality.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+\code{GetList} retrieves a list of contacts objects and metadata from the S60 messaging center based on Search or Sort inputs. This is an object that specifies what contact information is returned and how the returned information is sorted.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{1cm}|p{3cm}|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Contact} \break
+\code{Group} \break
+\code{Database} & Operation is performed on the specified type.  \\
+\hline
+[Filter] & {\bf Contact} (map) \break
+\code{[DBUri]}: unicode string \break
+\code{[id]}: unicode string \break
+\code{[SearchVal]}: unicode string \break
+{\bf Group} (map) \break
+[DBUri]: unicode string \break
+[Id]: unicode string \break
+{\bf Database} \break
+No map required. & \code{DBUri}: Database on which search must be performed. \break
+\code{Id}: Id is the unique identifier of the contact item or group to be retrieved. If \code{Id} is specified, \code{SearchVal} and \code{DBUri} are not required, and they will be ignored. \break
+
+\code{SearchVal}: Value searched for in the given \code{DBUri}. It cannot exceed 255 characters. \break
+If Filter is not supplied and Type is {\bf Contact}, then it gets all the contacts of the default database. \break
+
+If Filter is not supplied and Type is {\bf Group}, then it gets all the groups of the default database. & \code{SearchVal}: Value searched for in the given \code{DBUri} (If default database is not specified). If \code{SearchVal} is not specified then, it loads all the contacts in the database. \break
+
+\code{SearchVal} is looked for in first name and last name fields in case of Third Edition FP2 and Fifth Edition devices and it looks in all fields in case of Third Edition and Third Edition FP1 devices. \break
+
+With Type as {\bf Contact}, it retrieves the list of contacts based on the Filter map input (if provided). \break
+
+With Type as {\bf Group}, it gets a list of all the groups in the default database, if Filter is not specified. If Filter is specified, and \code{Id} is given, it fetches the group that the \code{Id} represents (DBUri is ignored in this case). Searching for a group by its name is not supported. \break
+
+With Type as {\bf Database}, it gets the list of all the open databases.  \\
+\end{tabular}
+\caption{Input parameters Getlist}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameter contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails. \code{ReturnValue} contains complete contact item, group, or database information requested by \code{GetList}.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{2cm}|p{3cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\hline
+\code{ReturnValue} & iterable list of maps & {\bf Contact} (map) \ref{tab:contactmap} \break
+{\bf Group} (map) \ref{tab:groupmap} \break
+{\bf Database} (map) \break
+\code{DBUri}: string & Every {\bf Next} operation on the iterator returns a map. \break
+Each map contains complete contact item/group/database information. \break
+
+Every {\bf Next} operation on a contact gives a map with: \break
+
+\code{id}: It is a unique identifier for the contact that the map represents. \break
+\emph{Key1, Key2..}: Gets as many keys available for a particular contact. For more information on keys, refer the section Key Values \ref{subsec:contactkeyval}. \break
+Label and value give the information for the key. \break
+{\bf Next}: In case, the key has multiple values, then it is added as another map. \break
+
+Every {\bf Next} operation on group gives a map with: \break
+
+\code{id}: It is a unique identifier for the group that the map represents. \break
+\code{GroupLabel}: Label to the group. \break
+Contents: List of \code{ids} of the contacts that belong to the particular group. For example, \emph{Contact Id1}, \emph{Contact Id2}.
+
+Every {\bf Next} operation on database gives a map with: \break
+\code{DBUri}: Uri of the database that is represented by the particular map.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Key} & {\bf Value} & NA & NA \\
+\hline
+\code{id} & string & NA & NA  \\
+\hline
+\emph{Key1} & map & NA & NA  \\
+\hline
+NA & Label & NA & string  \\
+\hline
+NA & Value & NA & string  \\
+\hline
+\emph{Key2} & map & NA & NA  \\
+\hline
+NA & Label & string & NA  \\
+\hline
+NA & Value & string & NA  \\
+\hline
+NA & Next & map & NA  \\
+\hline
+NA & NA & Label & string  \\
+\hline
+NA & NA & Value & string  \\
+\hline
+NA & NA & Next & map  \\
+\end{tabular}
+\caption{Contact(map)}
+\label{tab:contactmap}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Key} & {\bf Value}  \\
+\hline
+\code{id} & string  \\
+\hline
+\code{GroupLabel} & string  \\
+\hline
+Contents & List  \\
+\hline
+NA & \emph{Contact id1}  \\
+\hline
+NA & \emph{Contact id2}  \\
+\hline
+NA & ....  \\
+\end{tabular}
+\caption{Group(map)}
+\label{tab:groupmap}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Contacts:GetList:Type is missing} &  Indicates Type is missing  \\
+\hline
+\code{Contacts:GetList: Invalid value for Type, Must be Contact/Group/Database} & Indicates invalid value for Type  \\
+\hline
+\code{Contacts:GetList:Invalid Sort Type, Map is required} & Indicates that the sort order type passed is invalid, map is expected  \\
+\hline
+\code{Contacts:GetList:Sort Order Value is not a String} & Indicates that the value for order must be a string \\
+\hline
+\code{Contacts:GetList:Invalid Type of Filter, Map is required} & Indicates that the value for Filter must be a map  \\
+\hline
+\code{Contacts:GetList:Wrong Type of Sort Order value} & Indicates that sort order value is not ascending or descending  \\
+\hline
+\code{Contacts:GetList:Wrong Type of Search value} & Indicates that search value is not a string  \\
+\hline
+\code{Contacts:GetList:Wrong Type of ContentType} & Indicates that the Type is not a string.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to list full name of contact matched by last name in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def get_list(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+        print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The contacts matching are"
+        for i in input_params["ReturnValue"]:
+            print i["FirstName"]["Value"] + i["LastName"]["Value"]
+    lock.signal()
+
+# Load contacts module
+contacts_handle = scriptext.load("Service.Contact", "IDataSource")
+
+event_id = contacts_handle.call('GetList', {'Type': u'Contact', 'Filter':{'SearchVal': u'Craig'}}, callback=get_list)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Add}
+\label{subsec:contactadd}
+
+\code{Add} is used to add a contact or contact group to a contacts database. If the contact or contact group already exists in the database, it is replaced with the new entry. \break
+
+You can use this method to both add and edit contacts and contact groups. The data is added to the specified database. When no database is specified, the data is added to the default database. If the default database does not exist, \code{Add} creates a new database. This method can be called both in synchronous and asynchronous mode.
+
+The following is an example for using \code{Add}:
+
+{\bf Synchronous}
+
+\begin{verbatim}
+contacts_handle.call('Add', {'Type': u'Contact', 'Data':
+            {'FirstName': {'Label': u'first name', 'Value': u'Daniel'},
+             'LastName': {'Label': u'last name', 'Value': u'Craig'},
+             'MobilePhoneGen': {'Label': u'mobile', 'Value': u'9008025211'},
+             'EmailHome': {'Label': u'email', 'Value': u'dcraig@ford.com'}}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Add}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{9cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Operation} & Adds contact/group to the specified/default contacts database.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous for Third Edition FP2 and Fifth Edition devices. \break
+Synchronous for Third Edition and Third Edition FP1 devices.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded. For editing an existing contact/group, the specified Id must exist. You must use \code{GetList} to retrieve the Id for editing.  \\
+\hline
+{\bf Post-condition} & Adds a new contact item to the database in case of add and updates an existing contact in case of edit.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter contains the contact information to add or edit and also the target database.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{2cm}|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Contact} \break
+\code{Group} & Operation performed on the specified Type. \\
+\hline
+Data & {\bf Contact} (map) \ref{tab:contactaddmap} \break
+{\bf Group} (map) \break
+\code{[DBUri]}: string \break
+\code{[id]}: string \break
+\code{GroupLabel}: string & All string values in the map are unicode. \break
+\emph{Key 1, Key 2, and so on} are based on the keys supported. \break
+\code{id}: For Type \code{Contact}, \code{Id} is the unique identifier for the contact to be modified. \break
+
+\code{id}: for Type \code{Group}, \code{Id} is the unique identifier for the group to be modified. \break
+\code{GroupLabel}: Label for the group being added or modified. & Information about the contact/group to be added to the contacts database. \break
+
+You must not set the Id/Id field to add a new entry and also, must not modify the value of the Id/Id field when editing an existing entry. \break
+
+You must use the id that is given to it by \code{GetList} sapi. \break
+
+In case of editing an existing contact, it overwrites the existing entry of that id completely. Edit operation is not editing of selected fields, it is replacement of the entire contact/group. \break
+
+If string value given for Value key is empty, then that field is not added to the contact. Rest of the fields are still added. \break
+
+If the database does not support Label then, the Label is ignored if it is given (sim database does not support Label).  \\
+\end{tabular}
+\caption{Input parameters for Add}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Key} & {\bf Value} & NA & NA  \\
+\hline
+\code{[DBUri]} & string & NA & NA  \\
+\hline
+\code{[id]} & string & NA & NA  \\
+\hline
+\emph{Key1} & map & NA & NA  \\
+\hline
+NA & Label & NA & string  \\
+\hline
+NA & Value & NA & string  \\
+\hline
+\emph{Key2} & map & NA & NA  \\
+\hline
+NA & Label & string & NA  \\
+\hline
+NA & Value & string & NA  \\
+\hline
+NA & Next & map & NA  \\
+\end{tabular}
+\caption{Contact(map)}
+\label{tab:contactaddmap}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+The output contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\end{tabular}
+\caption{Output parameters for Add}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1005} & Service in use  \\
+\hline
+\code{1011} & Access denied  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Contacts:Add:Type is missing} &  Indicates Type is missing  \\
+\hline
+\code{Contacts:Add:Invalid Type, must be Contact/Group} & Indicates invalid value for Type, can have values Contact/Group only.  \\
+\hline
+\code{Contacts:Add:Invalid Sort Type, Map is required} & Indicates that the sort order type passed is invalid, map is expected  \\
+\hline
+\code{Contacts:Add:Add Data is Missing} & Indicates that the key \code{Data} is missing. \\
+\hline
+\code{Contacts:Add:Add data Map is Missing} & indicates that the value of the \code{Data} is missing. \\
+\hline
+\code{Contacts:Add:Group Label is Missing} & Indicates that the label for group is missing.  \\
+\hline
+\code{Contacts:Add:Mandatory Argument is not present} & Indicates not all mandatory parameters are present.  \\
+\hline
+\code{Contacts:Add:Type of Contact Id is wrong} & Indicates that Contact Id value is not a string.  \\
+\hline
+\code{Contacts:Add:Invalid Type of Data, Map is required} & Indicates that \code{Data} value must be of Type map.  \\
+\hline
+\code{Contacts:Add:Invalid Type of Field value, Map is required} & Indicates that value of a given Key (for example: \emph{Key1}, \emph{Key2}), is not a Map.  \\
+\hline
+\code{Contacts:Add:Invalid Type of NextField value, Map is required} & Indicates that value of Next field is not a Map.  \\
+\hline
+\code{Contacts:Add:Invalid Type of Id} & Indicates that value Group Id is not a string.  \\
+\hline
+\code{Contacts:Add:Invalid Type of GroupLabel} & Indicates that value Group Label is not a string.  \\
+\hline
+\code{Contacts:Add:Wrong Type of ContentType} & Indicates that the value Type is not a string.  \\
+\hline
+\code{Contacts:Add:Atleast one field is required} & Indicates that atleast one field must be specified.  \\
+\hline
+\code{Contacts:Add:Group Label is Empty} & Indicates that the mandatory input parameter \code{GroupLabel} is an empty string.  \\
+\hline
+\code{Contacts:Add:Invalid Field Key:\emph{fieldkey}} & Indicates that the key \emph{fieldkey}, is not a valid.  \\
+\hline
+\code{Contacts:Add:Field Key Not Supported on this Database:\emph{fieldkey}} & Indicates that the \emph{fieldkey} is not supported on the given database.  \\
+\hline
+\code{Contacts:Add:Field Value too long for key:\emph{fieldkey}} & Indicates that the \emph{fieldkey} has a greater length than the maximum allowed for the particular key.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to add a contact information:
+
+\begin{verbatim}
+# Load contacts module
+contacts_handle = scriptext.load('Service.Contact', 'IDataSource')
+try:
+    contacts_handle.call('Add', {'Type': u'Contact', 'Data':
+            	{'FirstName': {'Label': u'first name', 'Value': u'Daniel'},
+                 'LastName': {'Label': u'last name', 'Value': u'Craig'},
+                 'MobilePhoneGen': {'Label': u'mobile', 'Value': u'9008025211'},
+                 'EmailHome': {'Label': u'email', 'Value': u'dcraig@ford.com'}}})
+    print "Contact added Successfully"
+
+except scriptext.ScriptextError, err:
+    print "Error adding the contact : ", err
+\end{verbatim}
+
+\subsection{Delete}
+\label{subsec:contactdel}
+
+\code{Delete} is used to delete one or more contacts or contact groups from a contact database. It deletes data from a specified database or from the default database if you do not specify a database. This method can be called both in synchronous and asynchronous mode.
+
+The following is an example for using \code{Delete}:
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = contacts_handle.call('Delete', {'Type': u'Contact', 'Data': {'IdList': [req_id]}}, callback=del_contact)
+\end{verbatim}
+
+where, \code{del_contact} is a user defined callback function.
+
+The following table summarizes the specification of \code{Delete}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Operation} & Deletes an array of contacts/groups from the specified or default contacts database.  \\
+\hline
+{\bf Response Model} & Asynchronous and synchronous for Third Edition FP2 and Fifth Edition devices. \break
+Synchronous for Third Edition and Third Edition FP1 devices.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded. Contact must exist in the contacts database. The \code{IDs} can be obtained from \code{GetList}.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+The following table describes input parameter. The default contacts database is {\bf cntdb://c:contacts.cdb}. The SIM card database is {\bf sim://global_adn}. The contacts or contacts groups to be deleted must exist in the specified database. You must use \code{GetList} to retrieve the IDs of the entries you want to delete.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{2cm}|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Contact} \break
+\code{Group} & Operation is performed on the specified type.  \\
+\hline
+Data & {\bf Contact} or {\bf Group} (map) \break
+\code{[DBUri]}: unicode string \break
+\code{IdList}: List \break
+		\emph{[id1, id2, id3]} & All string values in the map are unicode. & \code{IdList} is a mandatory field. You must specify the contact ids or group ids to delete a set of contacts/groups from the contacts database given by the list. For example, \emph{id1}, \emph{id2}, \emph{id3} are the ids of the contacts/groups. \break
+
+\code{DBUri} is optional, it operates on the specified database or on the default database, if specified. \\
+\end{tabular}
+\caption{Input parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+The output is an object, which contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails and \code{SErrNone} on success. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\end{tabular}
+\caption{Output parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1005} & Service in use  \\
+\hline
+\code{1011} & Access denied  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Contacts:Delete:Type is missing} &  Indicates Type is missing  \\
+\hline
+\code{Contacts:Delete:Invalid Type, must be Contact/Group} & Indicates invalid value for Type, if it is not Contact or Group.  \\
+\hline
+\code{Contacts:Delete:Delete data Missing} & Indicates that the key \code{Data} is missing.  \\
+\hline
+\code{Contacts:Delete:Invalid Type of Data, Map is required} & Indicates that the value of the Data is not present and Map is expected.  \\
+\hline
+\code{Contacts:Delete:List of Ids is Missing} & Indicates that the list of Contact Ids to be deleted is missing.  \\
+\hline
+\code{Contacts:Delete:Type of IdList is wrong, List is required} & Indicates that value of \code{IdList} is not a List.  \\
+\hline
+\code{Contacts:Delete:Invalid Type of Id} & Indicates that Contact/Group Id is not a string.  \\
+\hline
+\code{Contacts:Delete:Wrong Type of ContentType} & Indicates that the value for Type is not a string.  \\
+\hline
+\code{Contacts:Delete:Mandatory Argument is not present} & Indicates that Type is not a string.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to delete a contact:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def del_contact(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in deleting the contact"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+           print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The contact is deleted"
+        lock.signal()
+
+# Load contacts module
+contacts_handle = scriptext.load("Service.Contact", "IDataSource")
+
+list_contacts = contacts_handle.call('GetList', {'Type': u'Contact', 'Filter': {'SearchVal': u'Paulo'}})
+for i in list_contacts:
+     req_id = i['id']
+
+event_id = contacts_handle.call('Delete', {'Type': u'Contact', 'Data':{'IdList': [req_id]}}, callback=del_contact)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Import}
+\label{subsec:contactimport}
+
+\code{Import} is used to import a contact to a contacts database. The information must be imported from a VCard file. This API can be called both in synchronous and asynchronous mode.
+
+The following is an example for using \code{Import}:
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = contacts_handle.call('Import', {'Type': u'Contact','Data':{'SourceFile':u'c:\\Data\\python\\VCARD.txt'}},callback=get_import)
+\end{verbatim}
+
+where, \code{get_import} is a user defined callback function.
+
+The following table summarizes the specification of \code{Import}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{4cm}|p{8cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Operation} & Imports contact to the specified contacts database.  \\
+\hline
+{\bf Response Model} & Asynchronous and synchronous for Third Edition FP2 and Fifth Edition devices. \break
+Synchronous for Third Edition and Third Edition FP1 devices.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Updates database with imported contact.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the contact to import and optionally the target database.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Contact} & Operation is performed on the specified type.  \\
+\hline
+Data & map \break
+\code{[DBUri]}: unicode string \break
+\code{SourceFile}: unicode string & All string values in the map are unicode. \break
+
+{\bf Note:} \break
+\code{SourceFile} can have any extension or no extension. \break
+\code{ SourceFile} has to be in Vcard format. \break
+
+Example of vcard format is given below \break
+
+ & \code{DBUri}: Imports contact to the specified database or to the default database if not specified. \break
+
+\code{SourceFile}: Imports contact from the specified file. \code{SourceFile} is the complete path to the file. It cannot be greater than 256 characters.  \\
+\end{tabular}
+\caption{Input parameters Import}
+\end{center}
+\end{table}
+
+Example of vcard format:
+\begin{verbatim}
+BEGIN:VCARD
+VERSION:2.1
+N:Kent; Clark
+FN:Clark Kent
+ORG:Superman Inc.
+TITLE:Super Man
+TEL;WORK:VOICE:(111) 556-9898
+TEL;HOME;VOICE:(090) 556-6767
+ADR;WORK:;;3rd Rock from Sun;Solar System;Milky Way
+LABEL;WORK;ENCODING=QUOTED-PRINTABLE:3rd Rock from Sun=0D=0ASolar System=0D=0AMilky Way
+ADR;HOME:;;Krypton
+LABEL;HOME;ENCODING=QUOTED-PRINTABLE:Krypton
+EMAIL;PREF;INTERNET:clarkkent@krypton.com
+REV:2008042T195243Z
+END:VCARD
+\end{verbatim}
+{\bf Output Parameters} \break
+
+The output is an object, which contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails and \code{SErrNone} on success. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\end{tabular}
+\caption{Output parameters for Import}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1017} & Path not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Contacts:Import:Type is missing} &  Indicates Type is missing  \\
+\hline
+\code{Contacts:Import:Invalid Type, it must be Contact} & Indicates invalid value for Type, it can be only Contact.  \\
+\hline
+\code{Contacts:Import:Import data Missing} & Indicates that the key \code{Data} is missing.  \\
+\hline
+\code{Contacts:Import:Invalid Type of Data, Map is required} & Indicates that the value of the Data is not a Map.  \\
+\hline
+\code{Contacts:Import:Import Source Filename is Missing} & Indicates the argument to signify the filename of the imported file is missing.  \\
+\hline
+\code{Contacts:Import:Import Source File is not a String} & Indicates that the filename specified is not a string.  \\
+\hline
+\code{Contacts:Import:Wrong Type of ContentType} & Indicates that the value for Type is not a string.  \\
+\hline
+\code{Contacts:Import:Mandatory Argument is not present} & Indicates that not all mandatory parameters are present.  \\
+\hline
+\code{Contacts:Import:Import DataBaseUri is not a String} & Indicates that the uri specified is not a string.  \\
+\hline
+\code{Contacts:Import:Filename too long} & Indicates that filename has exceeded 256 characters.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to import contacts from a VCard format file:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def get_import(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The contacts are imported"
+        lock.signal()
+
+# Load contacts module
+contacts_handle = scriptext.load("Service.Contact", "IDataSource")
+
+event_id = contacts_handle.call('Import', {
+                        'Type': u'Contact',
+                        'Data':{'SourceFile': u'c:\\Data\\python\\VCARD.txt'}}, callback=get_import)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Export}
+\label{subsec:contactexport}
+
+\code{Export} is used to export a contact from a contacts database. The information is exported to a vCard file. This API can be called both in synchronous and asynchronous mode.
+
+The following is an example for using \code{Export}:
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = contacts_handle.call('Export', {'Type': u'Contact','Data': {'DestinationFile': u'c:\\Data\\python\\contactlist.vcf', 'id': unicode(req_id)}}, callback=export_contact)
+\end{verbatim}
+
+where, \code{export_contact} is a user defined callback function.
+
+The following table summarizes the specification of \code{Export}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Operation} & Exports the selected item from the contacts database specified as VCard.  \\
+\hline
+{\bf Response Model} & Asynchronous and synchronous for Third Edition FP2 and Fifth Edition devices. \break
+Synchronous for Third Edition and Third Edition FP1 devices.  \\
+\hline
+{\bf Pre-condition} & Valid \code{IDataSource} interface is loaded. \break
+Valid contact store must exist. \break
+The specified contact ID, retrieved using \code{GetList}, must be available.  \\
+\hline
+{\bf Post-condition} & Exports contact to the specified file and creates a file in the specified location.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+The following table describes input parameter properties:            
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{2cm}|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Contact} & Operation is performed on the specified type.  \\
+\hline
+Data & map \break
+\code{[DBUri]}: unicode string \break
+\code{DestinationFile}: unicode string \break
+\code{id}: unicode string & All string values in the map are unicode. \break
+
+{\bf Note:} \break
+\code{DestinationFile} can have any extension or no extension, usually it is {\bf .vcf} \break
+\code{DestinationFile} is of Vcard format. \break
+
+Example of vcard formatis given below \break
+
+ \break
+If complete path is not specified, the file is created in private folder of the process. & \code{DBUri}: Exports contact from the specified database or to the default database if not specified. \break
+
+\code{DestinationFile}: Exports contact to the specified file. It cannot be greater than 256 characters. \break
+
+\code{id}: Exports the contact item with the specified id.  \\
+\end{tabular}
+\caption{Input parameters Export}
+\end{center}
+\end{table}
+
+\begin{verbatim}
+BEGIN:VCARD
+VERSION:2.1
+N:Kent; Clark
+FN:Clark Kent
+ORG:Superman Inc.
+TITLE:Super Man
+TEL;WORK:VOICE:(111) 556-9898
+TEL;HOME;VOICE:(090) 556-6767
+ADR;WORK:;;3rd Rock from Sun;Solar System;Milky Way
+LABEL;WORK;ENCODING=QUOTED-PRINTABLE:3rd Rock from Sun=0D=0ASolar System=0D=0AMilky Way
+ADR;HOME:;;Krypton
+LABEL;HOME;ENCODING=QUOTED-PRINTABLE:Krypton
+EMAIL;PREF;INTERNET:clarkkent@krypton.com
+REV:2008042T195243Z
+END:VCARD
+\end{verbatim}
+
+{\bf Output Parameters} \break
+
+The output is an object, which contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails and \code{SErrNone} on success. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\end{tabular}
+\caption{Output parameters for Export}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Contacts:Export:Type is missing} &  Indicates Type is missing  \\
+\hline
+\code{Contacts:Export:Invalid Type, it must be Contact} & Indicates invalid value for Type, it can be only Contact.  \\
+\hline
+\code{Contacts:Export:Export data Missing} & Indicates that the key \code{Data} is missing.  \\
+\hline
+\code{Contacts:Export:Invalid Type of Data, Map is required} & Indicates that the value of the Data is not a Map.  \\
+\hline
+\code{Contacts:Export:Export Destination Filename is Missing} & Indicates the argument to signify the filename to which contact is to be exported is missing.  \\
+\hline
+\code{Contacts:Export:Contact Id to be exported is missing} & Indicates that the id of the contact to be exported is missing.  \\
+\hline
+\code{Contacts:Export:Wrong Type of ContentType} & Indicates that the value for Type is not a string.  \\
+\hline
+\code{Contacts:Export:Destination Filename is of wrong Type} & Indicates that the filename is not a string.  \\
+\hline
+\code{Contacts:Export:Id is of wrong Type} & Indicates that the id is not a string.  \\
+\hline
+\code{Contacts:Export:Mandatory Argument is not present} & Indicates that not all mandatory arguments are present.  \\
+\hline
+\code{Contacts:Export:Export DataBaseUri is not a String} & Indicates that the uri specified is not a string.  \\
+\hline
+\code{Contacts:Export:Filename too long} & Indicates that filename has exceeded 256 characters.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to export contacts to a file in VCard format:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def export_contact(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   # Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The contact is exported"
+        lock.signal()
+
+# Load contacts module
+contacts_handle = scriptext.load("Service.Contact", "IDataSource")
+
+list_contacts = contacts_handle.call('GetList', {'Type': u'Contact', 'Filter': {'SearchVal': u'Clark'}})
+for i in list_contacts: req_id = i['id']
+
+event_id = contacts_handle.call('Export', {'Type': u'Contact', 'Data': {'DestinationFile': u'c:\\Data\\python\\contactlist.vcf', 'id': unicode(req_id)}}, callback=export_contact)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Organise}
+\label{subsec:contactorg}
+
+\code{Organise} is used to add contacts to a contact group (association) or remove contacts from a contact group (disassociation). The operation is performed on the specified database or, if no database is specified, on the default one. \break
+
+This method can be called in both synchronous and asynchronous mode.
+
+The following is an example for using \code{Organise}:
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = contacts_handle.call('Organise', {'Type': u'Group','Data': {'id': unicode(req_groupid[0]),'IdList': [req_id]}, 'OperationType': u'Associate'},callback=export_contact)
+\end{verbatim}
+
+where, \code{export_contact} is a user defined function.
+
+The following table summarizes the specification of \code{Organise}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Operation} & Associates or disassociates a list of contacts in a database to and from a group.  \\
+\hline
+{\bf Response Model} & Asynchronous and synchronous for Third Edition FP2 and Fifth Edition devices. \break
+Synchronous for Third Edition and Third Edition FP1 devices.  \\
+\hline
+{\bf Pre-condition} & Valid \code{IDataSource} interface is loaded. The IDs specified for group and contact must exist and can be retrieved using \code{GetList}.  \\
+\hline
+{\bf Post-condition} & Contacts from the default or specified contacts database are associated/ disassociated to and from a group.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies which contact group to organize.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Group} & Operation is performed on the specified type.  \\
+\hline
+Data & map \break
+\code{[DBUri]}: unicode string \break
+\code{id}: unicode string \break
+\code{IdList}: List \break
+		\emph{id1} \break
+		\emph{id2} and so on & All string values in the map are unicode. \break
+
+\emph{id1}, \emph{id2}, ... are strings. These are obtained by calling \code{GetList}. & \code{DBUri}: Organise groups in the specified database or to the default database if not specified. \break
+
+\code{id}: Associate or disassociate contacts to the particular \code{Id}. \break
+
+\code{IdList}: Organise a particular list of contacts.  \\
+\hline
+\code{OperationType} & unicode string & {\bf OperationType:} \break
+Associate \break
+Disassociate & NA  \\
+\end{tabular}
+\caption{Input parameters Organise}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+The output is an object, which contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails and \code{SErrNone} on success. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\end{tabular}
+\caption{Output parameters for Organise}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1011} & Access denied  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Contacts:Organise:Type is missing} &  Indicates Type is missing  \\
+\hline
+\code{Contacts:Organise:Invalid Content Type, it must be Group} & Indicates invalid value for Type, it can be only Contact.  \\
+\hline
+\code{Contacts:Organise:Organise Data Missing} & Indicates that the key \code{Data} is missing.  \\
+\hline
+\code{Contacts:Organise:Invalid Type of Data, Map is required} & Indicates that the value of the Data is not a Map.  \\
+\hline
+\code{Contacts:Organise:List of Ids is missing} & Indicates that Contact id list is missing.  \\
+\hline
+\code{Contacts:Organise:Id is missing} & Indicates that Group id is missing.  \\
+\hline
+\code{Contacts:Organise:OperationType is Missing} & Indicates that OperationType is missing.  \\
+\hline
+\code{Contacts:Organise:Operation Type is Wrong} & Indicates that OperationType is not a string.  \\
+\hline
+\code{Contacts:Organise:Invalid Operation Type} & Indicates that the Operation type is neither associate nor disassociate.  \\
+\hline
+\code{Contacts:Organise:Id type is wrong} & Indicates that the id is not a string.  \\
+\hline
+\code{Contacts:Organise:IdList type is wrong} & Indicates that IdList is not a of type List.  \\
+\hline
+\code{Contacts:Organise:Wrong Type of ContentType} & Indicates that the value for Type is not a string.  \\
+\hline
+\code{Contacts:Organise:Mandatory Argument is not present} & Indicates that not all mandatory arguments are present.  \\
+\hline
+\code{Contacts:Organise:Id List is empty} & Indicates that the mandatory Idlist is given but is empty.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to associate or disassociate a contact from a group:
+
+\begin{verbatim}
+import scriptext
+import e32
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+req_groupid = []
+
+# Callback function will be called when the requested service is complete
+def export_contact(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   # Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message:" + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "The contact is organised"
+        lock.signal()
+
+# Load contacts module
+contacts_handle = scriptext.load("Service.Contact", "IDataSource")
+
+list_contacts = contacts_handle.call('GetList', {'Type': u'Contact', 'Filter': {'SearchVal': u'Clark'}})
+
+for i in list_contacts: req_id = i['id']
+
+list_groups = contacts_handle.call('GetList', {'Type': u'Group'})
+
+for j in list_groups:
+    req_groupid.append(j['id'])
+
+event_id = contacts_handle.call('Organise', {'Type': u'Group', 'Data': {'id': unicode(req_groupid[0]), 'IdList': [req_id]}, 'OperationType': u'Associate'}, callback=export_contact)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Key Values}
+\label{subsec:contactkeyval}
+
+For uri- {\bf cntdb://c:contacts.cdb}:
+
+\begin{itemize}
+\item All keys are supported on S60 3rd Edition FP2 and S60 5th Edition devices.
+\item Keys documented in {\color{green}green} are not supported in S60 3rd Edition and S60 3rd Edition FP1.
+\item Keys documented in {\color{blue}blue} are not supported in S60 3rd Edition only.
+\end{itemize}
+
+For uri- {\bf sim://global_adn}, which is supported only on {\bf 3.2} and {\bf 5.0}:
+
+\begin{itemize}
+\item  Keys documented in {\color{red}red} are only supported.
+\end{itemize}
+
+Keys supported are dependent on the accessing database and not platform dependent. \break
+
+The keys listed in the following table are a superset of all the keys supported on all Third Edition and Fifth Edition platforms and different databases altogether. If you try to add an unsupported key on a given database and a given platform, the API returns an error message. \break
+
+\begin{notice}[note]
+SyncClass field is added to the contact by default, with a {\bf Synchronisation} label and {\bf private} value. (unless specified as {\bf public}). All values other than {\bf private} or {\bf public} are stored as {\bf private}.
+\end{notice}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf Description} & {\bf Max Length}  \\
+\hline
+{\color{red}LastName} & Last name field & 50 (14 for sim)  \\
+\hline
+FirstName & First name field & 50  \\
+\hline
+Prefix & Name prefix field & 10  \\
+\hline
+Suffix & Name suffix field & 10  \\
+\hline
+SecondName & Second name field & 50  \\
+\hline
+LandPhoneHome & Home land phone number & 48  \\
+\hline
+MobilePhoneHome & Home mobile phone number & 48  \\
+\hline
+VideoNumberHome & Home video number field & 48  \\
+\hline
+FaxNumberHome & Home FAX number & 48  \\
+\hline
+VoipHome & Home VOIP phone number & 100  \\
+\hline
+EmailHome & Home Email address & 150  \\
+\hline
+URLHome & Home URL & 1000  \\
+\hline
+AddrLabelHome & Home Address label & 250  \\
+\hline
+AddrPOHome & Home address post office & 20  \\
+\hline
+AddrEXTHome & Home address extension & 50  \\
+\hline
+AddrStreetHome & Home address street & 50  \\
+\hline
+AddrLocalHome & Home address local & 50  \\
+\hline
+AddrRegionHome & Home address region & 50  \\
+\hline
+AddrPostCodeHome & Home address post code & 20  \\
+\hline
+AddrCountryHome & Home address country & 50  \\
+\hline
+JobTitle & Job title field & 50  \\
+\hline
+CompanyName & Company name field & 50  \\
+\hline
+LandPhoneWork & Work land phone number & 48  \\
+\hline
+MobilePhoneWork & Work mobile phone number & 48  \\
+\hline
+VideoNumberWork & Work video number field & 48  \\
+\hline
+FaxNumberWork & Work FAX number & 48  \\
+\hline
+VoipWork & Work VOIP & 100  \\
+\hline
+EmailWork & Work email id & 150  \\
+\hline
+URLWork & Work URL field & 1000  \\
+\hline
+AddrLabelWork & Work address label & 250  \\
+\hline
+AddrPOWork & Work address post office & 20  \\
+\hline
+AddrEXTWork & Work address extension & 50  \\
+\hline
+AddrStreetWork & Work address street & 50  \\
+\hline
+AddrLocalWork & Work address local field & 50  \\
+\hline
+AddrRegionWork & Work address region & 50  \\
+\hline
+AddrPostCodeWork & Work address post code & 20  \\
+\hline
+AddrCountryWork & Work address country & 50  \\
+\hline
+LandPhoneGen & General land phone number & 48  \\
+\hline
+{\color{red}MobilePhoneGen} & General mobile phone number & 48  \\
+\hline
+VideoNumberGen & General video number & 48  \\
+\hline
+FaxNumberGen & General FAX number & 48  \\
+\hline
+VOIPGen & General VOIP & 100  \\
+\hline
+POC & POC field (Push to Talk Over Cellular) & 100  \\
+\hline
+{\color{green}SWIS} & {\color{green}SWIS field (See What I See).} & 100  \\
+\hline
+SIP & SIP Identity field & 100  \\
+\hline
+EmailGen & General Email id & 150  \\
+\hline
+URLGen & General URL field & 1000  \\
+\hline
+AddrLabelGen & General address label & 250  \\
+\hline
+AddrPOGen & General address post office & 20  \\
+\hline
+AddrExtGen & General address extension & 50  \\
+\hline
+AddrStreetGen & General address street & 50  \\
+\hline
+AddrLocalGen & General address local field & 50  \\
+\hline
+AddrRegionGen & General address region & 50  \\
+\hline
+AddrPostCodeGen & General address post code & 20  \\
+\hline
+AddrCountryGen & General address country & 50  \\
+\hline
+PageNumber & Pager number & 48  \\
+\hline
+DTMFString & DTMF String & 60  \\
+\hline
+Date & Date field & This field is in TTime format  \\
+\hline
+Note & Note field & 1000  \\
+\hline
+Ringtone & Ring tone field & 256  \\
+\hline
+{\color{blue}MiddleName} & {\color{blue}Middle name field} & 50  \\
+\hline
+{\color{blue}Department} & {\color{blue}Department name field} & 50  \\
+\hline
+{\color{blue}AsstName} & {\color{blue}Assistant name field} & 50  \\
+\hline
+{\color{blue}Spouse} & {\color{blue}Spouse name field} & 50  \\
+\hline
+{\color{blue}Children} & {\color{blue}Children field} & 50  \\
+\hline
+{\color{blue}AsstPhone} & {\color{blue}Assistant phone number} & 50 \\
+\hline
+{\color{blue}CarPhone} & {\color{blue}Car phone number} & 48  \\
+\hline
+{\color{blue}Anniversary} & {\color{blue}Anniversary field} & This field is in TTime format  \\
+\hline
+{\color{blue}SyncClass} & {\color{blue}Synchronisation field} \break
+
+{\color{blue}Possible values of this field are {\bf Public} or {\bf Private}, all other entries takes the value {\bf Private}.} & 1000  \\
+\hline
+LOCPrivacy & Locality Privacy field & 256  \\
+\end{tabular}
+\end{center}
+\end{table}
+\pagebreak
+

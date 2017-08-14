@@ -1,0 +1,110 @@
+% Copyright (c) 2005 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{e32dbm} ---
+  DBM implemented using the Symbian native DBMS}
+\label{sec:e32dbm}
+
+\declaremodule{}{e32dbm}
+\platform{S60}
+\modulesynopsis{DBM implemented using the Symbian native DBMS}
+
+The \module{e32dbm} module provides a DBM API that uses the native
+Symbian RDBMS as its storage back-end. The module API resembles that
+of the \refmodule{gdbm} module. The main differences are:
+
+\begin{itemize}
+\item The \method{firstkey()} - \method{nextkey()} interface for iterating through keys is not supported. Use the \code{"for key in db"} idiom or the \method{keys} or \method{keysiter} methods instead.
+\item This module supports a more complete set of dictionary features than \refmodule{gdbm}
+\item The values are always stored as Unicode, and thus the values returned are Unicode strings even if they were given to the DBM as normal strings.
+\end{itemize}
+\subsection{Module Level Functions}
+\label{subsec:mylabel16}
+
+The \module{e32dbm} defines the following functions:
+
+\begin{funcdesc}{open}{dbname\optional{,flags, mode}}
+Opens or creates the given database file and returns an \class{e32dbm}
+object.  Note that \var{dbname} should be a full path name, for
+example, \textsf{u'c:$\backslash
+\backslash $foo.db'}. Flags can be:
+
+\begin{itemize}
+\item \code{'r'}: opens an existing database in read-only mode. This is the default value.
+\item \code{'w'}: opens an existing database in read-write mode.
+\item \code{'c'}: opens a database in read-write mode. Creates a new database if the database does not exist.
+\item \code{'n'}: creates a new empty database and opens it in read-write mode.
+\end{itemize}
+
+If the character \code{'f'} is appended to flags, the database is opened in \textit{fast mode}. In 
+fast mode, updates are written to the database only when one of these 
+methods is called: \method{sync}, \method{close}, \method{reorganize}, or 
+\method{clear}.
+\end{funcdesc}
+
+Since the connection object destructor calls \method{close}, it is not 
+strictly necessary to close the database before exiting to ensure that data 
+is saved, but it is still good practice to call the \method{close} method 
+when you are done with using the database. Closing the database releases the 
+lock on the file and allows the file to be reopened or deleted without 
+exiting the interpreter.
+
+If you plan to do several updates, it is highly recommended that you open 
+the database in fast mode, since inserts and updates are more efficient when 
+they are bundled together in a larger transaction. This is especially 
+important when you plan to insert large amounts of data, since inserting 
+records to \refmodule{e32db} is very slow if done one record at a time.
+
+\subsection{e32dbm Objects}
+The \module{e32dbm} objects returned by the \method{open} function support 
+most of the standard dictionary methods. The supported dictionary methods 
+are:
+
+\begin{itemize}
+\item \code{__getitem__}
+\item \code{__setitem__}
+\item \code{__delitem__}
+\item \code{has_key}
+\item \code{update}
+\item \code{__len__}
+\item \code{__iter__}
+\item \code{iterkeys}
+\item \code{iteritems}
+\item \code{itervalues}
+\item \code{get}
+\item \code{setdefault}
+\item \code{pop}
+\item \code{popitem}
+\item \code{clear}
+\end{itemize}
+
+These work the same way as the corresponding methods in a normal dictionary.
+
+In addition, \class{e32dbm} objects have the following methods:
+
+\begin{methoddesc}[e32dbm]{close}{}
+Closes the database. In fast mode, commits all pending updates to disk. 
+\method{close} raises an exception if called on a database that is not open.
+\end{methoddesc}
+
+\begin{methoddesc}[e32dbm]{reorganize}{}
+Reorganizes the database. Reorganization calls \method{compact} on the 
+underlying \refmodule{e32db} database file, which reclaims unused space in the 
+file. Reorganizing the database is recommended after several updates.
+\end{methoddesc}
+
+\begin{methoddesc}[e32dbm]{sync}{}
+In fast mode, commits all pending updates to disk.
+\end{methoddesc}
+

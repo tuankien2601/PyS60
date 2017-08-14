@@ -1,0 +1,440 @@
+===============================================
+Python for S60 2.0.0 RELEASE NOTES, 11.02.2010
+===============================================
+
+Product Description
+===================
+
+Python for S60 (hereafter PyS60) is intended for developers looking to create
+programs that use the native features and resources of the S60 phones, using the
+Python programming language.
+
+About this release
+==================
+
+This is the new 2.0.0 final release of PyS60. This release is intended
+only for S60 3rd edition, S60 3rd edition FP1, S60 3rd edition FP2 and
+S60 5th edition devices.
+
+Note on versioning: The versioning scheme in PyS60 releases is such that the
+releases with an even minor version (1.0.x, 1.2.x ...) are "stable" and releases
+with an odd minor version (1.1.x, 1.3.x ...) are "development" releases.
+
+What is new when compared with PyS60 1.9.7?
+-------------------------------------------
+- Repeat support in 4-way directional pad
+- Lot of memory leaks in the interpreter code is fixed.
+- appuifw.app.track_allocations can be set if the interpreter should track all
+  memory allocations and then free the memory which was not explicitly released
+  before application exit. To debug memory leaks in 3rd party extension
+  modules set the value to false.
+- All the Pyds that have zero UID will be assigned with the applications UID at the time of packaging. 
+  As a result, Python applications can now be symbian signed. This opens the door for submitting Python applications to OVI Store.
+- Pdf documentation is available in the installer/archive.
+- API cleanup in the SensorFW module.
+- On the below mentioned devices Python runtime and its dependencies will be installed automatically
+  when the Python applications is started.     
+  6220 classic, N86 8 MP, N85, 6720 classic, 6730 classic, N96, 5730 XpressMusic, N78, 5630 XpressMusic, 
+  E52, E55, 6710 Navigator, E75, N79, 5800 XpressMusic, 5530 XpressMusic, 5230, X6 and N97 mini    
+
+Feature requests:
+-----------------
+3792 - Python Runtime and application sis can be on different drives. The limitation of both should be installed on the same drive is eliminated.
+
+Corrected defects:
+------------------
+4345 - Missing (platform) functionality on ensymble/Application packager: The 2nd point in the bug description is fixed
+3935 - appuifw.Icon sample code refers to non-existing file [doc error]
+
+What is new when compared with PyS60 1.9.6?
+-------------------------------------------
+- Touch support added for GLCanvas UI Control. Directional pad is displayed
+  by default on touch enabled devices. A sample application - gles_touch_demo.py
+  is added to ScriptShell which demonstrates the functionality.
+
+- Two new APIs are added to canvas - begin_redraw and end_redraw. These can be
+  used to instruct the window server to enable redraw drawing on the canvas UI
+  control. Please refer the documentation (Section 3.1.10) for more details.
+
+- The multi-selection listbox has been modified such that the dialog
+  for the option 'checkmark' now has 'Options' and 'Back' as its left and right
+  softkeys respectively. The 'Options' has Mark/Unmark entry that can be used
+  to select and de-select respectively. The 'Back' softkey returns the
+  current state of the listbox based on the selected items.
+
+- 4-way directional pad support in landscape mode
+    
+- Different flavors of Scriptshell application can coexist on the device.
+
+- Scribble application improvements:
+  - Performance improvements by using API's begin_redraw and end_redraw.
+  - The drawing area is retained between landscape and portrait
+    modes as the toolbar shifts to accommodate for this change.
+  - Pen width can be selected from a list of predefined values.
+
+- PyS60 document is available online on maemo.garage
+  http://pys60.garage.maemo.org/doc/
+
+Corrected defects:
+------------------
+4251 - The compression type for the dll and exe files for Python is shown
+       as Deflate instead of Byte-pair.
+4313 - Scrollbar visible afterwards, should not be there
+4338 - Multiple lisbox objects decrease scroll performance
+4349 - time.mktime() taking too much time to execute
+
+What is new when compared with PyS60 1.9.5?
+-------------------------------------------
+- Support for a virtual 4-way directional pad is added for Canvas and text
+  widgets. This D-Pad is displayed at the bottom of the screen and this
+  feauture is enabled by default on touch enabled devices. Currently, this is
+  supported only in the portrait mode and landscape support will be available
+  in a future release.
+  The 'full_max' mode is invalidated by this change and is removed in this
+  release.
+
+- The modules in the base runtime is more refined and hence the size of
+  application SIS, created using PyS60 Application Packager is reduced.
+
+- A new chapter is added in the PyS60 documentation (Extending and Embedding
+  PyS60), that is an end-to-end tutorial for creating 3rd party extention
+  modules and distributing them.
+
+Corrected defects:
+------------------
+3223 - Floating point formatting/parsing routines on this platform are imprecise
+4078 - socket.access_points() returns iapid 0 for lots of entries
+4106 - Problems exiting standalone apps
+4185 - Calendar module returns end time with time zone offset added to Unix time
+4186 - Using rollback in calendar module returns error
+4198 - Screen orientation remains landscape after exit, while device was
+       portrait all the time
+4215 - default.py cannot load .pyc files
+4216 - sys.exit() doesn't exit Python
+
+What is new when compared with PyS60 1.9.4?
+-------------------------------------------
+
+- e32.s60_version_info is now modified to do a dynamic fetch and return of S60
+  version information, instead of returning the version information configured
+  at the compile time.
+- Default heapsize for PyS60 applications is increased to 100k,4M from 4k,1M
+- An option "Continue with missing dependencies" is added to packaging tool.
+  Enabling this option will display the missing dependencies as warnings and 
+  continue with SIS generation. Otherwise the packaging is strict. Missing 
+  dependencies are displayed as errors and SIS generation is aborted.
+
+Feature requests:
+-----------------
+3261 - Add option to convert to bytecode before py2sis
+3298 - appuifw listbox now sports a scrollbar
+
+Corrected defects:
+------------------
+3228 - time.clock() does not work as expected.
+3784 - Python shell file listing in reverse alphabetical order
+3788 - uninstall_Python script for SDK has a leading \ in path
+3934 - appuifw.Icon creates only grey boxes
+3938 - Listbox scrolling off-by-one with touch
+4006 - Fake selection problem when sliding quickly your fingers over a list
+       with two lines per raw (XM 5800)
+4007 - Lists with one raw per item are generating a type_error when sliding
+       my finger from top to down
+4013 - relates to 1.9.4. !! returns wrong S60 OS version number
+4016 - ZeroDivisionError running ball.py in 1.9.4
+
+What is new when compared with PyS60 1.9.3?
+-------------------------------------------
+
+- A single Nokia signed runtime package which can be installed on all S60 3rd ED
+  and above devices is available. The actual size of the runtime is ~1MB, but due
+  to the embedded OpenC sis and Platform Service sis, the size is increased to
+  2.8MB. The runtime includes only the most essential modules. The Rest of the
+  modules are available with the application packager tool.
+
+- Improved version of application packager tool. The PyS60 application packager
+  now scans the Python application being packaged and picks up the missing
+  Python modules on which the application is dependent and packages them along
+  with the application files. Refer Chapter 7. "Module Repository" in the
+  PyS60 Documentation for more details.
+
+- Easier runtime deployment: Python runtime and its dependent components can be
+  installed by just running any Python application packaged using 1.9.4
+  application packager. This feature is available only from S60 3rd edition FP2
+  devices onwards and also these devices should have been updated with the
+  latest firmware.
+
+- Two new APIs are added to the socket module - access_points() &
+  set_default_access_point() which have similar functionality to the APIs
+  present in btsocket module.
+
+- Two new APIs are added to e32 module - get_capabilities() and
+  has_capabilities(). The former can be used to get the capabilities, the
+  application has been signed with, and the latter to check if a given list of
+  capabilities is granted to the application or not.
+
+  Note: The capabilities of scriptshell are displayed on startup using the
+  get_capabilities() API.
+
+- Added a new mode to appuifw.app.screen - 'full_max' which can be used to
+  achieve fullscreen on devices that don't have Left Soft Key and Right Soft
+  Key(e.g.: Nokia 5800). Setting the screen to 'full' will translate to
+  'large' mode on these devices.
+
+- The prefix to the binaries of 1.9.x to support co-existence with 1.4.x
+  runtime, has been changed from '251_' to 'kf_'.
+
+Corrected defects:
+------------------
+3368: Importing modules under application's private directory fails.
+3841: socket vs. btsocket interoperability
+
+What is new when compared with PyS60 1.9.2?
+-------------------------------------------
+- Touch event support is added to appuifw Canvas. An API is added to appuifw
+  module, touch_enabled() for checking if the device supports touch input.
+
+- scribble application developed using PyS60 touch feature is available in the
+  installer.
+
+- This release includes a new extension module, scriptext. This is an enabler for
+  using S60 Platform Service APIs that were introduced in the S60 5th Edition
+  and back ported on S60 3rd edition FP2, from Python. It supports services like
+  Application Manager, Calendar, Contacts, Landmarks, Location, Logging,
+  Messaging, Media Management, Sensors and Sys Info. Refer scriptext module
+  documentation for the usage and the convention for accessing the platform
+  Service API interfaces is subjected to change.
+
+- Easier runtime deployment: Python runtime and its dependent components can be
+  installed by just running the scriptshell application that comes with 1.9.3
+  release. This feature is available only from S60 3rd edition FP2 devices
+  onwards and also these devices should have been updated with the latest
+  firmware. The easier runtime deployment support will be available with all
+  ensymble packaged applications in future releases.
+
+- SSL support for socket is enabled
+
+- Python core is upgraded to 2.5.4
+
+Corrected defects:
+------------------
+3220: Time and strptime modules fails when the 'Z' format specifier is used
+3221: Issue with non-blocking TCP socket
+3229: Problem with decimal separator when the phone's locale uses a non dot decimal separator
+3388: SSL Client not supported by this Python installation
+3631: The packager does not remember the source directory of previous invocation
+
+
+What is new when compared with PyS60 1.9.1?
+-------------------------------------------
+- sensor module support for accessing the sensors on the devices that have
+  S60 Sensor Framework libraries. This module's API compatibility between 1.9.x
+  versions isn't guaranteed until 2.0. It won't be broken without good reason,
+  but it can happen. Refer to the sensor-module-specifications.doc available
+  from the installer for more details.
+
+- Reduction in the installer size!
+  The application packager GUI is now based on Tkinter, hence PyQt setup is
+  removed from the windows installer.
+
+- The UID of PythonRuntime has changed from '0xF0201514' to '0xE0201514'
+
+- PyS60 Application Packager is now based on ensymble 0.28
+
+What is new when compared with PyS60 1.9.0?
+-------------------------------------------
+- Better interpreter startup and sis installation time!
+
+- All the Python files in the runtime sis are compiled into .pyc files and
+  included in a zip file. sys.path is updated with the path of this zip file.
+  This reduced the interpreter startup time considerably.
+
+- A more generic error message is displayed when trying to load an application
+  without the PyS60 Dependencies installed.
+
+- Support for building just a <subsystem> is provided. Refer build, build_emu,
+  build_device help of setup.py
+
+- Unlike 1.4.x, a single SDK zip contains both gcce and armv5 link libraries.
+  Separate SDK zips are provided for 3rdEd, 3rdEdFP1 and 3rdEdFP2.
+
+- The default mode of ensymble py2sis command is changed to 'pycore'. All
+  scripts which refer to pys60 modules socket and calendar should use the new
+  names - btsocket and e32calendar to use the S60 functionality in pycore mode.
+  Also renamed "Prioritize PyS60 module library" to "1.4.x compatibility mode"
+  on the UI of application packager.
+
+Corrected defects:
+------------------
+
+3230: Problems with applications packaged with console profile and PyS60 mode.
+3317: N70 is included in the supported device list in the Getting Started Guide,
+      even though it's a 2ndEdFP2 device
+
+What is new when compared with PyS60 1.4.5?
+===========================================
+
+- Python 2.5.1 core, with much better compliance to the standard
+  Python than before. Most of the modules in the standard library are
+  included - basically almost all that make sense on this platform and
+  even some that don't (for regression testing purposes). This
+  includes such goodies as the Expat XML parser, ftplib, smtplib,
+  urllib2, xmlrpclib, SimpleHTTPServer, cPickle, asyncore and
+  especially the much more compliant socket module. Garbage collection
+  is enabled, so there is no need to dismantle reference cycles
+  anymore.
+
+- The 1.9.1 release improves things with the new all-in-one installer that gives
+  you the packaging tool with GUI and a README file, the documentation and the
+  SIS files needed for development on Windows platform, in a single package.
+  Similarly for Linux/Mac platforms, an all-in-one archive is provided that
+  includes all the contents provided by the installer except the GUI for the
+  packaging tool.
+
+- Packaging Python applications to SIS files is much easier. The
+  user-friendly Ensymble tool is now the official packaging tool, and
+  we've made a GUI for it so packaging your application is now just a
+  button press away.
+
+- The environment for SIS packaged applications is closer to the
+  script shell environment, since the script shell is no longer a
+  special case but just a regular application packaged using the
+  Ensymble tool. This should make testing your application easier.
+
+- PyS60 extension modules socket and calender are renamed to btsocket and
+  e32calender due to the conflicting names with Python core modules. Two
+  packaging modes pys60 and pycore have been provided with ensymble tool to
+  maintain the compatibility with PyS601.4.x binaries. The existing scripts
+  dependent on these extension modules need not be modified if it is packaged
+  with pys60 mode.
+
+- SIS packaged applications are now more robust:
+
+  - If the runtime is missing and you try to launch the application, a
+    human readable error message is displayed instead of the
+    application just failing to start, like before.
+
+  - If the application raises an exception on startup, the traceback
+    is printed on the screen instead of the application quitting
+    silently.
+
+  - The applications have a default text console just like in the
+    script shell environment, so printing text using the print
+    statement works the same way in SIS packaged apps and the script
+    shell.
+
+- On 3.2 devices, access GPS out of the box without signing hassle!
+  Since S60 3.2 devices now permit the Location capability for
+  self-signed applications, that capability is now enabled by default
+  in the 3.2 builds.
+
+- The UID of Python runtime and PythonScriptShell has changed.
+
+- The script directory of PythonScriptShell is changed from C:\python
+  to C:\data\python\
+
+- To support co-existence of 1.4.x and 1.9.1 Python runtimes, the binaries of
+  the latter version are prefixed with '251_' and the import hook in site.py is
+  modified to look for the renamed binary.
+
+Known issues
+============
+1. Problem with decimal separator when the phone's locale uses a decimal
+   separator other than dot ('.')
+2. time.clock() does not work as expected.
+3. Exit key does not work as expected when raw_input is pending for applications
+   packaged using s60ui profile
+4. Importing modules under application's private directory fails.
+   A work around for this problem is packaging the modules to a directory under
+   \data\python and include this directory path into sys.path before
+   importing the modules. Ensymlbe's --extrasdir option can be used to place
+   the modules under the required directory.
+
+   For example :
+   a)Place default.py in the directory "root\default.py"
+   b)Place dependent modules in "root\extras\data\python\
+   c)In default.py update the sys path
+      import sys
+      sys.path.append("c:\\data\\python")
+   d)ensymble py2sis root --extrasdir=extras
+      where "root" is the directory which contains default.py and "extras"
+      directory. "extras" directory contains the required modules under the
+      required directory tree.
+
+Refer the "Known Issues" section of the Python documentation for more details.
+
+Feedback
+========
+
+Bugs: Bug reports should be submitted via the project Python for S60 Bug
+Tracker on garage.maemo.org
+https://garage.maemo.org/tracker/?atid=3201&group_id=854&func=browse
+
+Feature Requests: Feature requests should be submitted via the project
+Python for S60 Feature Requests Tracker on garage.maemo.org
+https://garage.maemo.org/tracker/?atid=3204&group_id=854&func=browse
+
+Refer the "Reporting Bugs" section of the Python documentation for more details.
+
+Changes to standard library modules:
+====================================
+
+A brief summary of changes made to Python 2.5.4 source to get it working on
+Symbian:
+
+-  Changed the definition of the PyAPI_DATA and all the python header files
+   which used the earlier PyAPI_DATA to use its new form as DLL data export is
+   not supported on Symbian. A workaround is to have functions that return
+   pointers to the data and macros that hide the calls made to these functions.
+   This is enabled when the macro EXPORT_DATA_AS_FUNCTIONS is defined.
+
+- To handle recursions causing stack overflows gracefully stack checks are done
+  more frequently.
+
+- Disabled creation of byte compiled files when python modules are loaded
+
+- On the Symbian platform a value greater than 1e49 limits the precision to 28
+  above which it crashes the interpreter with panic User24. Added a check so
+  that OverflowError is raised for values greater than 1e49 with precision
+  greater than 28.
+
+- Modified python's core memory APIs so that it defines macros which can
+  be used to set custom malloc/realloc/free functions.
+
+- Python regression suite tests for modules that were not supported on Symbian,
+  were disabled by adding a platform check in the test itself. Limits were
+  reduced in tests which assumed a huge stack was available and were failing
+  with stack overflow error.
+
+- Implementation of the Python TLS API on top of the POSIX threads TLS API.
+  Also added PyThread_AtExit which provides extension modules to register their
+  functions which cleanup resources at thread exit.
+
+- A new exception SymbianError is added which is used to set Symbian errors.
+
+- dynload_shlib is modified to load the function at ordinal 1 which corresponds
+  to the init function (Symbian uses ordinal numbers to identify functions).
+
+- The default file system encoding is set to 'utf-8'
+
+- socketmodule is patched to workaround the OpenC bug related to getaddrinfo.
+
+- A separate copy of site.py and pyconfig.h is maintained in Symbian directory
+  as the changes done to these files is applicable only to Symbian platform
+
+- The classification of core python modules into builtin and PYDs is specified
+  in the modules.cfg file in Symbian\src. This file is parsed by
+  module_config_parser.py which generates and modifies the individual extension
+  and python dll build files. Minor changes were done to some modules' init
+  function and headers to facilitate building them as PYDs.
+
+- To support co-existence of 1.4.x and 1.9.0 Python runtimes, the binaries of
+  the latter version are prefixed with '251_' and the import hook in site.py is
+  modified to look for the renamed binary.
+
+- Python core files modsupport.c and getargs.c are patched to support va_list's
+  structure definition which is defined in gcce.h
+
+
+Copyright (c) 2004-2010 Nokia Corporation. Nokia and Nokia Connecting People are
+registered trademarks of Nokia Corporation.

@@ -1,0 +1,91 @@
+% -*- tex -*-
+% Copyright (c) 2008 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\chapter{Getting Started}
+\label{getstarted}
+
+Thank you for installing Python for S60 package. 
+\break
+Python for S60 is a powerful scripting language with an extensive standard library and easy-to-use APIs for S60 phone features, based on Python 2.5.4. 
+
+\section{Installing Python runtime and its dependencies}
+\label{install}
+
+Python runtime and other libraries are available in the folder {\bf PyS60Dependencies} under the installation folder.
+\break
+\break
+ {\bf Python_2.0.0.sis} - Python runtime
+\break
+\break
+ Runtime dependent package:
+ \break
+ - {\bf pips.sis} - OpenC PIPS library
+ \break
+ \break
+ Optional packages/libraries:
+ \break
+   - {\bf stdioserver.sis} - stdioserver to run python scripts packaged with console profile. 
+ \break
+  - {\bf ssl.sis} - SSL library if you need SSL support in socket module.
+ \break
+ \break
+  Different variants of PythonScriptShell packages:
+ \break
+     - {\bf PythonScriptShell_2.0.0_high_capas.sis} - ScriptShell with high capabilities (Self-signed + Location + SwEvent + WriteDeviceData + ReadDeviceData)
+  \break
+     - {\bf PythonScriptShell_2.0.0_3_2.sis} - ScriptShell with Self-signed + Location capability
+  \break
+     - {\bf PythonScriptShell_2.0.0_3_0.sis} - ScriptShell with Self-signed capability set
+  \break
+     - {\bf PythonScriptShell_2.0.0_unsigned_devcert.sis} - ScriptShell with Developer certificate capabilities
+ \break
+ \break
+  - {\bf Python_2.0.0_unsigned.sis} -- Unsigned Python runtime component
+ \break
+ \break
+ 
+
+\break
+\section{Packaging a Sample Application}
+\label{package}
+
+This section describes how to create a sis file from a Python script.
+
+\subsection{On a Windows host machine}
+\label{win}
+
+The following steps provide the procedure for writing and packaging a helloworld script.
+
+\begin{itemize}
+\item Create a "helloworld" script with the filename "helloworld.py" containing \code{print "Hello World!"} code snippet.
+\item Click {\bf Start - Programs - PythonForS60 ${{PYS60_VERSION_NUM}} > PyS60 Application Packager}, the PyS60 application packager dialog box opens.
+\item Select the {\bf Scriptfile} radio button and then, click the {\bf Browse} button to select the helloworld.py script from the file Open dialog.
+\item Click the {\bf Create} button to create the sis file with the current settings.  
+\item Install the sis file {\bf helloworld_v1_0_0.sis} created in the source directory of "helloworld.py" file.
+\end{itemize}
+
+\subsection{On a Linux or Mac host machine}
+\label{win}
+
+The following steps provide the procedure for writing and packaging a helloworld script.
+
+\begin{itemize}
+\item Create a "helloworld" script with the filename "helloworld.py" containing \code{print "Hello World!"} code snippet.
+\item Using a command prompt, enter the directory which contains the ensymble.py and copy the "helloworld.py" file here.
+\item Execute the command \code{"python ensymble.py py2sis helloworld.py"}.
+\item The sis file would be generated in the current directory. Install this on an S60 device.
+\item Execute \code{"python ensymble.py py2sis --help"}, for more info on py2sis options.
+\end{itemize}
+

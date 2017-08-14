@@ -1,0 +1,28 @@
+Source: python2.5
+Section: python
+Priority: optional
+Maintainer: Luciano Miguel Wolf <luciano.wolf@indt.org.br>
+Build-Depends: debhelper (>= 4.2), autoconf, zlib1g-dev, libssl-dev, libbz2-dev, libsqlite3-dev (>= 3.3.5-0.2osso1), dpatch, libffi4-dev (>= 4.1.0-1osso1), libgdbm-dev (>= 1.8.3-2), quilt
+Standards-Version: 3.6.2
+
+Package: python2.5
+Architecture: any
+Depends: ${shlibs:Depends}, libsqlite3-0 (>= 3.3.5-0.2osso1), libffi4 (>= 4.1.0-1osso1)
+Replaces: python2.4
+Conflicts: python2.4
+Provides: python-termios
+Description: An interactive high-level object-oriented language
+ Version 2.5 of the high-level, interactive object oriented language,
+ includes an extensive class library with lots of goodies for
+ network programming, system administration, sounds and graphics.
+
+Package: python2.5-dev
+Architecture: any
+Depends: python2.5 (= ${Source-Version})
+Conflicts: python2.4-dev
+Description: Header files and a static library for Python (v2.5)
+ Header files, a static library and development tools for building
+ Python (v2.5) modules, extending the Python interpreter or embedding
+ Python (v2.5) in applications.
+ .
+ Maintainers of Python packages should read README.maintainers.

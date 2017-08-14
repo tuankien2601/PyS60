@@ -1,0 +1,135 @@
+% Copyright (c) 2005, 2008 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Python/C API Extensions}
+\label{capiextensions}
+
+The native API exported by the interpreter in S60 environment
+consists of class \class{CSPyInterpreter}, Python/C API (see
+\cite{PyCAPI}) and and a small set of extensions to Python/C API.
+
+\subsection{class \class{CSPyInterpreter}}
+The class \class{CSPyInterpreter} offers an interface for initializing the 
+interpreter and for running scripts. It exports the following public 
+interface:
+\begin{verbatim}
+static CSPyInterpreter* 
+NewInterpreterL(TBool aCloseStdlib = ETrue,
+                void(*aStdioInitFunc)(void*) = NULL,
+                void* aStdioInitCookie = NULL);
+TInt RunScript(int argc, char** argv);
+void PrintError();
+void InitializeForeignThread();
+void FinalizeForeignThread();
+void (*iStdI)(char* buf, int n);
+void (*iStdO)(const char* buf, int n);
+\end{verbatim}
+
+The caller of the constructor \cfunction{CSPyInterpreter::NewInterpreterL()} may 
+provide its own function \var{aStdioInitFunc} for initializing Symbian OS 
+STDLIB's standard I/O descriptors. It gets called with the argument 
+\var{aStdioInitCookie}. The \ctype{CSPyInterpreter} class can also be 
+requested to leave STDLIB open at its destruction.
+
+The \method{RunScript} method establishes a Python 
+interpreter context and runs the script file whose full path name is in 
+\code{argv[0]} with the given argument vector. After completion, it leaves 
+the interpreter context and returns a Symbian error code to indicate success 
+or failure.
+
+The \method{CSPyInterpreter::PrintError} method can be used to print current 
+Python exception information to the standard error output.
+
+The methods \method{CSPyInterpreter::InitializeForeignThread} and
+\method{CSPyInterpreter::FinalizeForeignThread} are used to initialize
+and finalize the interpreter's thread specific state in threads
+started outside Python. 
+
+To run Python code in a thread that was started through other means
+than Python's own thread module you must do the following before
+attempting to run Python code in the thread:
+\begin{itemize}
+\item Allocate a \ctype{PyThreadState} struct for the new thread.
+\item Initialize the interpreter's thread specific state with \code{InitializeForeignThread()}.
+\item Set \code{PYTHON_TLS->thread_state} to point to your \ctype{PyThreadState} struct.
+\end{itemize}
+
+and you must call \code{FinalizeForeignThread()}
+before exiting from the thread. Note that this function will also run
+any thread exit functions registered with \method{PyThread_AtExit}.
+
+These functions are only for user-created threads. Do not call these
+functions in the main thread, or in threads created through Python.
+
+\subsection{Extensions to Python/C API}
+
+\subsubsection{Defined in symbian_python_ext_util.h}
+
+\begin{cfuncdesc}{PyObject*}{SPyErr_SetFromSymbianOSErr}{int error}
+Sets Python exception of type \textsf{PyExc_SymbianError} with the value 
+field set to symbolic name of the Symbian OS enumeration value 
+\textsf{error} and returns \textsf{NULL}. In case \textsf{error} has the 
+special value \textsf{KErrPython}, it assumes that a Python exception has 
+already been set and returns \textsf{NULL}.
+\end{cfuncdesc}
+
+The following functions can be used for storing the global data in a module 
+implementation. They are thin wrappers around 
+\cfunction{PyDict_SetItem},  
+\cfunction{PyDict_SetItemString}, \cfunction{PyDict_GetItem}, 
+\cfunction{PyDict_GetItemString}, \cfunction{PyDict_DelItem} and 
+\cfunction{PyDict_DelItemString}, respectively, and can be used in the same way. 
+The data is stored in a special completely global dictionary shared by all modules and threads in the current interpreter.
+
+\begin{cfuncdesc}{int}{SPyAddGlobal}{PyObject *key, PyObject *value}\end{cfuncdesc}
+\begin{cfuncdesc}{int}{SPyAddGlobalString}{char *key, PyObject *value}\end{cfuncdesc}
+\begin{cfuncdesc}{PyObject*}{SPyGetGlobal}{PyObject *key}\end{cfuncdesc}
+\begin{cfuncdesc}{PyObject*}{SPyGetGlobalString}{char *key}\end{cfuncdesc}
+\begin{cfuncdesc}{void}{SPyRemoveGlobal}{PyObject *key}\end{cfuncdesc}
+\begin{cfuncdesc}{void}{SPyRemoveGlobalString}{char *key}\end{cfuncdesc}
+
+\subsubsection{Defined in python_globals.h}
+\begin{cvardesc}{PyThreadState*}{PYTHON_TLS->thread_state}
+Current thread state.
+\end{cvardesc}
+
+Thread state and interpreter lock management must be performed
+according to the instructions; see \cite{PyCAPI}. Python for S60
+Platform extends the Python/C API by offering a facility for querying
+the related Python thread state (\code{PYTHON_TLS->thread_state}) from the context of the currently running thread. This
+can be used to re-establish the interpreter context with
+\cfunction{PyEval_RestoreThread} in C/C++ code.
+
+To save/restore the interpreter context:
+\begin{verbatim}
+Py_BEGIN_ALLOW_THREADS
+/* ...your code... */
+Py_END_ALLOW_THREADS
+\end{verbatim}
+
+To restore/save the interpreter context:
+\begin{verbatim}
+PyEval_RestoreThread(PYTHON_TLS-$>$thread_state)
+/* ...your code... */
+PyEval_SaveThread()
+\end{verbatim}
+
+\subsubsection{Defined in pythread.h}
+
+\begin{cfuncdesc}{int}{PyThread_AtExit}{void(*)()}
+An extenstion to the standard \refmodule{thread} module's C API that
+can be used for registering thread-specific exit functions. In the
+main thread calling this function has the same effect as calling
+\cfunction{Py_AtExit}. For more information, see \cite{PyLibRef}.
+\end{cfuncdesc}

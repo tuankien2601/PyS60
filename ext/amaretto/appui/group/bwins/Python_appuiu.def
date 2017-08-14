@@ -1,0 +1,7 @@
+EXPORTS
+	?CreateAppUiInstance@@YAPAVCEikAppUi@@XZ @ 1 NONAME ; class CEikAppUi * CreateAppUiInstance(void)
+	?DisablePointerForwarding@CAmarettoAppUi@@QAEXH@Z @ 2 NONAME ; void CAmarettoAppUi::DisablePointerForwarding(int)
+	?InsertEventBindingL@CAppuifwEventBindingArray@@QAEXAAUSAppuifwEventBinding@@@Z @ 3 NONAME ; void CAppuifwEventBindingArray::InsertEventBindingL(struct SAppuifwEventBinding &)
+	??1CAppuifwEventBindingArray@@UAE@XZ @ 4 NONAME ; CAppuifwEventBindingArray::~CAppuifwEventBindingArray(void)
+	?TouchEnabled@@YAHXZ @ 5 NONAME ; int TouchEnabled(void)
+

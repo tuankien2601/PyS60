@@ -1,0 +1,16 @@
+;Installation file for interpreter-startup
+;Languages
+&EN
+;
+;UID is the app's UID
+;
+#{"interpreter-startup"},(0xF0201519),1,5,3,TYPE=SISAPP
+
+;Localised Vendor name
+%{"Vendor-EN"}
+
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+; Files to install
+;
+"\Epoc32\release\armv5\urel\interpreter-startup.exe"	-"!:\sys\bin\interpreter-startup.exe"
+"\Epoc32\Data\z\private\10003a3f\import\apps\interpreter-startup_reg.RSC"   -"!:\private\10003a3f\import\apps\interpreter-startup_reg.RSC"

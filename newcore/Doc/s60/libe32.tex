@@ -1,0 +1,237 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{e32} ---
+  A Symbian OS related services package} 
+\label{sec:e32}
+
+\declaremodule{extension}{e32}
+\platform{S60}
+\modulesynopsis{A Symbian OS related services package.}
+
+The \module{e32} module offers Symbian OS related utilities that are not 
+related to the UI and are not provided by the standard Python library 
+modules.
+
+\subsection{Module Level Functions}
+\label{subsec:e32}
+
+The following free functions - functions that do not belong to any class 
+- are defined in the \module{e32} module:
+
+\begin{funcdesc}{ao_yield}{}
+
+Yields to the active scheduler to have ready active objects with priority above 
+normal scheduled for running. This has the effect of flushing the eventual 
+pending UI events. Note that the UI callback code may be run in the context of 
+the thread that performs an \code{ao_yield}. For information on active 
+scheduler, see S60 SDK documentation \cite{S60Doc}.
+
+\end{funcdesc}
+
+\begin{funcdesc}{ao_sleep}{interval \optional{, callback}}
+Sleeps for the given \var{interval} without blocking the active 
+scheduler. When the optional \var{callback} is given, the call 
+to \code{ao_sleep} returns immediately and the 
+\var{callback} gets called after \var{interval}. See 
+also Section \ref{subsec:Aotimer}, Ao_timer Type.
+\end{funcdesc}
+
+\begin{funcdesc}{ao_callgate}{wrapped_callable}
+Wraps \var{wrapped_callable} into returned callable object 
+\var{callgate} that can be called in any thread. As a result of 
+a call to \var{callgate}, \var{wrapped_callable} 
+gets called in the context of the thread that originally created the 
+callgate. Arguments can be given to the call. This is actually a simple 
+wrapping of the Symbian active object facility.
+\end{funcdesc}
+
+\begin{funcdesc}{drive_list}{}
+Returns a list of currently visible drives as a list of Unicode strings 
+\code{'<driveletter>:'}
+\end{funcdesc}
+
+\begin{funcdesc}{file_copy}{target_name, source_name}
+Copies the file \var{source_name} to \var{target_name}. The names must be 
+complete paths.
+\end{funcdesc}
+
+\begin{funcdesc}{in_emulator}{}
+Returns \code{True} if running in an emulator, or \code{False} if running on a 
+device.
+\end{funcdesc}
+
+\begin{funcdesc}{set_home_time}{time}
+Set the device's time to \code{time} (see Section \ref{subsec:datetime}).
+\end{funcdesc}
+
+\begin{datadesc}{pys60_version}
+A string containing the version number of the Python for S60 and some 
+additional information.
+
+Example:
+\begin{verbatim}
+>>> import e32
+>>> e32.pys60_version
+'1.9.3 svn2793'
+>>>
+\end{verbatim}
+\end{datadesc}
+
+\begin{datadesc}{pys60_version_info}
+A tuple containing the five components of the Python for S60 version
+number: major, minor, micro, release tag, and serial. All values
+except release level are integers; the release tag is a string. A
+value other than \code{'final'} for the release tag signifies a
+development release. The \code{pys60_version_info} value corresponding
+to the Python for S60 version 1.9.3 is \code{(1, 9, 3, 'svn2793', 0)}.
+
+Example:
+\begin{verbatim}
+>>> import e32
+>>> e32.pys60_version_info
+(1, 9, 3, 'svn2793', 0)
+>>>
+\end{verbatim}
+\end{datadesc}
+
+\begin{datadesc}{s60_version_info}
+Returns the S60 platform version of the device.
+
+Example:
+\begin{verbatim}
+>>> import e32
+>>> e32.s60_version_info
+(3, 0)
+>>>
+\end{verbatim}
+\end{datadesc}
+
+\begin{funcdesc}{is_ui_thread}{}
+Returns \code{True} if the code that calls this function runs in the 
+context of the UI thread; otherwise returns \code{False}.
+\end{funcdesc}
+
+\begin{funcdesc}{start_exe}{filename, command \optional{,wait}}
+Launches the native Symbian OS executable \var{filename} 
+(Unicode) and passes it the \var{command} string. When 
+\var{wait} is set, the function synchronously waits for the exit 
+of the executable and returns a value that describes the exit type. Possible 
+values are \code{0} for normal exit and \code{2} for abnormal exit.
+\end{funcdesc}
+
+\begin{funcdesc}{start_server}{filename}
+Starts the Python script in file \var{filename} (Unicode) as a 
+server in its own process. Note that \module{appuifw} module is not 
+available to a server script.
+\end{funcdesc}
+
+\begin{funcdesc}{reset_inactivity}{}
+Resets the timers since the user was last active. As a consequence, the device 
+backlight is normally turned on when this function is invoked.
+\end{funcdesc}
+
+\begin{funcdesc}{inactivity}{}
+Returns the time in seconds since the user of the device was last active.
+\end{funcdesc}
+
+\begin{funcdesc}{get_capabilities}{}
+Returns tuple of capabilities granted to the application.
+Example:
+
+\begin{verbatim}
+>>> import e32
+>>> e32.get_capabilities()
+('ReadUserData','WriteUserData')
+>>>
+\end{verbatim}
+\end{funcdesc}
+
+\begin{funcdesc}{has_capabilities}{capability_list}
+Check if the application has all the capabilities that are passed in a list, 
+'capability_list'. Returns True if all the capabilities specified in the list are 
+present, False otherwise.
+
+Examples:
+
+\begin{verbatim}
+>>> import e32
+>>> e32.has_capabilities(['Location','ReadUserData'])
+False
+>>> e32.has_capabilities(['Location','SwEvent'])
+False
+>>> e32.has_capabilities(['WriteUserData','ReadUserData'])
+True
+>>>
+\end{verbatim}
+\end{funcdesc}
+
+\subsection{Ao\_lock Type}
+\label{subsec:Aolock}
+
+\begin{classdesc}{Ao_lock}{}
+Creates an \code{Ao_lock} instance. A Symbian active object based 
+synchronization service. This can be used in the main thread without 
+blocking the handling of UI events. The application should not exit while a 
+thread is waiting in \code{Ao_lock}. If \code{Ao_lock.wait} is called 
+while another \code{wait} call is already in progress, an \code{AssertionError} is raised.
+\end{classdesc}
+
+Instances of \code{Ao_lock} type have the following methods:
+
+\begin{methoddesc}[Ao_lock]{wait}{}
+If the lock has already been signaled, returns immediately. Otherwise blocks 
+in wait for the lock to be signaled. Only one waiter is allowed, so you 
+should avoid recursive calls to this service. \code{wait} can only be 
+called in the thread that created the lock object. During the wait, other 
+Symbian-active objects are being served, so the UI will not freeze. This may 
+result in the UI callback code being run in the context of the thread that 
+is waiting in \code{Ao_lock}. This must be considered when designing 
+the application logic.
+\end{methoddesc}
+
+\begin{methoddesc}[Ao_lock]{signal}{}
+Signals the lock. The waiter is released.
+\end{methoddesc}
+
+\subsection{Ao\_timer Type}
+\label{subsec:Aotimer}
+
+The rationale for the \code{Ao_timer} type is that you cannot cancel a 
+pending \code{e32.ao_sleep}. This is problematic if e.g. the user exits 
+an application which is sleeping. In this case a panic would occur since the 
+sleep is not cancelled - this is the reason you should avoid using 
+\code{e32.ao_sleep} and instead use the \code{Ao_timer} with 
+appropriate \code{cancel} calls if there is for example a possibility for 
+the user to exit the application during a sleep.
+
+\begin{classdesc}{Ao_timer}{}
+Creates an \code{Ao_timer} instance. A Symbian active object based 
+sleeping service. This can be used in the main thread without blocking the 
+handling of UI events. The application should not exit while a thread has a 
+pending \code{after} call in \code{Ao_timer}. Only one \code{after} 
+invocation can be pending at time for each instance of this type.
+\end{classdesc}
+
+Instances of \code{Ao_timer} type have the following methods:
+
+\begin{methoddesc}[Ao_timer]{after}{interval \optional{,callback}}
+Sleeps for the given interval without blocking the active scheduler. When 
+the optional callback is given, the call to \code{after} returns 
+immediately and the callback gets called after interval.
+\end{methoddesc}
+
+\begin{methoddesc}[Ao_timer]{cancel}{}
+Cancels a pending \code{after} call.
+\end{methoddesc}

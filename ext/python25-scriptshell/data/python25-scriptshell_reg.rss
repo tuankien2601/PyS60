@@ -1,0 +1,12 @@
+#include <appinfo.rh>
+
+UID2 KUidAppRegistrationResourceFile
+UID3 0xF0201515
+
+RESOURCE APP_REGISTRATION_INFO
+  {
+  app_file="python25scriptshell";
+
+  embeddability=KAppNotEmbeddable;
+  newfile=KAppDoesNotSupportNewFile;
+  }

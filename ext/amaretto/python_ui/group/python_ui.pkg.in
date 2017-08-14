@@ -1,0 +1,39 @@
+; Copyright (c) 2009 Nokia Corporation
+;
+; Licensed under the Apache License, Version 2.0 (the "License")
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+
+;Installation file for python_ui
+;Languages
+&EN
+;
+;UID is the app's UID
+;'
+#{"Python_ui"},(0x20022EEC),1,5,3,TYPE=SISAPP
+
+;Localised Vendor name
+%{"Vendor-EN"}
+
+[0x102752AE], 0, 0, 0, {"Series60ProductID"}
+; Files to install
+;
+
+"\Epoc32\data\z\resource\apps\Python_ui.rsc"-"!:\resource\apps\Python_ui.rsc"
+"\Epoc32\data\z\private\10003a3f\import\apps\Python_ui_reg.rsc"-"!:\private\10003a3f\import\apps\Python_ui_reg.rsc"
+;"resource\apps\default_0xe35e00df_loc.r01"-"!:\resource\apps\default_0xe35e00df_loc.r01"
+"\Epoc32\data\z\resource\apps\Python_ui_loc.rsc"-"!:\resource\apps\Python_ui_loc.rsc"
+"\Epoc32\data\z\resource\apps\PYTHON_UI_AIF.mif"-"!:\resource\apps\PYTHON_UI_AIF.mif"
+"\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\Python_ui.exe" -"!:\sys\bin\Python_ui.exe"
+"\Epoc32\release\armv5\udeb\Python_ui.exe"	-"!:\sys\bin\Python_ui.exe"
+"\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\py_iad_client.dll" -"!:\sys\bin\kf_Py_iad_client_0x20022EEC.dll"
+"..\..\scriptshell\default.py" -"!:\private\20022EEC\default.py"
+"..\src\launcher.py" -"!:\private\20022EEC\launcher.py"

@@ -1,0 +1,6 @@
+PRJ_MMPFILES
+python25-scriptshell.mmp
+
+PRJ_EXPORTS
+..\src\default.py	      c:\data\python\default.py
+..\src\tee.py	      c:\data\python\tee.py

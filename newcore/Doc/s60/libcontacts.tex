@@ -1,0 +1,443 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{contacts} ---
+  A contacts related services package}
+\label{sec:contacts}
+
+\declaremodule{extension}{contacts}
+\platform{S60}
+\modulesynopsis{A contacts related services package.}
+
+The \module{contacts} module offers an API to address book services allowing the 
+creation of contact information databases. The \module{contacts} module 
+represents a Symbian contact database as a dictionary-like \class{ContactDb} 
+object, which contains \class{Contact} objects and which is indexed using the 
+unique IDs of those objects. A \class{Contact} object is itself a list-like 
+object, which  contains \class{ContactField} objects and which is indexed using 
+the field indices. Unique IDs and field indices are integers. The 
+\class{ContactDb} object supports a limited subset of dictionary functionality. 
+Therefore, only \code{__iter__}, \code{__getitem__}, 
+\code{__delitem__},\code{__len__}, \code{keys}, \code{values}, and \code{items} 
+are included.
+
+\class{ContactDb} objects represent a live view into the database. If a 
+contact is changed outside your Python application, the changes are visible 
+immediately, and conversely any changes you commit into the database are 
+visible immediately to other applications. It is possible to lock a contact 
+for editing, which will prevent other applications from modifying the 
+contact for as long as the lock is held. This can be done in, for example, a 
+contacts editor application when a contact is opened for editing, very much 
+like with the Contacts application in your Nokia device. If you try to 
+modify a contact without locking it for editing, the contact is 
+automatically locked before the modification and released immediately 
+afterwards.
+
+\subsection{Module Level Functions}
+\label{subsec:contmod}
+
+The following free functions - functions that do not belong to any class 
+- are defined in the \class{Contact} module:
+
+\begin{funcdesc}{open}{\optional{filename\optional{, mode}}}
+
+Opens a contacts database and returns a \class{ContactDb} object. \var{filename} 
+should be a full Unicode path name. If \var{filename} is not given, opens the 
+default contacts database. If \var{mode} is not given, the database must exist. 
+If \var{mode} is '\code{c}', the database is created if it does not already 
+exist. If \var{mode} is '\code{n}', a new, empty database is created, 
+overwriting the possible previous database.
+
+\end{funcdesc}
+
+\begin{notice}[warning]
+Using \code{open} together with the additional parameters \var{filename} 
+or \var{mode} is intended for testing purposes only. Due to S60 SDK 
+functionality, the \code{open} method can sometimes be unreliable with these 
+parameters. 
+\end{notice}
+
+\subsection{ContactDb Object}
+\label{subsec:contactdb}
+
+There is one default contact database, but it is possible to create several 
+databases with the \code{open} function.
+
+\begin{classdesc*}{ContactDb}
+\class{ContactDb} objects have the following methods:
+
+\begin{methoddesc}[ContactDb]{add_contact}{}
+
+Adds a new contact into the database. Returns a \class{Contact} object that 
+represents the new contact. The returned object is already locked for 
+modification. Note that a newly created contact will contain some empty 
+default fields. If you do not want to use the default fields for anything, 
+you can ignore them.
+ 
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{find}{searchterm}
+
+Finds the contacts that contain the given Unicode string as a substring and 
+returns them as a list.
+
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{import_vcards}{vcards}
+
+Imports the vCard(s) in the given string into the database. 
+
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{export_vcards}{ids}
+
+Converts the contacts corresponding to the ID's in the given tuple \var{ids} to vCards and returns 
+them as a string.
+
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{keys}{}
+
+Returns a list of unique IDs of all \code{Contact} objects in the 
+database.
+
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{compact_required}{}
+
+Verifies whether compacting is recommended. Returns an integer value 
+indicating either a true or false state. Returns \code{True} if more than 
+32K of space is unused and if this comprises more than 50 percent of the 
+database file, or if more than 256K is wasted in the database file. 
+
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{compact}{}
+
+Compacts the database to its minimum size.
+
+\end{methoddesc}
+
+\begin{methoddesc}[ContactDb]{__delitem__}{id}
+
+Deletes the given contact from the database.
+
+\end{methoddesc}
+
+
+\begin{methoddesc}[ContactDb]{field_types}{}
+
+Returns a list of dictionary objects that contains information on all 
+supported field types. The list contains dictionary objects, which each 
+describe one field type. The most important keys in the dictionary are 
+\code{'type'} and \code{'location'} which together indentify the field 
+type. \code{'type'} can have string values such as 
+\code{'email_address'}. \code{'location'} can have the string values 
+\code{'none'}, \code{'home',} or \code{'work'}. Another important key 
+is \code{'storagetype'}, which defines the storage type of the field. 
+\code{'storagetype'} can have the string values \code{'text'}, 
+\code{'datetime'}, \code{'item_id',} or \code{'binary'}. Note that 
+the \code{Contacts} extension does not support adding, reading, or 
+modifying fields of any other type than '\code{text'} or 
+\code{'datetime'}. The other content returned by \code{field_types} 
+is considered to be advanced knowledge and is not documented here.
+
+\end{methoddesc}
+
+\begin{memberdesc}[ContactDb]{groups}
+
+Returns contact groups of the database. Read-only.
+
+\end{memberdesc}
+
+\end{classdesc*}
+
+\subsection{Contact Object}
+\label{subsec:contact}
+
+A \class{Contact} object represents a live view into the state of a single 
+contact in the database. You can access the fields either with a contact's 
+numeric field ID as \code{contact[fieldid]}, or using the \code{find} 
+method. Attempting to modify a contact while it has been locked for editing 
+in another application will raise the exception \code{ContactBusy}.
+
+\begin{classdesc*}{Contact}
+\class{Contact} objects have the following attributes:
+
+\begin{memberdesc}[Contact]{id}
+
+The unique ID of this \class{Contact}. Read-only.
+
+\end{memberdesc}
+
+\begin{memberdesc}[Contact]{title}
+
+The title of this \class{Contact}. Read-only.
+
+\end{memberdesc}
+
+\begin{memberdesc}[Contact]{last_modified}
+
+The date/time when this \class{Contact} object was last modified. Read-only.
+
+\end{memberdesc}
+
+\begin{memberdesc}[Contact]{is_group}
+
+Returns 1 if this contact is a contact group. Returns 0 if normal contact entry. Read-only.
+
+\end{memberdesc}
+
+\class{Contact} objects have the following methods:
+
+\begin{methoddesc}[Contact]{begin}{}
+
+Locks the contact for editing. This prevents other applications from 
+modifying the contact for as long as the lock is held. This method will 
+raise the exception \code{ContactBusy} if the contact has already been 
+locked.
+
+\end{methoddesc}
+
+\begin{methoddesc}[Contact]{commit}{}
+
+Releases the lock and commits the changes made into the database.
+
+\end{methoddesc}
+
+\begin{methoddesc}[Contact]{rollback}{}
+
+Releases the lock and discards all changes that were made. The contact 
+remains in the state it was before \code{begin}.
+
+\end{methoddesc}
+
+\begin{methoddesc}[Contact]{as_vcard}{}
+
+Returns the contact as a string in vCard format.
+
+\end{methoddesc}
+
+\begin{methoddesc}[Contact]{add_field}{type \optional{, value \optional{, 
+label=field_label}\optional{, location=location_spec}}}
+
+Adds a new field into this \class{Contact}. This method raises 
+\code{ContactBusy} if the contact has been locked by some other 
+application. \var{type} can be one of the supported field types as a 
+string. 
+
+The following field types can be added:
+
+\begin{itemize}
+\item \code{city}
+\item \code{company_name}
+\item \code{country}
+\item \code{date}
+\item \code{dtmf_string}
+\item \code{email_address}
+\item \code{extended_address}
+\item \code{fax_number}
+\item \code{first_name}
+\item \code{job_title}
+\item \code{last_name}
+\item \code{mobile_number}
+\item \code{note}
+\item \code{pager_number}
+\item \code{phone_number}
+\item \code{po_box}
+\item \code{postal_address}
+\item \code{postal_code}
+\item \code{state}
+\item \code{street_address}
+\item \code{url}
+\item \code{video{\_}number}
+\item \code{picture}
+\item \code{second_name}
+\item \code{voip}
+\item \code{sip_id}
+\item \code{personal_ringtone}
+\item \code{share_view}
+\item \code{prefix}
+\item \code{suffix}
+\item \code{push_to_talk}
+\item \code{locationid_indication}
+
+
+\end{itemize}
+
+The following field types are recognized but cannot be created at present:
+
+\begin{itemize}
+\item \code{first{\_}name{\_}reading}
+\item \code{last{\_}name{\_}reading}
+\item \code{speed_dial}
+\item \code{thumbnail{\_}image}
+\item \code{voice_tag}
+\item \code{wvid}
+\end{itemize}
+
+
+
+All supported field types are passed as strings or Unicode strings, except for 
+\code{'date}' which is a float that represents Unix time. For more information 
+on Unix time, see Section \ref{subsec:datetime}, Date and Time.
+
+\var{field{\_}label} is the name of the field shown to the user. If you 
+do not pass a label, the default label for the field type is used.
+
+\var{location{\_}spec}, if given, must be \code{'home'} or 
+\code{'work'}. Note that not all combinations of type and location are 
+valid. The settings of the current contacts database in use determine which 
+ones are valid. 
+
+\end{methoddesc}
+
+\begin{methoddesc}[Contact]{find}{\optional{type=field{\_}type}\optional{, 
+location=field{\_}location}}
+
+Finds the fields of this contact that match the given search specifications. 
+If no parameters are given, all fields are returned.
+
+\end{methoddesc}
+
+\begin{methoddesc}[Contact]{__delitem__}{fieldindex}
+
+Deletes the given field from this contact. Note that since this will change 
+the indices of all fields that appear after this field in the contact, and 
+since the \class{ContactField} objects refer to the fields by index, old 
+\class{ContactField }objects that refer to fields after the deleted field 
+will refer to different fields after this operation.
+
+\end{methoddesc}
+
+\end{classdesc*}
+
+\subsection{ContactField Object}
+\label{subsec:contactfield}
+
+A \class{ContactField} represents a field of a \class{Contact} at a 
+certain index. A \class{ContactField} has attributes, some of which can be 
+modified. If the parent \class{Contact} has not been locked for editing, 
+modifications are committed immediately to the database. If the parent 
+\class{Contact} has been locked, the changes are committed only when 
+\class{commit} is called on the \class{Contact}.
+
+\begin{classdesc*}{ContactField}
+\class{ContactField} objects have the following attributes:
+
+\begin{memberdesc}[ContactField]{label}
+
+The user-visible label of this field. Read-write.
+
+\end{memberdesc}
+
+\begin{memberdesc}[ContactField]{value}
+
+The value of this field. Read-write.
+
+\end{memberdesc}
+
+\begin{memberdesc}[ContactField]{type}
+
+The type of this field. Read-only.
+
+\end{memberdesc}
+
+\begin{memberdesc}[ContactField]{location}
+
+The location of this field. This can be \code{'none'}, \code{'work'}, or 
+\code{'home'}.
+
+\end{memberdesc}
+
+\begin{memberdesc}[ContactField]{schema}
+
+A dictionary that contains some properties of this field. The contents of this 
+dictionary correspond to those returned by the \class{ContactDb} method 
+\method{field{\_}types}.
+
+\end{memberdesc}
+
+\end{classdesc*}
+
+
+
+\subsection{Groups Object}
+\label{subsec:groups}
+
+A \class{Groups} object represents Symbian contact groups as a dictionary
+like object with limited subset of dictionary functionality. Each group can
+be accessed using the group's unique id as a key. The Groups object returns 
+a list like \class{Group} object as the value matching the given key.
+
+The following common methods are supported: \code{__iter__}, \code{__getitem__},
+\code{__delitem__} and \code{__len__}.
+
+\begin{classdesc*}{Groups}
+\class{Groups} objects have the following attributes:
+
+\begin{methoddesc}[Groups]{add_group}{\optional{name}}
+
+Creates new contact group and returns corresponding \class{Group} object.
+Group name can be given as an optional parameter.
+
+\end{methoddesc}
+
+\end{classdesc*}
+
+
+
+\subsection{Group Object}
+\label{subsec:group}
+
+A \class{Group} object represents single Symbian contact group as a list object 
+with limited subset of list functionality. The \class{Group} object lists Contact
+entry ids that belong to the group.
+
+The native Symbian group objects are represented as Symbian contact entries in
+the database. Therefore they can also be accessed as Python \class{Contact} objects,
+ but this way their group handling properties cannot be used from Python. Use 
+\class{Groups} and \class{Group} objects to access group functionalities. 
+
+The following common methods are supported: \code{__iter__}, \code{__getitem__},
+\code{__delitem__} and \code{__len__}.
+
+\begin{classdesc*}{Group}
+\class{Group} objects have the following attributes:
+
+\begin{memberdesc}[Group]{id}
+
+The unique id of the \class{Group} object. Read-only.
+
+\end{memberdesc}
+
+\begin{memberdesc}[Group]{name}
+
+The name of the \class{Group} object. Read-write.
+
+\end{memberdesc}
+
+\end{classdesc*}
+
+\newpage
+
+
+
+
+
+
+
+
+
+

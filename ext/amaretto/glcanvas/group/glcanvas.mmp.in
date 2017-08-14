@@ -1,0 +1,58 @@
+/* Copyright (c) 2005-2009 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+targettype dll
+TARGET	       ${{PREFIX}}glcanvas.pyd
+
+
+#include "../../common.mmp"
+
+CAPABILITY ${{DLL_CAPABILITIES}}
+
+${{COMPILER_FLAGS}}
+EPOCALLOWDLLDATA
+EPOCSTACKSIZE 0x8000
+EPOCHEAPSIZE 0x100000 0x100000
+
+SYSTEMINCLUDE    \epoc32\include\python25 
+SYSTEMINCLUDE    \epoc32\include\stdapis 
+SYSTEMINCLUDE    \epoc32\include 
+
+USERINCLUDE   ..\..\appui\inc
+USERINCLUDE   ..\..\appui\appuifw\inc
+USERINCLUDE   ..\..\appui\appuifw\data
+USERINCLUDE   ..\inc 
+   
+LIBRARY python25.lib 
+LIBRARY euser.lib
+LIBRARY eikcore.lib
+LIBRARY cone.lib
+LIBRARY etext.lib
+LIBRARY msgs.lib
+LIBRARY platformenv.lib
+LIBRARY estlib.lib
+LIBRARY libgles_cm.lib
+LIBRARY ws32.lib
+LIBRARY ${{PREFIX}}python_appui.lib
+
+SOURCEPATH ..\src
+
+SOURCE		glcanvasmodule.cpp glcanvas_util.cpp
+
+
+#if defined(ARMCC)
+deffile eabi\glcanvas 
+#elif defined(WINSCW)
+deffile bwins\glcanvas 
+#endif

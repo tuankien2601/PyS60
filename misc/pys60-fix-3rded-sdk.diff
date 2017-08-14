@@ -1,0 +1,60 @@
+diff -u include_pristine/apaserverapp.h include/apaserverapp.h
+--- include_pristine/apaserverapp.h	2006-07-03 18:21:52.162351600 +0300
++++ include/apaserverapp.h	2006-07-03 19:21:46.121331300 +0300
+@@ -97,11 +97,14 @@
+ 	a command ID from the UI if exit was triggered from the UI, or an error code
+ 	if the server app exited unexpectedly. */
+ 	virtual void HandleServerAppExit(TInt aReason) = 0;
++
+ protected:
+-	IMPORT_C MApaServerAppExitObserver();
++  //XXX PyS60 mod
++	//IMPORT_C MApaServerAppExitObserver();
+ private:
+-	IMPORT_C virtual void MApaServerAppExitObserver_Reserved1();
+-	IMPORT_C virtual void MApaServerAppExitObserver_Reserved2();
++  //XXX PyS60 mod
++	//IMPORT_C virtual void MApaServerAppExitObserver_Reserved1();
++	//IMPORT_C virtual void MApaServerAppExitObserver_Reserved2();
+ private:
+ 	TInt iMApaServerAppExitObserver_Reserved1;
+ 	};
+diff -u include_pristine/apparc.h include/apparc.h
+--- include_pristine/apparc.h	2006-07-03 18:21:52.212422600 +0300
++++ include/apparc.h	2006-07-03 19:24:05.671734700 +0300
+@@ -583,8 +583,9 @@
+ protected:
+ 	IMPORT_C MApaEmbeddedDocObserver();
+ private:
+-	IMPORT_C virtual void MApaEmbeddedDocObserver_Reserved1();
+-	IMPORT_C virtual void MApaEmbeddedDocObserver_Reserved2();
++	// XXX PyS60 mod
++	//IMPORT_C virtual void MApaEmbeddedDocObserver_Reserved1();
++	//IMPORT_C virtual void MApaEmbeddedDocObserver_Reserved2();
+ private:
+ 	TInt iMApaEmbeddedDocObserver_Reserved1;
+ 	};
+diff -u include_pristine/e32def.h include/e32def.h
+--- include_pristine/e32def.h	2006-07-03 18:21:54.065049600 +0300
++++ include/e32def.h	2006-07-03 18:22:43.134629600 +0300
+@@ -2703,7 +2703,9 @@
+ /**
+ @internalComponent
+ */
++#if defined(__cplusplus)
+ static const char* const KSuppressPlatSecDiagnosticMagicValue = (const char*)1;
++#endif
+ 
+ #ifndef __REMOVE_PLATSEC_DIAGNOSTIC_STRINGS__
+ /**
+@@ -2766,7 +2768,10 @@
+ @publishedPartner
+ @released
+ */
++
++#if defined(__cplusplus)
+ static const char* const KSuppressPlatSecDiagnostic = KSuppressPlatSecDiagnosticMagicValue;
++#endif
+ 
+ #else /* __REMOVE_PLATSEC_DIAGNOSTIC_STRINGS__ */
+ 

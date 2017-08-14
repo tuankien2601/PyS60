@@ -1,0 +1,49 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><title>Python for S60 Getting Started Guide</title>
+</head><body><table bgcolor="#eeeeee" border="0" height="8" width="100%"><tbody><tr>
+	<td bgcolor="#99ccff" height="1" width="100%">
+	<strong><font face="Arial, Helvetica, sans-serif" size="5.5">&nbsp;<img border="0" src="python_logo.PNG" width="53" height="52">
+<a name="Top">Python for S60</a></font></strong></td></tr></tbody></table>
+<br>Thank you for installing Python for S60 package. <br>Python 
+for S60 is a powerful scripting language with an extensive standard 
+library and easy-to-use APIs for S60 phone features, based on Python 2.5.4.
+<p><font size="5"><b>Quick Start Guide</b></font></p>
+<p><b>
+<font size="4.5">
+<a name="Installing_Python_runtime_and_its_dependencies">Installing Python runtime and its dependencies</a></b>
+</font>
+</p>
+<p> Python runtime and its dependencies can be installed from the below links<br>
+<a href="PyS60Dependencies\Python_${{PYS60_VERSION_NUM}}.sis">PyS60 2.0</a><br>
+<a href="PyS60Dependencies\pips.sis">pips</a></p>
+<b> Optional libraries : </b><br> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp- <a href="PyS60Dependencies\stdioserver.sis" target="_blank">stdioserver</a> to run python scripts packaged with console profile. 
+<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp- <a href="PyS60Dependencies\ssl.sis" target="_blank">SSL</a> library if you need SSL support in socket module.<br>
+<br><b>Note: </b>The unsigned Python runtime component and the PythonScriptShell packages are also available with high capability set in <a href="PyS60Dependencies" target="_blank">PyS60Dependencies</a>&nbsp;
+</p></p><hr />
+    <font size="4.5">
+	<b><a name="Packaging_a_Sample_Application">Packaging a Sample Application</a></b>
+	</font> 
+	<p>The following steps provide the procedure for writing and packaging a helloworld script.</p>
+<p>1. Create a "helloworld" script with the filename "helloworld.py" containing &nbsp; <font face="Courier New">print 
+"Hello World!"</font><font face="Arial"></font> code snippet.<br>2. Click  
+	<b>Start</b> &gt; <b>Programs</b> &gt; <b>PythonForS60 ${{PYS60_VERSION_NUM}} </b> &gt; <b>PyS60 
+	Application Packager,&nbsp; </b>the PyS60 application packager<b> </b>dialog box opens.<br>3. 
+	Select the <b>Scriptfile</b> radio button then, click the <b>Browse </b>button<b> </b> and select helloworld.py script from the file 
+<b>Open</b> dialog.<br>4. Click&nbsp; the 
+	<b>Create</b> button to create the sis file with the current 
+settings.&nbsp; <br>5. Install the sis file <b>helloworld_v1_0_0.sis</b> created in the source directory of
+	"helloworld.py" file.<br><br><b>Note: </b>Refer to  
+<a href="http://pys60.garage.maemo.org/doc/s60/s60.html" target="_blank">PyS60 Module Reference</a>&nbsp;for more details.
+</p>
+	</p>
+	<hr>
+	<table id="table1" bgcolor="#eeeeee" border="0" height="8" width="100%">
+		<tbody><tr>
+			<td bgcolor="#99ccff" height="1" width="100%">Copyright (c) 2008 - 2009 
+			Nokia Corporation <br>
+			<i>&nbsp;</i></td>
+		</tr>
+	</tbody></table><small style="font-size: smaller;"><br>&nbsp;</small>
+
+
+</body></html>

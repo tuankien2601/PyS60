@@ -1,0 +1,107 @@
+Index: python/Lib/webbrowser.py
+===================================================================
+--- python.orig/Lib/webbrowser.py	2007-03-06 17:17:58.000000000 -0300
++++ python/Lib/webbrowser.py	2007-03-06 17:18:13.000000000 -0300
+@@ -54,10 +54,10 @@
+ # It is recommended one does "import webbrowser" and uses webbrowser.open(url)
+ # instead of "from webbrowser import *".
+ 
+-def open(url, new=0, autoraise=1):
++def open(url, new=0, autoraise=1, context=None):
+     for name in _tryorder:
+         browser = get(name)
+-        if browser.open(url, new, autoraise):
++        if browser.open(url, new, autoraise, context):
+             return True
+     return False
+ 
+@@ -143,7 +143,7 @@
+         self.name = name
+         self.basename = name
+ 
+-    def open(self, url, new=0, autoraise=1):
++    def open(self, url, new=0, autoraise=1, context=None):
+         raise NotImplementedError
+ 
+     def open_new(self, url):
+@@ -166,7 +166,7 @@
+             self.args = name[1:]
+         self.basename = os.path.basename(self.name)
+ 
+-    def open(self, url, new=0, autoraise=1):
++    def open(self, url, new=0, autoraise=1, context=None):
+         cmdline = [self.name] + [arg.replace("%s", url)
+                                  for arg in self.args]
+         try:
+@@ -183,7 +183,7 @@
+     """Class for all browsers which are to be started in the
+        background."""
+ 
+-    def open(self, url, new=0, autoraise=1):
++    def open(self, url, new=0, autoraise=1, context=None):
+         cmdline = [self.name] + [arg.replace("%s", url)
+                                  for arg in self.args]
+         try:
+@@ -254,7 +254,7 @@
+         else:
+             return not p.wait()
+ 
+-    def open(self, url, new=0, autoraise=1):
++    def open(self, url, new=0, autoraise=1, context=None):
+         if new == 0:
+             action = self.remote_action
+         elif new == 1:
+@@ -338,7 +338,7 @@
+     for more information on the Konqueror remote-control interface.
+     """
+ 
+-    def open(self, url, new=0, autoraise=1):
++    def open(self, url, new=0, autoraise=1, context=None):
+         # XXX Currently I know no way to prevent KFM from opening a new win.
+         if new == 2:
+             action = "newTab"
+@@ -387,6 +387,18 @@
+         else:
+             return (p.poll() is None)
+ 
++class MaemoBrowser(BaseBrowser):
++    """Controller for the Maemo Browser.
++    """
++
++    def open(self, url, new=0, autoraise=1, context=None):
++        if context is None:
++            raise Error("Missing OSSO Context parameter. Please, read the\n"\
++                        "Python for Maemo documentation for more "\
++                        "information.")
++        import osso.rpc
++        rpc_handler = osso.rpc.Rpc(context)
++        rpc_handler.rpc_run_with_defaults('osso_browser', 'open_new_window', (url,))
+ 
+ class Grail(BaseBrowser):
+     # There should be a way to maintain a connection to Grail, but the
+@@ -426,7 +426,7 @@
+         s.close()
+         return 1
+ 
+-    def open(self, url, new=0, autoraise=1):
++    def open(self, url, new=0, autoraise=1, context=None):
+         if new:
+             ok = self._remote("LOADNEW " + url)
+         else:
+@@ -442,6 +454,8 @@
+ # a console terminal or an X display to run.
+ 
+ def register_X_browsers():
++    register("maemobrowser", MaemoBrowser, MaemoBrowser())
++
+     # The default Gnome browser
+     if _iscommand("gconftool-2"):
+         # get the web browser string from gconftool
+@@ -488,6 +502,7 @@
+     if _iscommand("grail"):
+         register("grail", Grail, None)
+ 
++
+ # Prefer X browsers if present
+ if os.environ.get("DISPLAY"):
+     register_X_browsers()

@@ -1,0 +1,195 @@
+/* Copyright (c) 2008 - 2009 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "python_ui.h"
+
+_LIT(KUiDLL, "${{PREFIX}}Python_appui.dll");
+
+_LIT(KErrorMessage, "Check if the following components are installed.\n->Python Runtime\n->PIPS Library");
+_LIT(KIadErrorMessage, "Update is mandatory for installing Python Runtime & its dependencies.\nRerun the application for automatic updates");
+
+#ifndef __WINS__
+_LIT(KIADClientDLL, "${{PREFIX}}Py_iad_client_0x");
+_LIT(KFileExt, ".dll");
+_LIT(KFileName, "py_iad_client.log");
+_LIT8(KFileContent, "This file is used for deciding whether to check for updates or not");
+#endif
+
+static TUid KUidPythonApp = KNullUid;   // Real UID is set in E32Main()
+TBool iadSupported = EFalse;
+RLibrary appuiDllHandle;
+
+CPythonDocument::CPythonDocument(CEikApplication& aApp) :
+    CAknDocument(aApp)
+{
+}
+
+void ShowErrorAndExit(TInt errno)
+{
+    TAknGlobalNoteType noteType = EAknGlobalErrorNote;
+    CAknGlobalNote *dialog = NULL;
+
+    TRAPD(err,
+            {
+                dialog = CAknGlobalNote::NewL();
+                CleanupStack::PushL(dialog);
+                if (iadSupported)
+                    dialog->ShowNoteL(noteType, KIadErrorMessage);
+                else
+                    dialog->ShowNoteL(noteType, KErrorMessage);
+                CleanupStack::PopAndDestroy(dialog);
+            });
+
+    User::Exit(errno);
+}
+
+CEikAppUi* CPythonDocument::CreateAppUiL()
+{
+    TFileName uiDLL;
+    uiDLL = KUiDLL;
+
+    TInt err = appuiDllHandle.Load(uiDLL);
+    if (err != KErrNone)
+    {
+#ifndef __WINS__
+        RFs fsSession;
+        TRAPD(error, fsSession.Connect());
+        if (error == KErrNone)
+        {
+            fsSession.Delete(KFileName);
+            fsSession.Close();
+        }
+#endif
+        ShowErrorAndExit(err);
+    }
+
+    TLibraryFunction uiEntryFunction = appuiDllHandle.Lookup(1);
+    CEikAppUi* eikAppUi = (CEikAppUi*) uiEntryFunction();
+
+    return eikAppUi;
+}
+
+CPythonDocument::~CPythonDocument()
+{
+    appuiDllHandle.Close();
+}
+
+TUid CPythonApplication::AppDllUid() const
+{
+    return KUidPythonApp;
+}
+
+CApaDocument* CPythonApplication::CreateDocumentL()
+{
+    return new (ELeave) CPythonDocument(*this);
+}
+
+EXPORT_C CApaApplication* NewApplication()
+{
+    return new CPythonApplication;
+}
+
+#ifndef __WINS__
+// This function returns true if the runtime is missing on the phone or if the 
+// call to IADClientUpdate() function is done before a fortnight.
+TBool CheckForUpdates()
+{
+    TInt error = KErrNone;
+    RFs fsSession;
+    RFile iadLogFile;
+    TTime iStartTime, iEndTime;
+
+    TRAP(error, fsSession.Connect());
+    if (error == KErrNone)
+    {
+        error = iadLogFile.Open(fsSession, KFileName, EFileWrite);
+        if (error != KErrNone)
+        {
+            iadLogFile.Create(fsSession, KFileName, EFileWrite);
+            fsSession.Close();
+            return ETrue;
+        }
+
+        iStartTime.UniversalTime();
+        error = iadLogFile.Modified(iEndTime);
+        if (error == KErrNone)
+        {
+            TTimeIntervalDays  intervalDays = iEndTime.DaysFrom(iStartTime);
+            if (intervalDays.Int() > 14)
+            {
+                iadLogFile.Write(KFileContent);
+                fsSession.Close();
+                return ETrue;
+            }
+        }
+
+        fsSession.Close();
+    }
+
+    return EFalse;
+}
+#endif
+
+GLDEF_C TInt E32Main()
+{
+    RLibrary library;
+    TInt error = KErrNone;
+
+    // Set application UID from Process' Secure ID.
+    KUidPythonApp.iUid = RProcess().SecureId();
+
+#ifndef __WINS__
+    TBuf<KMaxUidName> uidName(KUidPythonApp.Name());
+    // Uid name returned is placed in square brackets, so eliminating brackets
+    TBuf<10> appUid(uidName.Mid(1,uidName.Length()-2));
+    TBuf<40> iadClientDLL;
+    iadClientDLL.Append(KIADClientDLL);
+    iadClientDLL.Append(appUid);
+    iadClientDLL.Append(KFileExt);
+
+    __UHEAP_MARK;
+    CTrapCleanup* cleanup = CTrapCleanup::New();
+
+      if (CheckForUpdates())
+      {
+          //Create a active scheduler
+          CActiveScheduler *aScheduler = CActiveScheduler::Current();
+          if (!aScheduler)
+              TRAP(error, aScheduler = new (ELeave) CActiveScheduler);
+
+          if (error == KErrNone)
+          {
+              CActiveScheduler::Install(aScheduler);
+              // IADClientUpdate() funtion is called form Iad client dll for 
+              // automatic runtime updates.
+              TInt err = library.Load(iadClientDLL);
+              if (err == KErrNone)
+              {
+                  iadSupported = ETrue;
+                  TLibraryFunction dllEntryFunction = library.Lookup(1);
+                  dllEntryFunction();
+                  library.Close();
+              }
+              delete aScheduler;
+          }
+      }
+
+      delete cleanup;
+    __UHEAP_MARKEND;
+#endif
+
+    return EikStart::RunApplication(NewApplication);
+}
+

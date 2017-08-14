@@ -1,0 +1,46 @@
+% Copyright (c) 2005 - 2007 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{location} ---
+	 GSM location information}
+\label{sec:location}
+
+\declaremodule{extension}{location}
+\platform{S60}
+\modulesynopsis{Package supporting location information fetching.}
+
+The \module{location} module offers APIs to location information related 
+services. Currently, the \module{location} has one function:
+
+\begin{notice}[note]
+Location module requires capabilities ReadDeviceData, ReadUserData and Location.
+\end{notice}
+
+\begin{funcdesc}{gsm_location}{}
+Retrieves GSM location information: Mobile Country Code, Mobile Network Code, 
+Location Area Code, and Cell ID. A location area normally consists of several 
+base stations. It is the area where the terminal can move without notifying the 
+network about its exact position. mcc and mnc together form a unique 
+identification number of the network into which the phone is logged.
+\end{funcdesc}
+
+\subsection{Examples}
+
+Here is an example of how to use the \module{location} package to
+fetch the location information:
+
+\begin{verbatim}
+>>> import location
+>>> print location.gsm_location()
+\end{verbatim}

@@ -1,0 +1,23 @@
+; Installation file for Symbian OS 9.x for generic console application
+; Installation file for run-interpretertimer EXE
+;
+; This is an auto-generated PKG file by Carbide.
+; This file uses variables specific to Carbide builds that will not work
+; on command-line builds. If you want to use this generated PKG file from the
+; command-line tools you will need to modify the variables with the appropriate
+; values: $(EPOCROOT), $(PLATFORM), $(TARGET)
+;
+
+;
+; UID is the exe's UID
+;
+#{"run-interpretertimer EXE"},(0xF020151A),1,5,3,TYPE=SISAPP
+
+;Localised Vendor name
+%{"Vendor-EN"}
+
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+; Files to install
+;
+"\Epoc32\release\armv5\urel\run-interpretertimer.exe"	-"!:\sys\bin\run-interpretertimer.exe"
+"\Epoc32\Data\z\private\10003a3f\import\apps\run-interpretertimer_reg.RSC"   -"!:\private\10003a3f\import\apps\run-interpretertimer_reg.RSC"

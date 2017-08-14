@@ -1,0 +1,840 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Sys Info}
+\label{sec:scriptextsysinfo}
+
+The SysInfo service provides Read or Write access to system information of a terminal. SysInfo service allows registering to system events identified by System Attributes (SAs). Some of the SAs are modifiable and supports notifications. \break
+
+An Object with an entity and a key represents a System Attribute. An entity broadly represents a component in the device. A key is an attribute of an entity. For example, battery is an entity where, \code{ChargingStatus}, \code{BatteryStrength}, and \code{BatteryLevel} are the Keys of the entity. \break
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+msg_handle = scriptext.load('Service.SysInfo', 'ISysInfo') 
+\end{verbatim}
+
+The following table summarizes the SysInfo Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.SysInfo}  \\
+\hline
+{\bf Supported interfaces} & \code{ISysInfo}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in SysInfo:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{GetInfo} \ref{subsec:sysinfogetinfo} & Reads system attributes value.  \\
+\hline
+\code{SetInfo} \ref{subsec:sysinfosetinfo} & Modifies system attributes value.  \\
+\hline
+\code{GetNotification} \ref{subsec:sysinfogetnotify} & Register for notifications. 
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetInfo}
+\label{subsec:sysinfogetinfo}
+
+\code{GetInfo} retrieves the value of a system attribute. It can be used in both synchronous and asynchronous mode.
+
+The following are the examples for using \code{GetInfo}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+self.sysinfo_handle.call("GetInfo", {"Entity": u"General", 
+                                     "Key": u"VibraActive", 
+                                     "SystemData": {"Status": 1}})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = sysinfo_handle.call("GetInfo", {"Entity": u"Network", 
+                                           "Key": u"LocationArea"}, 
+                               callback=print_location_area)
+\end{verbatim}
+
+where, \code{print_location_area} is user defined function.
+\break
+
+The following table summarizes the specification of \code{GetInfo}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{ISysinfo}  \\\hline{\bf Description} & Retrieves the value of a system attribute.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} &   ISysInfo Interface is loaded.  \\
+\hline
+{\bf Post-condition} & Returns an object on success.  \\
+\end{tabular}
+\end{center}
+\end{table} 
+
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Entity of system attribute information returned.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Entity & unicode string & For complete list of supported Entities, refer Key Values \ref{subsec:sysinfokeyval} section. & Entity of system attribute. For example, \code{Battery} \break
+\code{Network} and so on.  \\
+\hline
+Key & unicode string & For complete list of supported Keys, refer Key Values \ref{subsec:sysinfokeyval} section. & Key of system attribute. For example, \code{BatteryStrenth} \break
+\code{HomeNetwork} and so on.  \\
+\hline
+[SystemData] & map & \code{DriveInfo} \break
+Drive: unicode string & This is an optional parameter from API definition point of view. For some system attributes, you need to specify input. \break
+
+This map must contain one of the input data specifiers defined in System Data. \break
+
+For more information on input specifier refer the section Key Values \ref{subsec:sysinfokeyval}.  \\
+\end{tabular}
+\caption{Input parameters for GetInfo}
+\end{center}
+\end{table}
+
+
+\newpage
+{\bf Output Parameters} \break
+
+Output parameter returns an object that contains the requested information. It also contains \code{ErrorCode} and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{2cm}|p{3cm}|p{3cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ReturnValue} & map(System Data) \break
+Entity: string \break
+Key: string & For complete range of keys for the particular map, refer to {\bf System Data} in {\bf Key Value} section. & Output map always contains Entity and Key. Rest of the elements in the map depends on requested system attribute (Entity-Key). It will be one of the data specifiers defined in System Data. \break
+
+On requesting drive information using system attribute (for example: \code{Memory}, \code{DriveInfo}), \code{ReturnValue} map will contain Keys defined in \code{DriveInfo} Map.   \\
+\end{tabular}
+\caption{Output parameters for GetInfo}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{-304} & General Error  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{4cm}|p{10cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{SysInfo:GetInfo: Insufficient Arguments to process} & At least two input arguments are expected to process \code{GetInfo} service request.  \\
+\hline
+\code{SysInfo:GetInfo: Entity:Input Parameter Missing} & Indicates mandatory parameter Entity is missing in the service request.  \\
+\hline
+\code{SysInfo:GetInfo: Key:Input Parameter Missing} & Indicates mandatory parameter Key is missing in the service request.  \\
+\hline
+\code{SysInfo:GetInfo: Incorrect SystemData Type, SystemData Must be a Map} & Indicates that either the optional parameter \code{SystemData} specified is not a map or content of the map is inappropriate to process request.  \\
+\hline
+\code{SysInfo:GetInfo: CallBack and CmdOptions not matching} & Indicates that the situation where user specified callback and \code{CmdOptions} is set to Synchronous and vice-versa.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Example} \break
+
+The following sample code illustrates how to retrieve the current location area in synchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() so that the main function can wait 
+# till the callback is hit.
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def print_location_area(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "Current Location Area is: " + input_params["ReturnValue"]["Status"]
+
+    lock.signal()
+
+# Load sysinfo service
+sysinfo_handle = scriptext.load("Service.SysInfo", "ISysInfo")
+
+# Make a request to query the required information
+event_id = sysinfo_handle.call("GetInfo", {"Entity": u"Network", "Key": u"LocationArea"}, callback=print_location_area)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{SetInfo}
+\label{subsec:sysinfosetinfo}
+
+\code{SetInfo} modifies the value of a system attribute. It takes a set of input parameters that define entity and key of \code{SystemAttribute} to modify the value of system attribute. \break
+
+It is available in only synchronous mode.
+
+The following is an example for using \code{GetInfo}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+sysinfo_handle.call("SetInfo", {"Entity": u"General",
+                                "Key":u"VibraActive", 
+                                "SystemData" {"Status": 1}}) 
+\end{verbatim}
+
+\newpage
+The following table summarizes the specification of \code{GetInfo}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{ISysinfo}  \\\hline{\bf Description} & Modifies the value of a system attribute.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & ISysInfo Interface is loaded.  \\
+\hline
+{\bf Post-condition} & Changes the system attribute on success  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies an entity and key of system attribute.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{4cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Entity & unicode string & For complete list of supported Entities, refer Key Values \ref{subsec:sysinfokeyval} section. & Entity of system attribute. For example, \code{Connectivity} \break
+\code{Display} and so on.  \\
+\hline
+Key & unicode string & For complete list of supported Keys, refer Key Values \ref{subsec:sysinfokeyval} section. & Key of system attribute. For example, \code{Bluetooth} \break
+\code{Wallpaper} and so on.  \\
+\hline
+SystemData & map & Status information \break
+Status: int \break
+
+Wallpaper path \break
+\code{StringData}: unicode string & This map must contain one of the input data specifiers defined in System Data. \break
+
+For more information on input specifier refer the section Key Values \ref{subsec:sysinfokeyval}.  \\
+\end{tabular}
+\caption{Input parameters for SetInfo}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameter contains \code{ErrorCode} and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for GetInfo}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1011} & Access denied  \\
+\hline
+\code{1012} & Item not found  \\
+\hline
+\code{1014} & General error  \\
+\hline
+\code{1017} & Path not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{SysInfo:SetInfo: Insufficient Arguments to process} & At least two input arguments are expected to process \code{SetInfo} service request.  \\
+\hline
+\code{SysInfo:SetInfo: Entity:Input Parameter Missing} & Indicates mandatory parameter Entity is missing in the service request.  \\
+\hline
+\code{SysInfo:SetInfo: Key:Input Parameter Missing} & Indicates mandatory parameter Key is missing in the service request.  \\
+\hline
+\code{SysInfo:SetInfo: Incorrect SystemData Type, SystemData Must be a Map} & Indicates that either the optional parameter \code{SystemData} specified is not a map or content of the map is inappropriate to process request.  \\
+\hline
+\code{SysInfo:SetInfo: SystemData Argument Missing} & Indicates that mandatory parameter SystemData is not specified in input argument list.  \\
+\hline
+\code{SysInfo:SetInfo: ASync Version Not Supported} & This message is given when \code{SetInfo} is requested by specifying callback or \code{CmdOptions} set to Asynchronous request type.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+
+\newpage
+{\bf Example} \break
+
+The following sample code illustrates how to set Vibra mode:
+
+\begin{verbatim}
+# Synchronous example: Setting Vibra mode
+
+import scriptext
+
+# Load sysinfo service
+sysinfo_handle = scriptext.load('Service.SysInfo', 'ISysInfo')
+
+# Make a request to set vibra mode
+try:
+    sysinfo_handle.call("SetInfo", {"Entity": u"General", "Key": u"VibraActive", "SystemData": {"Status": 1}})
+    print "Request complete!"
+except scriptext.ScriptextError:
+    print 'Error in servicing the request'
+\end{verbatim}
+
+\subsection{GetNotification}
+\label{subsec:sysinfogetnotify}
+
+\code{GetNotification} method registers a callback function to receive notifications of system data. It takes a set of input parameters that specifies entity and key of System Attribute. \break
+It is available in only asynchronous mode. 
+
+The following is an example for using \code{GetNotification}:
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = sysinfo_handle.call("GetNotification", 
+                               {"Entity": u"Battery", "Key":  u"ChargingStatus"}, 
+                               callback=sysinfo_callback)
+\end{verbatim}
+
+where, \code{sysinfo_callback} is user defined function.
+
+The following table summarizes the specification of \code{GetNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{ISysinfo}  \\\hline{\bf Description} & Registers a callback function for listening to notifications.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} &   ISysInfo Interface is loaded.  \\
+\hline
+{\bf Post-condition} & Returns the generic parameter system data on success.  \\
+\end{tabular}
+\end{center}
+\end{table} 
+
+\newpage
+{\bf Input Parameters} \break
+
+Input parameter specifies the Entity and Key of system attribute, and system data.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{2cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+Entity & unicode string & For complete list of supported Entities, refer Key Values \ref{subsec:sysinfokeyval} section. & Entity of system attribute. For example, \code{Battery} \break
+\code{Network} and so on.  \\
+\hline
+Key & unicode string & For complete list of supported Keys, refer Key Values \ref{subsec:sysinfokeyval} section. & Key of system attribute. For example, \code{BatteryStrenth} \break
+\code{CurrentNetwork} and so on.  \\
+\hline
+[SystemData] & map & Status information \break
+Status: int \break
+
+\code{DriveInfo} \break
+Drive: unicode string \break
+CriticalSpace: int & This is an optional parameter from API definition point of view. For some system attributes, you need to specify input. \break
+
+This map must contain one of the input data specifiers defined in System Data. \break
+
+For more information on input specifier refer the section Key Values \ref{subsec:sysinfokeyval}. \break
+
+Here are some system attributes for which status information is used as input specifier. \break
+
+\code{DriveNumber} and critical space to be specified for drive critical memory notifications. \break
+
+For example,
+Battery- \code{BatteryStrength} (Threshold Strength value). \break
+Network- \code{Signal} (Threshold Signal value).  \\
+\end{tabular}
+\caption{Input parameters for GetNotification}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Output Parameters} \break
+
+Output parameter returns an object that contains the requested information. It also contains \code{ErrorCode} and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\footnotesize
+\begin{tabular}{l|p{2cm}|p{3cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ReturnValue} & map(System Data) \break
+Entity: string \break
+Key: string & For complete range of keys for the particular map, refer to {\bf System Data} in {\bf Key Value} section. & Output map always contains Entity and Key. Rest of the elements in the map depends on requested system attribute (Entity-Key). It will be one of the data specifiers defined in System Data. \break
+
+On requesting drive information using system attribute (for example: \code{Memory}, \code{DriveInfo}), \code{ReturnValue} map will contain Keys defined in \code{DriveInfo} Map.   \\
+\end{tabular}
+\caption{Output parameters for GetNotification}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\footnotesize
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1006} & Service not ready  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{SysInfo:GetNotification: Insufficient Arguments to process} & At least two input arguments are expected to process \code{GetNotification} service request.  \\
+\hline
+\code{SysInfo:GetNotification: Entity:Input Parameter Missing} & Indicates mandatory parameter Entity is missing in the service request.  \\
+\hline
+\code{SysInfo:GetNotification: Key:Input Parameter Missing} & Indicates mandatory parameter Key is missing in the service request.  \\
+\hline
+\code{SysInfo:GetNotification: Incorrect SystemData Type, SystemData Must be a Map} & Indicates that either the optional parameter \code{SystemData} specified is not a map or content of the map is inappropriate to process request.  \\
+\hline
+\code{SysInfo:GetNotification: Sync Version Not Supported} & This message is given when \code{GetNotification} is requested without specifying callback or \code{CmdOptions} set to Synchronous request type.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+\begin{verbatim}
+import scriptext
+import e32
+
+lock = e32.Ao_lock()
+messaging_handle = scriptext.load('Service.SysInfo', 'ISysInfo')
+
+def sysinfo_callback(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "Current Battery charging value: " + str(input_params["ReturnValue"]["Status"])
+    lock.signal()
+
+# Make a request to get notification
+event_id = sysinfo_handle.call("GetNotification", {"Entity": u"Battery", "Key": u"ChargingStatus"}, callback=sysinfo_callback)
+lock.wait()
+\end{verbatim}
+
+\newpage
+\subsection{Key Values}
+\label{subsec:sysinfokeyval}
+
+This section details the key values used in the context of SysInfo Service API invocation.
+
+\subsubsection{System Attributes}
+
+{\bf Entity} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+Entity & string & Part of system attribute represents an Entity.  \\
+\end{tabular}
+\caption{Entity}
+\end{center}
+\end{table}
+
+{\bf Key} \break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+Key & string & Part of system attribute represents a key with in Entity.  \\
+\end{tabular}
+\caption{Key}
+\end{center}
+\end{table}
+
+\subsubsection{System Data}
+
+\code{SystemData} is a map whose keys are defined by one of the following data specifiers described in this section. These are added to the \code{ReturnValue} map. Typically, \code{SystemData} is status information that is represented using integer. In some cases, it is a map of network details, or a list having connection details of each connection. This section covers all the possible \code{SystemData} types.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{10cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+Status & int & This Key provides status information of system attribute. For example, \code{BatteryLevel} (0-7), \code{NetworkMode}, and \code{BTPower} (0-OFF, 1-ON) and so on.  \\
+\end{tabular}
+\caption{Status}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{10cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{StringData} & string & This Key provides data of type string to specify. For example, \code{WallpaperPath}, \code{IMEI Number}, and \code{PhoneModel} and so on.  \\
+\end{tabular}
+\caption{StringData}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{8cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{NetworkName} & string & This Key provides name of the network.  \\
+\hline
+\code{NetworkStatus} & int & {\bf Status}: {\bf Description} \break
+-1: Unknown \break
+0: Available. A network that the ME is allowed to register to. \break
+1: Current. This is the currently registered network. \break
+2: Forbidden. A network that the ME is not allowed to register to.  \\
+\hline
+\code{NetworkMode} & int & {\bf Mode}: {\bf Description} \break
+-1: Unknown \break
+0: Unregistered \break
+1: Global System for Mobile communications (GSM) \break
+2: Advanced Mobile Phone System (AMPS) \break
+3: Code Division Multiple Access (CDMA95) \break
+4: Code Division Multiple Access (CDMA2000) \break
+5: Wideband Code Division Multiple Access (WCDMA) \break
+6: Time Division, Code Division Multiple Access (TDCDMA)  \\
+\hline
+\code{CountryCode} & string & Mobile Country Code (MCC).  \\
+\hline
+\code{NetworkCode} & string & Mobile Network Code (MNC).  \\
+\hline
+\code{LocationStatus} & bool & True: Location Area Code (LAC), CellId are valid. \break
+False: Location Area Code (LAC), \code{CellId} are invalid.  \\
+\hline
+\code{AreaCode} & int & Location Area Code LAC.  \\
+\hline
+\code{CellId} & int & \code{CellId}.  \\
+\end{tabular}
+\caption{NetworkInfo}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{8cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{ConnectionList} & Iterator & This Iterator points to the list of available active data connections. \code{ConnectionInfo} map represents a data connection.  \\
+\end{tabular}
+\caption{ConnectionList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{8cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{ConnectionStatus} & int & 0: \code{DisConnected} \break
+1: \code{Connected}  \\
+\hline
+\code{IAPID} & int & Access point ID  \\
+\hline
+\code{ConnectionType} & int & Coloured connection types are not supported. \break
+{\bf Mode}: {\bf Description} \break
+-1: Unknown \break
+0: Circuit Switch Data (CSD) \break
+1: WCDMA \break
+2: LAN [Emulator] \break
+3: CDMA2000 \break
+4: General Packet Radio Service (GPRS) \break
+5: High Speed Circuit Switched Data (HSCSD) \break
+6: Enhanced Data rates for Global Evolution GPRS(EdgeGPRS) \break
+7: Wireless Local Area Network(WLAN) \break
+8: Bluetooth \break
+9: Virtual VPN  \\
+\hline
+\code{IAPName} & string & Access Point Name. For example, www.airtelgprs.com.  \\
+\hline
+\code{NetworkName} & string & Network name applicable for WLAN networks.  \\
+\hline
+\code{IAPConnectionName} & string & The access point connection name that is, \code{MobileOffice}, \code{MyGprs}.  \\
+\end{tabular}
+\caption{ConnectionInfo}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{AccessoryType} & int & -1: Unknown \break
+0: HeadSet \break
+1: BTHeadSet \break
+2: CarKit \break
+3: BTCarKit  \\
+\hline
+\code{AccessoryState} & int & -1: Unknown \break
+0: Disconnected \break
+1: Connected \break
+\end{tabular}
+\caption{AccessoryInfo}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{10cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{AccessoryList} & Iterator & This Iterator points to the list connected accessories. \code{AccessoryInfo} map represents an accessory.  \\
+\end{tabular}
+\caption{AccessoryList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{LanguageList} & List of int & This List points to the list of supported language enumerations, which are defined in S60.  \\
+\end{tabular}
+\caption{LanguageList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{MajorVersion} & string & This List points to the list of supported language enumerations, which are defined in S60.  \\
+\hline
+\code{MinorVersion} & string & Minor number of the version. For example, for 3.1, \code{1} will be minor.  \\
+\end{tabular}
+\caption{Version}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{8cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{Drive} & string & Drive is a string. For example, {\bf c:>{\textbackslash}{\textbackslash}}, {\bf d:>{\textbackslash}{\textbackslash}} and so on.  \\
+\hline
+\code{TotalSpace} & string & Total Space in bytes.  \\
+\hline
+\code{FreeSpace} & string & Free Space in bytes.  \\
+\hline
+\code{CriticalSpace} & int & This is the critical free space in bytes.  \\
+\hline
+\code{MediaType} & int & 0: \code{MediaNotPresent} \break
+1: \code{MediaUnknown} \break
+2: \code{MediaFloppyDisk} \break
+3: \code{MediaHardDisk} \break
+4: \code{MediaCdRom} \break
+5: \code{MediaRam} \break
+6: \code{MediaFlash} \break
+7: \code{MediaRom} \break
+8: \code{MediaRemote} \break
+9: \code{MediaNANDFlash} \break
+10: \code{MediaRotatingMedia}  \\
+\hline
+\code{BatteryState} & int & 0: \code{BatNotSupported} \break
+1: \code{BatGood} \break
+2: \code{BatLow}  \\
+\hline
+\code{DriveName} & string & Drive name  \\
+\end{tabular}
+\caption{DriveInfo}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+XPixels & int & X-Pixels  \\
+\hline
+YPixels & int & Y-Pixels  \\
+\end{tabular}
+\caption{Resolution}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{8cm}}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{DriveList} & List of strings & This List points to the list of drives in the terminal. Drives are represented as strings. For example, {\bf c:>{\textbackslash}{\textbackslash}} and so on.  \\
+\end{tabular}
+\caption{DriveList}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Key} & {\bf DataType} & {\bf Description}  \\
+\hline
+\code{StringList} & List of strings & This List points to the list of available USB modes.  \\
+\end{tabular}
+\caption{StringList}
+\end{center}
+\end{table}
+
+\pagebreak

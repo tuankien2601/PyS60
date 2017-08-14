@@ -1,0 +1,621 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Sensors}
+\label{sec:scriptextsensors}
+
+The Sensor service enables access to the various methods provided by S60 sensor channel subsystem. provides abstraction of various physical sensors that exist in the device. You can map data from one physical sensor to several channels. These include the following:
+
+\begin{itemize}
+\item Finding available sensor channels.
+\item Registering to receive notification on data from various sensors.
+\item Getting channel properties.
+\end{itemize}
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+sensor_handle = scriptext.load('Service.Sensor', 'ISensor')
+\end{verbatim}
+
+The following table summarizes the Sensor Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.Sensor}  \\
+\hline
+{\bf Supported interfaces} & \code{ISensor}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Sensor:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{FindSensorChannel} \ref{subsec:sensorfindchanel} & Searches for sensor channels in the device based on a given search criteria.  \\
+\hline
+\code{RegisterForNotification} \ref{subsec:sensorreqnotify} & Registers for notification with a sensor channel to receive channel data.  \\
+\hline
+\code{GetChannelProperty} \ref{subsec:sensorgetchanel} & Gets the channel property of the specified sensor channel.  \\ 
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{FindSensorChannel}
+\label{subsec:sensorfindchanel}
+
+\code{FindSensorChannel} performs a search operation for sensor channels in a S60 device based on the specified search criteria. \break
+
+The client application specifies the search parameters and queries to the Sensor services, which returns a list containing channel information matching the search parameters.
+
+The following is an example for using \code{FindSensorChannel}:
+
+\begin{verbatim}
+sensor_handle.call('FindSensorChannel', {'SearchCriterion': u'Orientation'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{FindSensorChannel}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{ISensor}  \\\hline{\bf Description} & Performs a search operation for sensor channels in an S60 device based on the specified search criteria.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & ISensor interface is loaded.  \\
+\hline
+{\bf Post-condition} & Receives list of sensor channel which can be used to open channels.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\break
+{\bf Input Parameters} \break
+
+Input parameter is a string that specifies the search criteria for performing the search operation.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{6cm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{SearchCriterion} & unicode string & All \break
+\code{AccelerometerAxis} \break
+\code{AccelerometerDoubleTapping} \break
+Orientation \break
+Rotation & Specifies the search criterion. \break
+
+You can select from the list provided and specify it as an argument.  \\
+\end{tabular}
+\caption{Input parameters for FindSensorChannel}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} 
+\break
+\break
+Add API which misses out on some mandatory input 
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails. \code{ReturnValue} is an array of objects, which contains the sensor channel information requested by \code{FindSensorChannel}.
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{l|p{4cm}|p{4cm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & 32 bit int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ReturnValue} & Lists of maps. Each map in this document is referred as {\bf ChannelInfoMap}. For more information, refer table {\bf ChannelInfoMap} \ref{tab:channelinfomap} & {\bf ContextType} \break
+0: Not defined \break
+1: Ambient sensor. For example, to measure pressure. \break
+2: Gives information on device itself. \break
+3: Measures user initiated stimulus. \break
+
+{\bf Quantity} \break
+0: Not defined \break
+10: Acceleration \break
+11: Tapping \break
+12: Orientation \break
+13: Rotation \break
+14: Magnetic \break
+15: Tilt & \code{ReturnValue} consists of a list of maps, each map of which holds the key-value pair for each of sensor channel that satisfy the search criterion. \\
+\end{tabular}
+\caption{Output parameters for FindSensorChannel}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf Name} & {\bf Description}  \\
+\hline
+32 bit int & \code{ChannelId} & Unique ID representing the channel.  \\
+\hline
+32 bit int & \code{ContextType} & Defines the context where the channel is available.  \\
+\hline
+32 bit int & \code{Quantity} & Defines the quantity being sensed.  \\
+\hline
+32 bit int & \code{ChannelType} & Defines a unique type ID for each channel.  \\
+\hline
+string & \code{Location} & Location of the sensor related to channel.  \\
+\hline
+string & \code{VendorId} & Vendor ID of the sensor related to channel.  \\
+\hline
+32 bit int & \code{DataItemSize} & Data item size delivered in the channel.  \\
+\hline
+32 bit int & \code{ChannelDataTypeId} & Unique data type identifier for the data being sensed.  \\
+\end{tabular}
+\caption{ChannelInfoMap}
+\label{tab:channelinfomap}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Sensors:FindSensorChannel: Search Criterion Missing} & Indicates that channel search criterion is missing from the input parameter list.  \\
+\hline
+\code{Sensors:FindSensorChannel: Invalid Search Criterion} & Indicates that the channel search criterion is invalid and does not fall within the specified range of search criterion strings.  \\
+\hline
+\code{Sensors:FindSensorChannel: Channel search param type invalid} & Indicates that the datatype of the parameter passed for the channel search criterion is invalid.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to query a list of channel information matching the search parameters:
+
+\begin{verbatim}
+try:
+    result = sensor_handle.call('FindSensorChannel', {'SearchCriterion': u'Orientation'})
+    count_items = len(result)
+    print count_items
+    print "ChannelId : ", result[0]['ChannelId']
+    print "ContextType : ", result[0]['ContextType']
+    print "Quantity : ", result[0]['Quantity']
+    print "ChannelType : ", result[0]['ChannelType']
+    print "Location : ", result[0]['Location']
+    print "VendorId : ", result[0]['VendorId']
+    print "DataItemSize : ", result[0]['DataItemSize']
+    print "ChannelDataTypeId : ", result[0]['ChannelDataTypeId']
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\subsection{RegisterForNotification}
+\label{subsec:sensorreqnotify}
+
+\code{RegisterForNotification} is used to register for notification with a sensor channel to receive channel data or channel property changes. This is associated with the transaction ID of an asynchronous request. \break
+These notifications are continuous in nature and are stopped by invoking the \code{Cancel} command on the retrieved transaction ID.
+
+The following is an example for using \code{RegisterForNotification}:
+
+{\bf Asynchronous}
+
+\begin{verbatim}
+sensor_handle.call('RegisterForNotification',
+                   {'ListeningType': u'ChannelData',
+                    'ChannelInfoMap': {'ChannelId': result['ChannelId'], 
+                                      'ContextType': result['ContextType'],
+                                      'Quantity': result['Quantity'], 
+                                      'ChannelType': result['ChannelType'], 
+                                      'Location': result['Location'], 
+                                      'VendorId': result['VendorId'], 
+                                      'DataItemSize': result['DataItemSize'], 
+                                      'ChannelDataTypeId': result['ChannelDataTypeId']}}, 
+                    callback=sensor_callback)
+\end{verbatim}
+
+where, \code{sensor_callback} is the user defined callback function.
+
+The following table summarizes the specification of \code{RegisterForNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{ISensor}  \\\hline{\bf Description} & Registers for notification with a sensor channel to receive channel data.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} & ISensor interface is loaded.  \\
+\hline
+{\bf Post-condition} & Client application receives an array of channel information to open channels.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Input Parameters} \break
+
+Input parameter is a set of arguments that specifies the \code{Listening} Type and the \code{ChannelInfoMap}.
+\begin{table}[htbp]
+\footnotesize
+\begin{center}
+\begin{tabular}{l|p{35mm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ListeningType} & unicode string & Range for \code{ListeningType} \break
+\code{ChannelData}: Data listening & Determines the type of notification that needs to be registered for.  \\
+\hline
+\code{ChannelInfoMap} & map as mentioned in \code{FindSensorChannel}. Refer {\bf ChannelInfoMap} \ref{tab:channelinfomap} & NA & The map is obtained by invoking \code{FindSensorChannel}.
+\end{tabular}
+\caption{Input parameters for RegisterForNotification}
+\end{center}
+\end{table}
+
+\break
+{\bf Output Parameters} \break
+
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails. \code{ReturnValue} is an object, which contains output parameter details depending on the listening type and channel selected. 
+
+\begin{table}[htbp]
+\footnotesize
+\begin{center}
+\begin{tabular}{l|p{50mm}|p{4cm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ReturnValue} & The output consists of one of the following maps depending on the listening type and channel selected: \break
+
+For listening type - \code{ChannelData} and channel information corresponding to \code{AccelerometerAxis}: \break
+{\bf Type}: {\bf Name} \break
+string: \code{DataType} \break
+Time: \code{TimeStamp} \break
+32 bit int: \code{XAxisData} \break
+32 bit int: \code{YAxisData} \break
+32 bit int: \code{ZAxisData} \break
+
+For listening type - \code{ChannelData} and channel information corresponding to \code{AccelerometerDoubleTapping}: \break
+{\bf Type}: {\bf Name} \break
+string: \code{DataType} \break
+Time: \code{TimeStamp} \break
+32 bit int: \code{DeviceDirection} \break
+
+For listening type - \code{ChannelData} and channel information corresponding to \code{Orientation}: \break
+{\bf Type}: {\bf Name} \break
+string: \code{DataType} \break
+Time: \code{TimeStamp} \break
+string: \code{DeviceOrientation} \break
+
+For listening type - \code{ChannelData} and channel info corresponding to \code{Rotation}: \break
+{\bf Type}: {\bf Name} \break
+string: \code{DataType} \break
+Time: \code{TimeStamp} \break
+32 bit int: \code{XRotation} \break
+32 bit int: \code{YRotation} \break
+32 bit int: \code{ZRotation} & \code{DataType} for \code{AccelerometerAxis} is \code{AxisData} \break
+
+
+\code{DataType} for \code{AccelerometerDoubleTapping} is \code{DoubleTappingData} \break
+
+
+\code{DataType} for \code{Orientation} is \code{OrientationData} \break
+Range for \code{DeviceOrientation}: \break
+Undefined \break
+DisplayUp \break
+DisplayDown \break
+DisplayLeftUp \break
+DisplayRightUp \break
+DisplayUpwards \break
+DisplayDownwards \break
+
+\code{DataType} for \code{Rotation} is \code{RotationData} & A map is returned in case notification is received.  \\
+\end{tabular}
+\caption{Output parameters for RegisterForNotification}
+\end{center}
+\end{table}
+
+\pagebreak
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1005} & Service in use  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{8cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Sensors:RegisterForNotification: Listening type missing} & Indicates that the listening type for receiving notification is missing.  \\
+\hline
+\code{Sensors:RegisterForNotification: Listening type is invalid} & Indicates that the datatype of Listening type is invalid.  \\
+\hline
+\code{Sensors:RegisterForNotification: ChannelInfoMap missing} & Indicates that the channel information map is not provided as input parameter.  \\
+\hline
+\code{Sensors:RegisterForNotification: Incomplete input param list} & Indicates that the input parameter list is incomplete.  \\
+\hline
+\code{Sensors:RegisterForNotification: Listening type is out of allowed range} & Indicates that the Listening type falls outside the allowed range of listening types.  \\
+\hline
+\code{Sensors:RegisterForNotification: Callback missing} & Indicates that the callback function is missing.  \\
+\hline
+\code{Sensors:RegisterForNotification: Notification is already registered on this channel} & Indicates that the notification is already registered from the same user on the same channel.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Example} \break
+
+The following sample code illustrates how to receive notification for channel data, on registering:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() to make main function wait till callback is hit
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def register_operation(trans_id, event_id, input_params):
+    if trans_id != scriptext.EventCompleted:
+        print "DataType: ", input_params["ReturnValue"]["DataType"]
+        print "TimeStamp: ", input_params["ReturnValue"]["TimeStamp"]
+        print "X-Axis Rotation: ", input_params["ReturnValue"]["XRotation"]
+        print "Y-Axis Rotation: ", input_params["ReturnValue"]["YRotation"]
+        print "Z-Axis Rotation: ", input_params["ReturnValue"]["ZRotation"]
+\end{verbatim}
+
+\pagebreak
+
+\subsection{GetChannelProperty}
+\label{subsec:sensorgetchanel}
+
+\code{GetChannelProperty} is used to get the channel property of the specified sensor channel.
+
+The following is an example for using \code{GetChannelProperty}:
+
+\begin{verbatim}
+sensor_handle.call('GetChannelProperty', 
+                   {'ChannelInfoMap':{'ChannelId': result['ChannelId'], 
+                                      'ContextType': result['ContextType'], 
+                                      'Quantity': result['Quantity'], 
+                                      'ChannelType': result['ChannelType'], 
+                                      'Location': result['Location'], 
+                                      'VendorId': result['VendorId'], 
+                                      'DataItemSize': result['DataItemSize'], 
+                                      'ChannelDataTypeId': result['ChannelDataTypeId']}, 
+                   'propertyId': u'DataRate'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{GetChannelProperty}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{ISensor}  \\\hline{\bf Description} & Gets the specified property of a sensor channel.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & ISensor interface is loaded.  \\
+\hline
+{\bf Post-condition} & Client application receives the requested property details.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameters define the \code{ChannelInfoMap} and \code{PropertyId}.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{34mm}|p{34mm}|p{4cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ChannelInfoMap} & map as mentioned in \code{FindSensorChannel}. Refer {\bf ChannelInfoMap} \ref{tab:channelinfomap} & NA & The map is obtained by invoking \code{FindSensorChannel}.  \\
+\hline
+\code{PropertyId} & unicode string & Range for \code{PropertyId}: \break
+\code{DataRate} \break
+\code{Availability} \break
+\code{MeasureRange} \break
+\code{ChannelDataFormat} \break
+\code{ChannelAccuracy} \break
+\code{ChannelScale} \break
+\code{ScaledRange} \break
+\code{ChannelUnit} \break
+\code{SensorModel} \break
+\code{ConnectionType} \break
+\code{Description} & The property ID string for which the property is being queried.
+\end{tabular}
+\caption{Input parameters for GetChannelProperty}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode} and an \code{ErrorMessage} if the operation fails. \code{ReturnValue} contains the requested channel property. 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{35mm}|p{34mm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English.  \\
+\hline
+\code{ReturnValue} & Channel property map: \break
+{\bf Type}: {\bf Name} \break
+string: \code{PropertyId} \break
+32 bit int: \code{PropertyDataType} \break
+32 bit Integer: \code{ItemIndex} \break
+bool: \code{ReadOnly} \break
+32 bit int/ double/ string: \code{PropertyValue} & The channel property can either be of type integer, double, or string. \break
+
+Range for \code{PropertyDataType}: \break
+0: For Integer datatype \break
+1: For Double datatype \break
+2: For String datatype & \code{ReturnValue} contains a map of key-value pair for channel property.  \\
+\end{tabular}
+\caption{Output parameters for GetChannelProperty}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description}  \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{8cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Sensors:GetChannelProperty: Property id missing} & Indicates that the property ID input parameter is missing.  \\
+\hline
+\code{Sensors:GetChannelProperty: Invalid property id} & Indicates that the input property ID is invalid and does not fall within the specified range of property ID strings.  \\
+\hline
+\code{Sensors:GetChannelProperty: ChannelInfoMap missing} & Indicates that the channel information map is not provided as input parameter.  \\
+\hline
+\code{Sensors:GetChannelProperty: Channel property not supported} & Indicates that the channel property is not supported hence no value is returned.  \\
+\hline
+\code{Sensors:GetChannelProperty: Incomplete input param list} & Indicates that the input param list is incomplete.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to get the specified property of sensor channel:
+
+\begin{verbatim}
+try:
+    result = sensor_handle.call('FindSensorChannel',
+                                   {'SearchCriterion': u'Rotation'})
+
+    ChannelId = result[0]['ChannelId']
+    ContextType = result[0]['ContextType']
+    Quantity = result[0]['Quantity']
+    ChannelType = result[0]['ChannelType']
+    Location = result[0]['Location']
+    VendorId = result[0]['VendorId']
+    DataItemSize = result[0]['DataItemSize']
+    ChannelDataTypeId = result[0]['ChannelDataTypeId']
+
+    result = sensor_handle.call('GetChannelProperty',
+                    {'ChannelInfoMap':{'ChannelId': ChannelId,
+                                       'ContextType': ContextType,
+                                       'Quantity': Quantity,
+                                       'ChannelType': ChannelType,
+                                       'Location': Location,
+                                       'VendorId': VendorId,
+                                       'DataItemSize': DataItemSize,
+                                       'ChannelDataTypeId': ChannelDataTypeId},
+                                       'PropertyId': u'DataRate'})
+    print "Property Id: ", result["PropertyId"]
+    print "PropertyDataType: ", result["PropertyDataType"]
+    print "ItemIndex: ",  result["ItemIndex"]
+    print "ReadOnly: ", result["ReadOnly"]
+    print "PropertyValue: ",result["PropertyValue"]
+
+except scriptext.ScriptextError, err:
+    print "Error performing the operation : ", err
+\end{verbatim}
+
+\pagebreak
+

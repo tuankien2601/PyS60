@@ -1,0 +1,66 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\chapter{scriptext - Platform Service API Usage from Python runtime}
+\label{scriptext}
+\module{scriptext ---
+  Platform Service API usage from Python runtime}
+\platform{S60}
+
+\label{sec:s60scriptext}
+\declaremodule{extension}{scriptext}
+\modulesynopsis{Platform Service API usage from Python runtime}
+
+{\bf Platform Service API Overview} \break
+
+This section describes the basic principles for using Platform Service APIs from Python. The S60 Service APIs were introduced in the S60 5th Edition and back ported to S60 3rd edition FP2 platform. Platform Service APIs are a set of language-independent APIs integrated into S60 runtimes including Python, Flash and Web Runtime. Future S60 versions may support additional runtimes. S60 added Python binding for integrating Platform Service APIs into Python Runtime.
+
+\begin{notice}[note]
+The service is available from 'S60 third edition FP2 and later'.
+\end{notice}
+
+The following steps describe how to use Service APIs from Python Runtime:
+\begin {itemize}
+\item Create a service handle for a particular service.
+\item Define the input parameters.
+\item If an asynchronous service needs to be requested, define a callback function to process the results.
+\item Make a request for the required operation.
+\item Process the output parameters.
+\end {itemize}
+
+{\bf Service Objects and Interfaces} \break
+For using Platform Service API, a service handle needs to be created. Each Service API has a service provider name and it can support one or more interfaces.  
+A service handle can be instantiated by specify the service provider and interface name. Each service provider supports one or more interfaces.
+
+\begin{notice}[note]
+Interfaces define a set of common methods for service objects.
+\end{notice}
+
+For example, the location Service API supports ILocation interface. The ILocation interface defines a \code{GetLocation} method to retrieve the current location of the device.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

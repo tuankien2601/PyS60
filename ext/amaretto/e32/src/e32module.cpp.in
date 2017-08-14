@@ -1,0 +1,1622 @@
+/*
+* ====================================================================
+*  e32module.cpp
+*
+* Copyright (c) 2005-2009 Nokia Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+* ====================================================================
+*  Basic EPOC facilities for Python
+*
+*  Implements currently (13.12.2006) following Python classes / methods:
+*
+*  Ao_lock -- Symbian active object -based synchronization
+*    Ao_lock()
+*    wait()
+*    signal()
+*
+*  Ao_timer -- Symbian active object -based timer
+*    Ao_timer()
+*    after()
+*    cancel()
+*
+*  ao_yield()
+*
+*  ao_sleep(float [,callable])
+*
+*  callable ao_callgate(callable)
+*
+*  file_copy(unicode_string OR string, unicode_string OR string)
+*
+*  start_server(unicode_string OR string)
+*
+*  start_exe(unicode_string OR string, unicode_string OR string [,int])
+*
+*  [unicode_string] drive_list()
+*
+*  bool is_ui_thread()
+*
+*  set_home_time(time)
+*
+*  bool in_emulator()
+*
+*  reset_inactivity()
+*
+*  int inactivity()
+*
+*/
+
+#include "Python.h"
+#include "symbian_python_ext_util.h"
+
+#include <e32std.h>
+#include <e32def.h>
+#include <e32uid.h>   // e32_uidcrc_app()
+#include <eikapp.h>
+#include <f32file.h>
+#include <bautils.h>  // e32_file_copy()
+#include <apmstd.h>
+#include <f32file.h>
+
+#ifdef EKA2
+#include <tz.h>
+#endif
+
+#ifdef WITH_DLC
+#include "dlc.h"
+#endif
+
+_LIT(KS60ProductIDFile, "series60v*.sis");
+_LIT(KROMInstallDir, "z:\\system\\install\\");
+
+//MAX_TIME(in seconds) is max integer where (2147*10exp6< 2exp31)
+//This restriction is needed to avoid overflow at
+//RTimer.After(TTimeIntervalMicroSeconds32)
+#define MAX_TIME 2147
+
+#define MAX_NUM_OF_CAPABILITIES 22
+
+/* These are the globals previously defined in python_globals.h */
+PyTypeObject t_Ao;
+PyTypeObject t_Ao_callgate;
+PyTypeObject t_Ao_timer;
+
+
+/*
+ *
+ * Utilities for e32.start_server() and e32.start_exe()
+ *
+ */
+
+class CE32ProcessWait : public CActive
+{
+public:
+  CE32ProcessWait():CActive(EPriorityStandard) {
+    CActiveScheduler::Add(this);
+  }
+#if defined(__WINS__) && !defined(EKA2)
+  TInt Wait(RThread& aProcess) {
+#else
+  TInt Wait(RProcess& aProcess) {
+#endif
+    aProcess.Logon(iStatus);
+    aProcess.Resume();
+    SetActive();
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+    iWait.Start();
+#else
+    CActiveScheduler::Start();
+#endif
+    return iStatus.Int();
+  }
+
+  private:
+  void DoCancel() {;}
+  void RunL() {
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+    iWait.AsyncStop();
+#else
+    CActiveScheduler::Stop();
+#endif
+  }
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+  CActiveSchedulerWait iWait;
+#endif
+};
+
+static TInt ProcessLaunch(const TDesC& aFileName, const TDesC& aCommand,
+                     TInt aWaitFlag=0)
+{
+  TInt error;
+  Py_BEGIN_ALLOW_THREADS
+#if defined(__WINS__) && !defined(EKA2)
+  RThread proc;
+  RLibrary lib;
+  HBufC* pcommand = aCommand.Alloc();
+  error = lib.Load(aFileName);
+  if (error == KErrNone) {
+    TThreadFunction func = (TThreadFunction)(lib.Lookup(1));
+    error = proc.Create(_L(""), func, 0x1000, (TAny*) pcommand, &lib,
+                        RThread().Heap(), 0x1000, 0x100000, EOwnerProcess);
+    lib.Close();
+  }
+  else
+    delete pcommand;
+#else
+  RProcess proc;
+  error = proc.Create(aFileName, aCommand);
+#endif
+  if (error == KErrNone)
+    if (aWaitFlag) {
+      CE32ProcessWait* w = new CE32ProcessWait();
+      if (w) {
+        error = w->Wait(proc);
+        delete w;
+      }
+      else
+        error = KErrNoMemory;
+    }
+    else
+      proc.Resume();
+  proc.Close();
+  Py_END_ALLOW_THREADS
+  return error;
+}
+
+/*
+ *
+ * Implementation of e32.start_server()
+ *
+ */
+extern "C" PyObject *
+e32_start_server(PyObject* /*self*/, PyObject* args)
+{
+  PyObject* it;
+
+  if (!PyArg_ParseTuple(args, "O", &it))
+    return NULL;
+
+  PyObject* fn = PyUnicode_FromObject(it);
+  if (!fn)
+    return NULL;
+
+  TPtrC name(PyUnicode_AsUnicode(fn), PyUnicode_GetSize(fn));
+  TParse p;
+  p.Set(name, NULL, NULL);
+
+  if (!(p.Ext().CompareF(_L(".py")) == 0)) {
+    Py_DECREF(fn);
+    PyErr_SetString(PyExc_TypeError, "Python script name expected");
+    return NULL;
+  }
+
+  TInt error;
+  RFs rfs;
+
+  if ((error = rfs.Connect()) == KErrNone) {
+    TBool f_exists;
+    f_exists = BaflUtils::FileExists(rfs, name);
+    rfs.Close();
+    if (!f_exists){
+      Py_DECREF(fn);
+      return SPyErr_SetFromSymbianOSErr(KErrNotFound);
+    }
+  }
+
+  error = ProcessLaunch(_L("${{PREFIX}}python_launcher.exe"), name);
+
+  Py_DECREF(fn);
+
+  RETURN_ERROR_OR_PYNONE(error);
+}
+
+
+/*
+ *
+ * Implementation of e32.start_exe()
+ *
+ */
+
+extern "C" PyObject *
+e32_start_exe(PyObject* /*self*/, PyObject* args)
+{
+  PyObject *it0, *it1;
+  int wait_flag = 0;
+
+  if (!PyArg_ParseTuple(args, "OO|i", &it0, &it1, &wait_flag))
+    return NULL;
+
+  PyObject* n = PyUnicode_FromObject(it0);
+  if (!n)
+    return NULL;
+
+  TPtrC name(PyUnicode_AsUnicode(n), PyUnicode_GetSize(n));
+  TParse p;
+  p.Set(name, NULL, NULL);
+
+#if defined(__WINS__) && !defined(EKA2)
+  if (!(p.Ext().CompareF(_L(".dll")) == 0)) {
+#else
+  if (!(p.Ext().CompareF(_L(".exe")) == 0)) {
+#endif
+    Py_DECREF(n);
+    PyErr_SetString(PyExc_TypeError, "Executable expected");
+    return NULL;
+  }
+
+  PyObject* a = PyUnicode_FromObject(it1);
+  if (!a) {
+    Py_DECREF(n);
+    return NULL;
+  }
+
+  TInt error = ProcessLaunch(name,
+                             TPtrC(PyUnicode_AsUnicode(a),
+                                   PyUnicode_GetSize(a)),
+                             wait_flag);
+
+  Py_DECREF(n);
+  Py_DECREF(a);
+
+  if (wait_flag && (error >= 0))
+    return Py_BuildValue("i", error);
+  else
+    RETURN_ERROR_OR_PYNONE(error);
+}
+
+/*
+ *
+ * Implementation of e32.drive_list()
+ *
+ */
+
+extern "C" PyObject *
+e32_drive_list(PyObject* /*self*/)
+{
+  TInt error;
+  RFs rfs;
+
+  if ((error = rfs.Connect()) != KErrNone)
+    return SPyErr_SetFromSymbianOSErr(error);
+
+  PyObject* r;
+  TDriveList l;
+
+  error = rfs.DriveList(l);
+
+  if (error == KErrNone) {
+    if (r = PyList_New(0)) {
+      for (int i = 0; i < KMaxDrives; i++) {
+        if (l[i]) {
+          char d[2];
+          d[0] = 'A'+i; d[1] = ':';
+
+          PyObject* v = PyUnicode_Decode(d, 2, NULL, NULL);
+          if ((v == NULL) || (PyList_Append(r, v) != 0)) {
+            Py_XDECREF(v);
+            Py_DECREF(r);
+            r = NULL;
+            break;
+          }
+          Py_DECREF(v);
+        }
+      }
+    }
+  }
+  else
+    r = SPyErr_SetFromSymbianOSErr(error);
+
+  rfs.Close();
+
+  return r;
+}
+
+/*
+ *
+ * Implementation of e32.file_copy()
+ *
+ */
+
+extern "C" PyObject *
+e32_file_copy(PyObject* /*self*/, PyObject* args)
+{
+  PyObject *it0, *it1;
+
+  if (!PyArg_ParseTuple(args, "OO", &it0, &it1))
+    return NULL;
+
+  PyObject *t, *s;
+
+  if (!((t = PyUnicode_FromObject(it0)) &&
+        (s = PyUnicode_FromObject(it1)))) {
+    Py_XDECREF(t);
+    return NULL;
+  }
+
+  TPtrC target(PyUnicode_AsUnicode(t), PyUnicode_GetSize(t));
+  TPtrC source(PyUnicode_AsUnicode(s), PyUnicode_GetSize(s));
+
+  TInt error;
+  RFs rfs;
+
+  if ((error = rfs.Connect()) == KErrNone) {
+    error = BaflUtils::CopyFile(rfs, source, target);
+    rfs.Close();
+  }
+
+  Py_DECREF(t); Py_DECREF(s);
+
+  RETURN_ERROR_OR_PYNONE(error);
+}
+
+/*
+ *
+ * Implementation of e32.Ao_lock
+ *
+ */
+
+#define Ao_lock_type t_Ao
+
+#ifndef EKA2
+class Ao_lock : public CActive {
+#else
+NONSHARABLE_CLASS(Ao_lock) : public CActive {
+#endif
+public:
+  Ao_lock();
+  TInt Signal(TUint aTid);
+  void Wait();
+private:
+  void RunL();
+  void DoCancel() {;}
+  TRequestStatus* iPst;
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+  CActiveSchedulerWait iWait;
+#endif
+};
+
+Ao_lock::Ao_lock():CActive(0)
+{
+  iStatus = KErrCancel;
+  iPst = &iStatus;
+  CActiveScheduler::Add(this);
+}
+
+void Ao_lock::Wait()
+{
+  if (iStatus != KErrNone) {
+    iStatus = KRequestPending;
+    iPst = &iStatus;
+    SetActive();
+
+    Py_BEGIN_ALLOW_THREADS
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+    iWait.Start();
+#else
+    CActiveScheduler::Start();
+#endif
+    Py_END_ALLOW_THREADS
+  }
+  iStatus = KErrCancel;
+  return;
+}
+
+TInt Ao_lock::Signal(TUint aTid)
+{
+  TInt error = KErrNone;
+
+  if (iStatus != KRequestPending) {
+    iStatus = KErrNone;
+    return error;
+  }
+  RThread t;
+  error = t.Open(aTid);
+  if (error == KErrNone) {
+    //iStatus = KErrNone; // Doing this will panic the 3.0 emulator with E32USER-CBase 46 "Stray signal".
+    t.RequestComplete(iPst, 0);
+    t.Close();
+  }
+  return error;
+}
+
+void Ao_lock::RunL()
+{
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+  iWait.AsyncStop();
+#else
+  CActiveScheduler::Stop();
+#endif
+}
+
+struct Ao_lock_object {
+  PyObject_VAR_HEAD
+  Ao_lock* ob_data;
+  unsigned int ob_tid;
+};
+
+extern "C" PyObject *
+new_e32_ao_object(PyObject* /*self*/)
+{
+  if (!CActiveScheduler::Current()) {
+    PyErr_SetString(PyExc_AssertionError, "no ao scheduler");
+    return NULL;
+  }
+
+  Ao_lock_object *op = PyObject_New(Ao_lock_object, &Ao_lock_type);
+  if (op == NULL)
+    return PyErr_NoMemory();
+
+  op->ob_data = new Ao_lock();
+  if (op->ob_data == NULL) {
+    PyObject_Del(op);
+    return PyErr_NoMemory();
+  }
+  op->ob_tid = RThread().Id();
+  return (PyObject *) op;
+}
+
+extern "C" PyObject *
+ao_wait(Ao_lock_object *self, PyObject* /*args*/)
+{
+  if ((TUint)RThread().Id() != self->ob_tid) {
+    PyErr_SetString(PyExc_AssertionError,
+                    "Ao_lock.wait must be called from lock creator thread");
+    return NULL;
+  }
+  if (self->ob_data->iStatus == KRequestPending) {
+    PyErr_SetString(PyExc_AssertionError, "wait() called on Ao_lock while another wait() on the same lock is in progress");
+    return NULL;
+  }
+  self->ob_data->Wait();
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+extern "C" PyObject *
+ao_signal(Ao_lock_object *self, PyObject* /*args*/)
+{
+  TInt error = self->ob_data->Signal(self->ob_tid);
+  RETURN_ERROR_OR_PYNONE(error);
+}
+
+extern "C" {
+
+  static void
+  ao_dealloc(Ao_lock_object *op)
+  {
+    if ((TUint)RThread().Id() == op->ob_tid) {
+      delete op->ob_data;
+      op->ob_data = NULL;
+    }
+    PyObject_Del(op);
+  }
+
+  static const PyMethodDef ao_methods[] = {
+    {"wait", (PyCFunction)ao_wait, METH_NOARGS},
+    {"signal", (PyCFunction)ao_signal, METH_NOARGS},
+    {NULL,              NULL}           /* sentinel */
+  };
+
+  static PyObject *
+  ao_getattr(Ao_lock_object *p, char *name)
+  {
+    return Py_FindMethod((PyMethodDef*)ao_methods,
+                         (PyObject *)p, name);
+  }
+
+  static const PyTypeObject c_Ao_lock_type = {
+    PyObject_HEAD_INIT(NULL)
+    0,
+    "e32.Ao_lock",
+    sizeof(Ao_lock_object),
+    0,
+    /* methods */
+    (destructor)ao_dealloc,             /* tp_dealloc */
+    0,                                  /* tp_print */
+    (getattrfunc)ao_getattr,            /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0,                                  /* tp_repr */
+    0,                                  /* tp_as _number*/
+    0,                                  /* tp_as _sequence*/
+    0,                                  /* tp_as _mapping*/
+    0,                                  /* tp_hash */
+  };
+} /* extern "C" */
+
+/*
+ *
+ * Implementation of e32.ao_yield
+ *
+ */
+
+class CE32AoYield : public CActive
+{
+ public:
+  CE32AoYield():CActive(EPriorityStandard) {
+    CActiveScheduler::Add(this);
+  }
+
+  void DoYield() {
+    iStatus = KRequestPending;
+    SetActive();
+    //iStatus = KErrNone; // Doing this will panic the 3.0 emulator with E32USER-CBase 46 "Stray signal".
+    TRequestStatus* pstatus = &iStatus;
+    RThread().RequestComplete(pstatus, 0);
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+    iWait.Start();
+#else
+    CActiveScheduler::Start();
+#endif
+  }
+
+ private:
+  void DoCancel() {;}
+  void RunL() {
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+    iWait.AsyncStop();
+#else
+    CActiveScheduler::Stop();
+#endif
+  }
+
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+  CActiveSchedulerWait iWait;
+#endif
+};
+
+extern "C" PyObject *
+e32_ao_yield(PyObject* /*self*/)
+{
+  CE32AoYield* y = new CE32AoYield();
+  if (!y)
+    return PyErr_NoMemory();
+
+  Py_BEGIN_ALLOW_THREADS
+  y->DoYield();
+  delete y;
+  Py_END_ALLOW_THREADS
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+/*
+ *
+ * Implementation of e32.ao_sleep
+ *
+ */
+
+class CE32AoSleep : public CActive
+{
+ public:
+  CE32AoSleep(PyObject* aCb=0):CActive(EPriorityStandard) {
+    iCb = aCb;
+    Py_XINCREF(iCb);
+  }
+  ~CE32AoSleep() {
+    Cancel();
+    iTimer.Close();
+    Py_XDECREF(iCb);
+  }
+  TInt Construct() {
+    TInt error = iTimer.CreateLocal();
+    if (error == KErrNone)
+      CActiveScheduler::Add(this);
+    return error;
+  }
+  void DoSleep(TReal aDelay /*time in seconds*/) {
+    iTimeMultiplier = (TInt)(aDelay / MAX_TIME);
+    TReal timeLeft = aDelay - (MAX_TIME * iTimeMultiplier);
+    StartTimer(timeLeft);
+    if (!iCb){
+      Py_BEGIN_ALLOW_THREADS
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+      iWait.Start();
+#else
+      CActiveScheduler::Start();
+#endif
+      Py_END_ALLOW_THREADS
+    }
+  }
+
+ private:
+  void DoCancel() {
+    iTimer.Cancel();
+  }
+  void RunL() {
+    if (iTimeMultiplier>0) {
+      StartTimer(MAX_TIME);
+      iTimeMultiplier--;
+    }
+    else if (!iCb) {
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+      iWait.AsyncStop();
+#else
+      CActiveScheduler::Stop();
+#endif
+      delete this;
+    }
+    else {
+      PyGILState_STATE gstate = PyGILState_Ensure();
+      PyObject* tmp_r = NULL;
+      tmp_r = PyEval_CallObject(iCb, NULL);
+      Py_XDECREF(tmp_r);
+      if (PyErr_Occurred())
+        PyErr_Print();
+      PyGILState_Release(gstate);
+      delete this;
+    }
+  }
+  void StartTimer(TReal aDelay) {
+    TTimeIntervalMicroSeconds32 delay;
+#ifndef EKA2
+    delay = TTimeIntervalMicroSeconds32(TInt64(aDelay*1000*1000).GetTInt());
+#else
+    delay = TTimeIntervalMicroSeconds32(TInt64(aDelay*1000*1000));
+#endif
+    iTimer.After(iStatus, delay);
+    SetActive();
+  }
+  RTimer iTimer;
+  TInt iTimeMultiplier;
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+  CActiveSchedulerWait iWait;
+#endif
+  PyObject* iCb;
+};
+
+
+extern "C" PyObject *
+e32_ao_sleep(PyObject* /*self*/, PyObject* args)
+{
+  TReal d;
+  PyObject* c=NULL;
+
+  if (!PyArg_ParseTuple(args, "d|O", &d, &c))
+    return NULL;
+
+  if (c && !PyCallable_Check(c)) {
+    PyErr_SetString(PyExc_TypeError, "callable expected for 2nd argument");
+    return NULL;
+  }
+
+  if (d < 0) {
+    PyErr_SetString(PyExc_RuntimeError, "negative number not allowed");
+    return NULL;
+  }
+
+  CE32AoSleep* s = new CE32AoSleep(c);
+  if (!s)
+    return PyErr_NoMemory();
+
+  TInt error = s->Construct();
+  if (error != KErrNone) {
+    delete s;
+    return SPyErr_SetFromSymbianOSErr(error);
+  }
+
+  s->DoSleep(d);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+
+/*
+ *
+ * Implementation of e32.Ao_timer
+ *
+ */
+
+#define Ao_timer_type t_Ao_timer
+
+#ifndef EKA2
+class Ao_timer : public CActive {
+#else
+NONSHARABLE_CLASS(Ao_timer) : public CActive {
+#endif
+public:
+  Ao_timer();
+  void After(TTimeIntervalMicroSeconds32 aSleep, PyObject* aCb);
+  TInt Construct();
+  ~Ao_timer();
+private:
+  void RunL();
+  void DoCancel();
+  RTimer iTimer;
+  PyObject* iCb;
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+  CActiveSchedulerWait iWait;
+#endif
+};
+
+Ao_timer::Ao_timer():CActive(EPriorityStandard) {;}
+
+void Ao_timer::After(TTimeIntervalMicroSeconds32 aDelay, PyObject* aCb=0)
+{
+  iCb = aCb;
+  Py_XINCREF(iCb);
+  iTimer.After(iStatus, aDelay);
+  SetActive();
+  if (!iCb) {
+    Py_BEGIN_ALLOW_THREADS
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+    iWait.Start();
+#else
+    CActiveScheduler::Start();
+#endif
+    Py_END_ALLOW_THREADS
+  }
+}
+
+TInt Ao_timer::Construct()
+{
+  TInt error = iTimer.CreateLocal();
+  if (error == KErrNone)
+    CActiveScheduler::Add(this);
+  return error;
+}
+
+Ao_timer::~Ao_timer()
+{
+  Cancel();
+  iTimer.Close();
+  Py_XDECREF(iCb);
+}
+
+void Ao_timer::RunL()
+{
+    if (!iCb) {
+#ifdef HAVE_ACTIVESCHEDULERWAIT
+      iWait.AsyncStop();
+#else
+      CActiveScheduler::Stop();
+#endif
+    }
+    else {
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* tmp_r = NULL;
+    tmp_r = PyEval_CallObject(iCb, NULL);
+    Py_XDECREF(tmp_r);
+    if (PyErr_Occurred())
+      PyErr_Print();
+    PyGILState_Release(gstate);
+  }
+}
+
+void Ao_timer::DoCancel()
+{
+  iTimer.Cancel();
+}
+
+struct Ao_timer_object {
+  PyObject_VAR_HEAD
+  Ao_timer* ob_data;
+};
+
+extern "C" PyObject *
+new_e32_ao_timer_object(PyObject* /*self*/, PyObject /**args*/)
+{
+  if (!CActiveScheduler::Current()) {
+    PyErr_SetString(PyExc_AssertionError, "no ao scheduler");
+    return NULL;
+  }
+
+  Ao_timer_object *op = PyObject_New(Ao_timer_object, &Ao_timer_type);
+  if (op == NULL)
+    return PyErr_NoMemory();
+
+  op->ob_data = new Ao_timer();
+  if (op->ob_data == NULL) {
+    PyObject_Del(op);
+    return PyErr_NoMemory();
+  }
+
+  TInt error = op->ob_data->Construct();
+  if (error != KErrNone) {
+    PyObject_Del(op);
+    return SPyErr_SetFromSymbianOSErr(error);
+  }
+
+  return (PyObject *) op;
+}
+
+extern "C" PyObject *
+ao_timer_after(Ao_timer_object *self, PyObject* args)
+{
+  TReal d;
+  PyObject* c=NULL;
+
+  if (!PyArg_ParseTuple(args, "d|O", &d, &c))
+    return NULL;
+
+  if (c && !PyCallable_Check(c)) {
+    PyErr_SetString(PyExc_TypeError, "callable expected for 2nd argument");
+    return NULL;
+  }
+
+  if(self->ob_data->IsActive()) {
+    PyErr_SetString(PyExc_RuntimeError, "Timer pending - cancel first");
+    return NULL;
+  }
+
+  if (d < 0) {
+    PyErr_SetString(PyExc_RuntimeError, "negative number not allowed");
+    return NULL;
+  }
+  #ifndef EKA2
+  self->ob_data->After(TTimeIntervalMicroSeconds32(TInt64(d*1000*1000).GetTInt()), c);
+  #else
+  self->ob_data->After(TTimeIntervalMicroSeconds32(TInt64(d*1000*1000)), c);
+  #endif /*EKA2*/
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+extern "C" PyObject *
+ao_timer_cancel(Ao_timer_object *self, PyObject* /*args*/)
+{
+  self->ob_data->Cancel();
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+extern "C" {
+
+  static void
+  ao_timer_dealloc(Ao_timer_object *op)
+  {
+    delete op->ob_data;
+    op->ob_data = NULL;
+
+    PyObject_Del(op);
+  }
+
+  static const PyMethodDef ao_timer_methods[] = {
+    {"after", (PyCFunction)ao_timer_after, METH_VARARGS},
+    {"cancel", (PyCFunction)ao_timer_cancel, METH_NOARGS},
+    {NULL,              NULL}           /* sentinel */
+  };
+
+  static PyObject *
+  ao_timer_getattr(Ao_timer_object *p, char *name)
+  {
+    return Py_FindMethod((PyMethodDef*)ao_timer_methods,
+                         (PyObject *)p, name);
+  }
+
+  static const PyTypeObject c_Ao_timer_type = {
+    PyObject_HEAD_INIT(NULL)
+    0,
+    "e32.Ao_timer",
+    sizeof(Ao_timer_object),
+    0,
+    /* methods */
+    (destructor)ao_timer_dealloc,       /* tp_dealloc */
+    0,                                  /* tp_print */
+    (getattrfunc)ao_timer_getattr,      /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0,                                  /* tp_repr */
+    0,                                  /* tp_as _number*/
+    0,                                  /* tp_as _sequence*/
+    0,                                  /* tp_as _mapping*/
+    0,                                  /* tp_hash */
+  };
+} /* extern "C" */
+
+
+/*
+ *
+ * Implementation of e32.ao_callgate
+ *
+ */
+
+#define Ao_callgate_type t_Ao_callgate
+
+
+struct Ao_callgate_call_item {
+  PyObject* args;
+  PyObject* kwargs;
+  Ao_callgate_call_item* next;
+};
+
+class Ao_callgate;
+
+struct Ao_callgate_object {
+  PyObject_VAR_HEAD
+  Ao_callgate* ob_data;
+  unsigned int ob_tid;
+  Ao_callgate_call_item ob_args;
+};
+
+#ifndef EKA2
+class Ao_callgate : public CActive {
+#else
+NONSHARABLE_CLASS(Ao_callgate) : public CActive {
+#endif
+public:
+  Ao_callgate(Ao_callgate_object* aOb, PyObject* aCb, TInt aTid);
+  ~Ao_callgate() {
+    Cancel();
+    Py_DECREF(iCb);
+  }
+  TInt Signal(TInt aStatus=KErrNone);
+private:
+  void RunL();
+  void DoCancel() {
+    Signal(KErrCancel);
+  }
+  TRequestStatus* iPst;
+  PyObject* iCb;
+  Ao_callgate_object* iOb;
+  TInt iTid;
+};
+
+Ao_callgate::Ao_callgate(Ao_callgate_object* aOb, PyObject* aCb, TInt aTid):
+  CActive(0),iOb(aOb),iTid(aTid)
+{
+  iCb = aCb;
+  Py_INCREF(iCb);
+  CActiveScheduler::Add(this);
+  iStatus = KRequestPending;
+  iPst = &iStatus;
+  SetActive();
+}
+
+TInt Ao_callgate::Signal(TInt aReason)
+{
+  RThread t;
+  TInt error = t.Open(iTid);
+  if (error == KErrNone) {
+    /* Check for this here, since this check crashes if the thread where the callgate was has finished already. */
+    if (iStatus != KRequestPending)
+        return KErrNone;
+    t.RequestComplete(iPst, aReason);
+    t.Close();
+  }
+  return error;
+}
+
+void Ao_callgate::RunL()
+{
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  Ao_callgate_call_item* p = iOb->ob_args.next;
+  iOb->ob_args.next = NULL;
+  int lastReferenceGone = 0;
+  while (p) {
+    PyObject* tmp_r = NULL;
+    tmp_r = PyEval_CallObjectWithKeywords(iCb, p->args, p->kwargs);
+    Py_XDECREF(tmp_r);
+    if (PyErr_Occurred())
+      PyErr_Print();
+    Ao_callgate_call_item* tmp = p->next;
+    Py_XDECREF(p->args);
+    Py_XDECREF(p->kwargs);
+    PyMem_Free(p);
+    p = tmp;
+    lastReferenceGone=(iOb->ob_refcnt == 1);
+    /* Note: If refcount is 1, this object is destroyed right now!
+     * There shouldn't be any calls in the queue after this. */
+    Py_DECREF(iOb);
+  }
+  PyGILState_Release(gstate);
+  if (lastReferenceGone) {
+      /* If the last reference was lost above, then the object has been freed already, and we
+       * must not go poking around in the deallocated memory anymore. */
+      return;
+  }
+  iStatus = KRequestPending;
+  iPst = &iStatus;
+  SetActive();
+}
+
+extern "C" PyObject *
+e32_ao_callgate(PyObject* /*self*/, PyObject* args)
+{
+  if (!CActiveScheduler::Current()) {
+    PyErr_SetString(PyExc_AssertionError, "no ao scheduler");
+    return NULL;
+  }
+
+  PyObject* c;
+  if (!PyArg_ParseTuple(args, "O", &c))
+    return NULL;
+
+  if (!PyCallable_Check(c)) {
+    PyErr_SetString(PyExc_TypeError, "callable expected");
+    return NULL;
+  }
+
+  Ao_callgate_object *op = PyObject_New(Ao_callgate_object,
+                                        &Ao_callgate_type);
+  if (op == NULL)
+    return PyErr_NoMemory();
+
+  op->ob_args.args = NULL;
+  op->ob_args.kwargs = NULL;
+  op->ob_args.next = NULL;
+  op->ob_tid = RThread().Id();
+  if (!(op->ob_data = new Ao_callgate(op, c, op->ob_tid))) {
+    PyObject_Del(op);
+    return PyErr_NoMemory();
+  }
+  return (PyObject *) op;
+}
+
+extern "C" PyObject *
+ao_cg_call(PyObject* self, PyObject* args, PyObject* kwargs)
+{
+  Ao_callgate_object *op = (Ao_callgate_object*)self;
+  Ao_callgate_call_item* n =
+    (Ao_callgate_call_item*)PyMem_Malloc(sizeof(Ao_callgate_call_item));
+  if (!n)
+    return PyErr_NoMemory();
+  n->args = args;
+  Py_XINCREF(args);
+  n->kwargs = kwargs;
+  Py_XINCREF(kwargs);
+  n->next = NULL;
+
+  Ao_callgate_call_item* p = &(op->ob_args);
+  while (p->next) p = p->next;
+  p->next = n;
+
+  Py_INCREF(op);
+  TInt error = op->ob_data->Signal();
+  if (error != KErrNone) {
+    p->next = NULL;
+    Py_DECREF(op);
+    Py_XDECREF(n->args);
+    Py_XDECREF(n->kwargs);
+    PyMem_Free(n);
+  }
+  RETURN_ERROR_OR_PYNONE(error);
+}
+
+extern "C" {
+
+  static void
+  ao_cg_dealloc(Ao_callgate_object *op)
+  {
+    if ((TUint)RThread().Id() == op->ob_tid) {
+      delete op->ob_data;
+      op->ob_data = NULL;
+    }
+    Ao_callgate_call_item* p = op->ob_args.next;
+    while (p) {
+      Ao_callgate_call_item* tmp = p->next;
+      Py_XDECREF(p->args);
+      Py_XDECREF(p->kwargs);
+      PyMem_Free(p);
+      p = tmp;
+    }
+    PyObject_Del(op);
+  }
+
+  static const PyTypeObject c_Ao_callgate_type = {
+    PyObject_HEAD_INIT(NULL)
+    0,
+    "e32.Ao_callgate",
+    sizeof(Ao_callgate_object),
+    0,
+    /* methods */
+    (destructor)ao_cg_dealloc,          /* tp_dealloc */
+    0,                                  /* tp_print */
+    0,                                  /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0,                                  /* tp_repr */
+    0,                                  /* tp_as _number*/
+    0,                                  /* tp_as _sequence*/
+    0,                                  /* tp_as _mapping*/
+    0,                                  /* tp_hash */
+    ao_cg_call,                         /* tp_call */
+  };
+} /* extern "C" */
+
+/*
+ *
+ * Implementation of e32._as_level
+ *
+ */
+
+class CMyAccessor : public CActiveScheduler
+{
+public:
+  TInt MyLevel() {return Level();}
+};
+
+extern "C" PyObject *
+e32__as_level(PyObject* /*self*/, PyObject* /*args*/)
+{
+  TInt l =
+    STATIC_CAST(CMyAccessor*, CActiveScheduler::Current())->MyLevel();
+  return Py_BuildValue("i", l);
+}
+
+
+extern "C" double
+e32_UTC_offset()
+{
+#ifndef EKA2
+  TLocale loc;
+  return TInt64(loc.UniversalTimeOffset().Int()).GetTReal();
+#else
+  TLocale loc;
+  return TReal64(loc.UniversalTimeOffset().Int());
+#endif /*EKA2*/
+}
+
+extern "C" int
+e32_daylight_saving_on()
+{
+#ifndef EKA2
+  TLocale loc;
+  return loc.QueryHomeHasDaylightSavingOn();
+#else
+  RTz tzServer;
+  CTzId *timeZoneID;
+  TBool daylightSaving;
+
+  User::LeaveIfError(tzServer.Connect());
+  CleanupClosePushL(tzServer);
+  timeZoneID = tzServer.GetTimeZoneIdL();
+  CleanupStack::PushL(timeZoneID);
+  daylightSaving = tzServer.IsDaylightSavingOnL(*timeZoneID);
+  CleanupStack::PopAndDestroy(timeZoneID);
+  CleanupStack::PopAndDestroy(1); // causes tzServer.Close() to be called
+
+  return daylightSaving;
+#endif
+}
+
+extern "C" int
+e32_daylight_saving()
+{
+#ifndef EKA2
+  TLocale loc;
+  TDaylightSavingZone dlSZ;
+  dlSZ = loc.HomeDaylightSavingZone();
+  if (dlSZ == EDstNone) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+
+#else // EKA2
+
+  RTz tzServer;
+  CTzId *timeZoneID;
+
+  User::LeaveIfError(tzServer.Connect());
+  CleanupClosePushL(tzServer);
+  timeZoneID = tzServer.GetTimeZoneIdL();
+  CleanupStack::PushL(timeZoneID);
+
+  _LIT(KWinterTime,"20070106:105000.00"); // UTC time to convert (06 January 2007 10:50 hrs).
+  TTime winterTime(KWinterTime); // Create the time as a TTime object
+  TTimeIntervalMonths interval(6);
+  TTime summerTime(winterTime+interval); // Summertime = 6 months from wintertime
+  tzServer.ConvertToLocalTime(winterTime, *timeZoneID);
+  tzServer.ConvertToLocalTime(summerTime, *timeZoneID);
+
+  CleanupStack::PopAndDestroy(timeZoneID);
+  CleanupStack::PopAndDestroy(1); // causes tzServer.Close() to be called
+
+  TTime compTime(summerTime-interval);
+  if (winterTime == compTime) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+#endif // EKA2
+
+}
+
+extern "C" int
+e32_check_stack()
+{
+#ifndef EKA2
+  TInt heap_sz, stack_sz;
+
+  if (RThread().GetRamSizes(heap_sz, stack_sz) == KErrNone) {
+    if (((TUint)&heap_sz-(TUint)((RThread().Heap())->Base()-stack_sz)) > 0x800)
+      return 0;
+  }
+  else
+    return 0;
+
+  return -1;
+#else
+  TThreadStackInfo stackInfo;
+  if (RThread().StackInfo(stackInfo) == KErrNone) {
+      /* Obtain an approximation of the stack pointer by getting
+       * the address of a stack-allocated variable, and check if there is
+       * enough space between that and the stack limit.
+       * 0x800 is an arbitrary "large enough" number. */
+      if (((TUint)&stackInfo-(TUint)stackInfo.iLimit) > 0x800)
+          return 0;
+      else
+          return -1;
+  } else {
+      /* Querying the stack failed - this basically shouldn't happen in any sane situation.
+       * The documentation says "KErrGeneral, if the thread doesn't have a user
+       * mode stack, or it has terminated."
+       */
+      return -1;
+  }
+#endif /*EKA2*/
+}
+
+/*
+ *
+ * Implementation of e32.is_ui_thread
+ *
+ */
+
+extern "C" PyObject *
+e32_is_ui_thread(PyObject* /*self*/, PyObject* /*args*/)
+{
+  PyObject* rval = (PyEval_InMainThread() ? Py_True : Py_False);
+  Py_INCREF(rval);
+  return rval;
+}
+
+/*
+ *
+ * Implementation of e32.in_emulator
+ *
+ */
+
+extern "C" PyObject *
+e32_in_emulator(PyObject* /*self*/, PyObject* /*args*/)
+{
+#ifdef __WINS__
+  PyObject* rval = Py_True;
+#else
+  PyObject* rval = Py_False;
+#endif
+  Py_INCREF(rval);
+  return rval;
+}
+
+/*
+ *
+ * Implementation of e32.set_home_time
+ *
+ */
+
+#ifdef EKA2
+void
+CheckWriteCapL(){
+  RThread thread;
+  if (!thread.HasCapability(ECapabilityWriteDeviceData,
+                            __PLATSEC_DIAGNOSTIC_STRING(
+                            "Process does not have required capability: WriteDeviceData"))){
+    User::Leave(KErrPermissionDenied);
+  }
+}
+#endif
+
+extern "C" PyObject *
+e32_set_home_time(PyObject* /*self*/, PyObject* args)
+{
+  TReal time = 0;
+  if (!PyArg_ParseTuple(args, "d", &time)){
+    return NULL;
+  }
+  TTime conv_time;
+  pythonRealAsTTime(time, conv_time);
+  TInt error = KErrNone;
+#ifdef EKA2
+  TRAP(error,CheckWriteCapL());
+  if (error != KErrNone){
+    return SPyErr_SetFromSymbianOSErr(error);
+  }
+#endif
+  error = User::SetHomeTime(conv_time);
+  RETURN_ERROR_OR_PYNONE(error);
+}
+
+/*
+ *
+ * Implementation of e32.reset_inactivity
+ *
+ */
+
+extern "C" PyObject *
+e32_reset_inactivity(PyObject* /*self*/, PyObject* /*args*/)
+{
+  User::ResetInactivityTime();
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+/*
+ *
+ * Implementation of e32.inactivity
+ *
+ */
+
+extern "C" PyObject *
+e32_inactivity(PyObject* /*self*/, PyObject* /*args*/)
+{
+  return Py_BuildValue("i", User::InactivityTime().Int());
+}
+
+#ifdef WITH_DLC
+extern "C" PyObject *
+e32_dlc_stats(PyObject* /*self*/, PyObject* /*args*/)
+{
+    int allocated_blocks, free_blocks;
+    dlc_stats(&allocated_blocks, &free_blocks);
+  return Py_BuildValue("ii", allocated_blocks, free_blocks);
+}
+#endif
+
+/*
+ *
+ * Implementation of e32._uidcrc_app
+ *
+ */
+
+class TMyCheckedAppUid : public TCheckedUid
+{
+public:
+  TMyCheckedAppUid(TUint uid):
+    TCheckedUid(TUidType(TUid::Uid(KDynamicLibraryUidValue),
+                         TUid::Uid(KAppUidValue16),
+                         TUid::Uid(uid))) {;}
+  TUint CheckSum() {return Check();}
+};
+
+extern "C" PyObject *
+e32_uidcrc_app(PyObject* /*self*/, PyObject *args)
+{
+  TUint uid;
+
+  if (!PyArg_ParseTuple(args, "i", &uid))
+    return NULL;
+
+  TMyCheckedAppUid chk(uid);
+
+  return Py_BuildValue("l", chk.CheckSum());
+}
+
+#ifndef EKA2
+extern "C" PyObject *
+e32_mem_info(PyObject* /*self*/)
+{
+  TInt error;
+  TInt heap_sz, stack_sz, current_heap_usage,
+    max_stack_usage, current_pyheap_usage;
+
+  error = RThread().GetRamSizes(heap_sz, stack_sz);
+
+  if (error == KErrNone) {
+    (RThread().Heap())->AllocSize(current_heap_usage);
+    ((CSPyInterpreter*)PYTHON_GLOBALS->interpreter)->
+      iPyheap->AllocSize(current_pyheap_usage);
+  }
+
+  if (error == KErrNone) {
+    TUint8* pbase = (RThread().Heap())->Base();
+    TUint8* pstacklast = pbase - stack_sz;
+    while (*pstacklast == 0x29)
+      pstacklast++;
+    max_stack_usage = pbase - pstacklast;
+  }
+
+  if (error != KErrNone)
+    return SPyErr_SetFromSymbianOSErr(error);
+  else
+    return Py_BuildValue("(iiiii)", heap_sz, stack_sz,
+                         current_heap_usage, max_stack_usage,
+                         current_pyheap_usage);
+}
+#endif /*EKA2*/
+
+extern "C" PyObject *
+e32_strerror(PyObject* /*self*/, PyObject* args)
+{
+  int errcode;
+
+  if (!PyArg_ParseTuple(args, "i", &errcode))
+    return NULL;
+
+  return SPyErr_SymbianOSErrAsString(errcode);
+}
+
+extern "C" PyObject *
+e32_getcapability(PyObject* /*self*/, PyObject* args)
+{
+  int i;
+  RThread thread;
+  PyObject *capas_list = NULL;
+
+  if (!PyArg_ParseTuple(args, "|O", &capas_list)){
+    PyErr_SetString(PyExc_TypeError, "The function either takes no argument \
+                                       or takes a list as an argument");
+    return NULL;
+  }
+
+// Check if a list of capabilities is passed as an argument or no arguments are
+// passed. If list is passed execute the code in the 'if' block to check if
+// these capabilties are present. If not execute the code in the else block to
+// return a list of capabilities present in the application.
+  if (capas_list){
+    TBool capas_present = EFalse;
+    int capas_index;
+    int n = PyList_Size(capas_list);
+    PyObject *item;
+    for (i = 0; i < n; i++){
+      item = PyList_GetItem(capas_list, i);
+      Py_INCREF(item);
+      if PyInt_Check(item)
+        capas_index = PyInt_AsLong(item);
+      else{
+        PyErr_SetString(PyExc_TypeError, "Expected a list of integers");
+        return NULL;
+      }
+      capas_present = thread.HasCapability(TCapability(ECapabilityTCB +
+                                                       capas_index));
+      if (!capas_present){
+        Py_INCREF(Py_False);
+        return Py_False;
+      }
+    }
+    Py_INCREF(Py_True);
+    return Py_True;
+  }
+  else{
+    TBool capas_array[MAX_NUM_OF_CAPABILITIES] = {EFalse};
+    int count = 0;
+    for(i=0; i<MAX_NUM_OF_CAPABILITIES; i++){
+      if(thread.HasCapability(TCapability(ECapabilityTCB + i))){
+        capas_array[i] = true;
+        count++;
+      }
+    }
+    PyObject *capabilities = PyTuple_New(count);
+    if (!capabilities){
+      PyErr_SetString(PyExc_MemoryError, "Tuple creation failed");
+    }
+    count = 0;
+    for(i=0; i<MAX_NUM_OF_CAPABILITIES; i++){
+      if(capas_array[i]){
+        PyTuple_SetItem(capabilities, count, Py_BuildValue("i", i));
+        count++;
+      }
+    }
+    return capabilities;
+  }
+}
+
+/* Get S60 platform version at runtime based on the existence of
+ * Series60ProductID component, stored in z:\system\install\ directory.
+ * In each device, there is a corresponding file for the platform version it
+ * represents, and also files for all previous versions that are supported.
+ */
+int GetS60PlatformVersion(TUint& aMajor, TUint& aMinor )
+{
+  RFs fs;
+  TRAPD(error, fs.Connect());
+  if (error != KErrNone)
+  {
+    PyErr_SetString(PyExc_RuntimeError, "RFs connecting error");
+    return error;
+  }
+
+  TFindFile ff(fs);
+  CDir* result = NULL;
+  TRAP(error, ff.FindWildByDir(KS60ProductIDFile, KROMInstallDir, result));
+  if(error != KErrNone)
+  {
+    PyErr_SetString(PyExc_RuntimeError, "Error in getting S60 stub sis info");
+    return error;
+  }
+  fs.Close();
+  CleanupStack::PushL(result);
+
+  // Sort the results so the Series60ProductID file that we want, moves to top.
+  TRAP(error, result->Sort(ESortByName|EDescending));
+  if(error != KErrNone)
+  {
+    PyErr_SetString(PyExc_RuntimeError, "Error in sorting S60 stub sis info");
+    return error;
+  }
+
+ /* On S60 3Ed devices and above, major number refers to the S60 Edition,
+  * minor refers to Feature Pack number.
+  * Get the major(9th character) and minor(11th character) numbers
+  * and subtract ASCII val of 0 (48), to get the actual value. */
+
+  aMajor = ((*result)[0].iName[9]) - 48;
+  aMinor = ((*result)[0].iName[11]) - 48;
+  CleanupStack::PopAndDestroy(result);
+  return KErrNone;
+}
+
+extern "C" {
+
+  static const PyMethodDef e32_methods[] = {
+    {"Ao_lock", (PyCFunction)new_e32_ao_object, METH_NOARGS, NULL},
+    {"Ao_timer", (PyCFunction)new_e32_ao_timer_object, METH_NOARGS, NULL},
+    {"ao_yield", (PyCFunction)e32_ao_yield, METH_NOARGS, NULL},
+    {"ao_sleep", (PyCFunction)e32_ao_sleep, METH_VARARGS, NULL},
+    {"ao_callgate", (PyCFunction)e32_ao_callgate, METH_VARARGS, NULL},
+    {"_as_level", (PyCFunction)e32__as_level, METH_NOARGS, NULL},
+    {"start_server", (PyCFunction)e32_start_server, METH_VARARGS, NULL},
+    {"start_exe", (PyCFunction)e32_start_exe, METH_VARARGS, NULL},
+    {"drive_list", (PyCFunction)e32_drive_list, METH_NOARGS, NULL},
+    {"file_copy", (PyCFunction)e32_file_copy, METH_VARARGS, NULL},
+    {"is_ui_thread", (PyCFunction)e32_is_ui_thread, METH_NOARGS, NULL},
+    {"in_emulator", (PyCFunction)e32_in_emulator, METH_NOARGS, NULL},
+    {"set_home_time", (PyCFunction)e32_set_home_time, METH_VARARGS, NULL},
+    {"reset_inactivity", (PyCFunction)e32_reset_inactivity, METH_NOARGS, NULL},
+    {"inactivity", (PyCFunction)e32_inactivity, METH_NOARGS, NULL},
+    {"_uidcrc_app", (PyCFunction)e32_uidcrc_app, METH_VARARGS, NULL},
+    {"getcapability", (PyCFunction)e32_getcapability, METH_VARARGS, NULL},
+//    {"_stdo", (PyCFunction)e32_stdo, METH_VARARGS, NULL},
+#ifndef EKA2
+    {"_mem_info", (PyCFunction)e32_mem_info, METH_NOARGS, NULL},
+#endif /*EKA2*/
+    {"strerror", (PyCFunction)e32_strerror, METH_VARARGS, NULL},
+#ifdef WITH_DLC
+    {"_dlc_stats", (PyCFunction)e32_dlc_stats, METH_NOARGS, NULL},
+#endif
+    {NULL,              NULL}           /* sentinel */
+  };
+
+  DL_EXPORT(void) inite32(void)
+  {
+    PyObject *m, *d;
+    TUint major = 3, minor = 0;
+
+   /* GetS60PlatformVersion does not work on S60 3.0 and 3.1 emulator,
+    * have the values hard-coded.
+    */
+#if defined(__WINS__) && SERIES60_VERSION == 30
+    minor = 0;
+#elif defined(__WINS__) && SERIES60_VERSION == 31
+    minor = 1;
+#else
+    if (GetS60PlatformVersion(major, minor) != KErrNone)
+      return;
+#endif
+
+    Ao_lock_type = c_Ao_lock_type;
+    Ao_lock_type.ob_type = &PyType_Type;
+
+    Ao_timer_type = c_Ao_timer_type;
+    Ao_timer_type.ob_type = &PyType_Type;
+
+    Ao_callgate_type = c_Ao_callgate_type;
+    Ao_callgate_type.ob_type = &PyType_Type;
+
+    m = Py_InitModule("_e32", (PyMethodDef*)e32_methods);
+    d = PyModule_GetDict(m);
+
+    PyDict_SetItemString(d,"pys60_version_info",
+      Py_BuildValue("(iiisi)", PYS60_VERSION_MAJOR, PYS60_VERSION_MINOR, PYS60_VERSION_MICRO,
+                               PYS60_VERSION_TAG, PYS60_VERSION_SERIAL));
+    PyDict_SetItemString(d,"pys60_version", Py_BuildValue("s", PYS60_VERSION_STRING));
+    PyDict_SetItemString(d,"s60_version_info", Py_BuildValue("(ii)", major, minor));
+  }
+} /* extern "C" */

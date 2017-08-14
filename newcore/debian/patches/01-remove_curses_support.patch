@@ -1,0 +1,378 @@
+Index: python/configure.in
+===================================================================
+--- python.orig/configure.in	2007-03-06 17:07:34.000000000 -0300
++++ python/configure.in	2007-03-06 17:07:46.000000000 -0300
+@@ -1071,9 +1071,9 @@
+ 
+ # checks for header files
+ AC_HEADER_STDC
+-AC_CHECK_HEADERS(asm/types.h conio.h curses.h direct.h dlfcn.h errno.h \
++AC_CHECK_HEADERS(asm/types.h conio.h direct.h dlfcn.h errno.h \
+ fcntl.h grp.h \
+-io.h langinfo.h libintl.h ncurses.h poll.h process.h pthread.h \
++io.h langinfo.h libintl.h poll.h process.h pthread.h \
+ shadow.h signal.h stdint.h stropts.h termios.h thread.h \
+ unistd.h utime.h \
+ sys/audioio.h sys/bsdtty.h sys/file.h sys/loadavg.h sys/lock.h sys/mkdev.h \
+@@ -1086,12 +1086,12 @@
+ AC_HEADER_DIRENT
+ AC_HEADER_MAJOR
+ 
+-# On Solaris, term.h requires curses.h
+-AC_CHECK_HEADERS(term.h,,,[
+-#ifdef HAVE_CURSES_H
+-#include <curses.h>
+-#endif
+-])
++## On Solaris, term.h requires curses.h
++#AC_CHECK_HEADERS(term.h,,,[
++##ifdef HAVE_CURSES_H
++##include <curses.h>
++##endif
++#])
+ 
+ # On Linux, netlink.h requires asm/types.h
+ AC_CHECK_HEADERS(linux/netlink.h,,,[
+@@ -3068,54 +3068,55 @@
+   [Define this if you have flockfile(), getc_unlocked(), and funlockfile()])
+ fi
+ 
+-# check where readline lives
+-# save the value of LIBS so we don't actually link Python with readline
+-LIBS_no_readline=$LIBS
+-AC_CHECK_LIB(readline, readline)
+-if test "$ac_cv_have_readline_readline" = no
+-then
+-  AC_CHECK_LIB(termcap, readline)
+-fi
+-
+-# check for readline 2.1
+-AC_CHECK_LIB(readline, rl_callback_handler_install,
+-	AC_DEFINE(HAVE_RL_CALLBACK, 1,
+-        [Define if you have readline 2.1]), , )
+-
+-# check for readline 2.2
+-AC_TRY_CPP([#include <readline/readline.h>],
+-have_readline=yes, have_readline=no)
+-if test $have_readline = yes
+-then
+-  AC_EGREP_HEADER([extern int rl_completion_append_character;],
+-  [readline/readline.h],
+-  AC_DEFINE(HAVE_RL_COMPLETION_APPEND_CHARACTER, 1,
+-  [Define if you have readline 2.2]), )
+-fi
+-
+-# check for readline 4.0
+-AC_CHECK_LIB(readline, rl_pre_input_hook,
+-	AC_DEFINE(HAVE_RL_PRE_INPUT_HOOK, 1,
+-        [Define if you have readline 4.0]), , )
+-
+-# check for readline 4.2
+-AC_CHECK_LIB(readline, rl_completion_matches,
+-	AC_DEFINE(HAVE_RL_COMPLETION_MATCHES, 1,
+-        [Define if you have readline 4.2]), , )
+-
+-# also in readline 4.2
+-AC_TRY_CPP([#include <readline/readline.h>],
+-have_readline=yes, have_readline=no)
+-if test $have_readline = yes
+-then
+-  AC_EGREP_HEADER([extern int rl_catch_signals;],
+-  [readline/readline.h],
+-  AC_DEFINE(HAVE_RL_CATCH_SIGNAL, 1,
+-  [Define if you can turn off readline's signal handling.]), )
+-fi
+-
+-# End of readline checks: restore LIBS
+-LIBS=$LIBS_no_readline
++# INdT
++## check where readline lives
++## save the value of LIBS so we don't actually link Python with readline
++#LIBS_no_readline=$LIBS
++#AC_CHECK_LIB(readline, readline)
++#if test "$ac_cv_have_readline_readline" = no
++#then
++#  AC_CHECK_LIB(termcap, readline)
++#fi
++#
++## check for readline 2.1
++#AC_CHECK_LIB(readline, rl_callback_handler_install,
++#	AC_DEFINE(HAVE_RL_CALLBACK, 1,
++#        [Define if you have readline 2.1]), , )
++#
++## check for readline 2.2
++#AC_TRY_CPP([#include <readline/readline.h>],
++#have_readline=yes, have_readline=no)
++#if test $have_readline = yes
++#then
++#  AC_EGREP_HEADER([extern int rl_completion_append_character;],
++#  [readline/readline.h],
++#  AC_DEFINE(HAVE_RL_COMPLETION_APPEND_CHARACTER, 1,
++#  [Define if you have readline 2.2]), )
++#fi
++#
++## check for readline 4.0
++#AC_CHECK_LIB(readline, rl_pre_input_hook,
++#	AC_DEFINE(HAVE_RL_PRE_INPUT_HOOK, 1,
++#        [Define if you have readline 4.0]), , )
++#
++## check for readline 4.2
++#AC_CHECK_LIB(readline, rl_completion_matches,
++#	AC_DEFINE(HAVE_RL_COMPLETION_MATCHES, 1,
++#        [Define if you have readline 4.2]), , )
++#
++## also in readline 4.2
++#AC_TRY_CPP([#include <readline/readline.h>],
++#have_readline=yes, have_readline=no)
++#if test $have_readline = yes
++#then
++#  AC_EGREP_HEADER([extern int rl_catch_signals;],
++#  [readline/readline.h],
++#  AC_DEFINE(HAVE_RL_CATCH_SIGNAL, 1,
++#  [Define if you can turn off readline's signal handling.]), )
++#fi
++#
++## End of readline checks: restore LIBS
++#LIBS=$LIBS_no_readline
+ 
+ AC_MSG_CHECKING(for broken nice())
+ AC_CACHE_VAL(ac_cv_broken_nice, [
+@@ -3290,82 +3291,82 @@
+   [Define if you have struct stat.st_mtimensec])
+ fi
+ 
+-# On HP/UX 11.0, mvwdelch is a block with a return statement
+-AC_MSG_CHECKING(whether mvwdelch is an expression)
+-AC_CACHE_VAL(ac_cv_mvwdelch_is_expression,
+-AC_TRY_COMPILE([#include <curses.h>], [
+-  int rtn;
+-  rtn = mvwdelch(0,0,0);
+-], ac_cv_mvwdelch_is_expression=yes,
+-   ac_cv_mvwdelch_is_expression=no,
+-   ac_cv_mvwdelch_is_expression=yes))
+-AC_MSG_RESULT($ac_cv_mvwdelch_is_expression)
+-
+-if test "$ac_cv_mvwdelch_is_expression" = yes
+-then
+-  AC_DEFINE(MVWDELCH_IS_EXPRESSION, 1,
+-  [Define if mvwdelch in curses.h is an expression.])
+-fi
+-
+-AC_MSG_CHECKING(whether WINDOW has _flags)
+-AC_CACHE_VAL(ac_cv_window_has_flags,
+-AC_TRY_COMPILE([#include <curses.h>], [
+-  WINDOW *w;
+-  w->_flags = 0;
+-], ac_cv_window_has_flags=yes,
+-   ac_cv_window_has_flags=no,
+-   ac_cv_window_has_flags=no))
+-AC_MSG_RESULT($ac_cv_window_has_flags)
+-
+-
+-if test "$ac_cv_window_has_flags" = yes
+-then
+-  AC_DEFINE(WINDOW_HAS_FLAGS, 1, 
+-  [Define if WINDOW in curses.h offers a field _flags.])
+-fi
+-
+-AC_MSG_CHECKING(for is_term_resized)
+-AC_TRY_COMPILE([#include <curses.h>], void *x=is_term_resized,
+-  AC_DEFINE(HAVE_CURSES_IS_TERM_RESIZED, 1, Define if you have the 'is_term_resized' function.)
+-  AC_MSG_RESULT(yes),
+-  AC_MSG_RESULT(no)
+-)
+-
+-AC_MSG_CHECKING(for resize_term)
+-AC_TRY_COMPILE([#include <curses.h>], void *x=resize_term,
+-  AC_DEFINE(HAVE_CURSES_RESIZE_TERM, 1, Define if you have the 'resize_term' function.)
+-  AC_MSG_RESULT(yes),
+-  AC_MSG_RESULT(no)
+-)
+-
+-AC_MSG_CHECKING(for resizeterm)
+-AC_TRY_COMPILE([#include <curses.h>], void *x=resizeterm,
+-  AC_DEFINE(HAVE_CURSES_RESIZETERM, 1, Define if you have the 'resizeterm' function.)
+-  AC_MSG_RESULT(yes),
+-  AC_MSG_RESULT(no)
+-)
+-
+-AC_MSG_CHECKING(for /dev/ptmx)
+-
+-if test -r /dev/ptmx
+-then
+-  AC_MSG_RESULT(yes)
+-  AC_DEFINE(HAVE_DEV_PTMX, 1,
+-  [Define if we have /dev/ptmx.])
+-else
+-  AC_MSG_RESULT(no)
+-fi
+-
+-AC_MSG_CHECKING(for /dev/ptc)
+-
+-if test -r /dev/ptc
+-then
+-  AC_MSG_RESULT(yes)
+-  AC_DEFINE(HAVE_DEV_PTC, 1,
+-  [Define if we have /dev/ptc.])
+-else
+-  AC_MSG_RESULT(no)
+-fi
++## On HP/UX 11.0, mvwdelch is a block with a return statement
++#AC_MSG_CHECKING(whether mvwdelch is an expression)
++#AC_CACHE_VAL(ac_cv_mvwdelch_is_expression,
++#AC_TRY_COMPILE([#include <curses.h>], [
++#  int rtn;
++#  rtn = mvwdelch(0,0,0);
++#], ac_cv_mvwdelch_is_expression=yes,
++#   ac_cv_mvwdelch_is_expression=no,
++#   ac_cv_mvwdelch_is_expression=yes))
++#AC_MSG_RESULT($ac_cv_mvwdelch_is_expression)
++#
++#if test "$ac_cv_mvwdelch_is_expression" = yes
++#then
++#  AC_DEFINE(MVWDELCH_IS_EXPRESSION, 1,
++#  [Define if mvwdelch in curses.h is an expression.])
++#fi
++#
++#AC_MSG_CHECKING(whether WINDOW has _flags)
++#AC_CACHE_VAL(ac_cv_window_has_flags,
++#AC_TRY_COMPILE([#include <curses.h>], [
++#  WINDOW *w;
++#  w->_flags = 0;
++#], ac_cv_window_has_flags=yes,
++#   ac_cv_window_has_flags=no,
++#   ac_cv_window_has_flags=no))
++#AC_MSG_RESULT($ac_cv_window_has_flags)
++#
++#
++#if test "$ac_cv_window_has_flags" = yes
++#then
++#  AC_DEFINE(WINDOW_HAS_FLAGS, 1, 
++#  [Define if WINDOW in curses.h offers a field _flags.])
++#fi
++#
++#AC_MSG_CHECKING(for is_term_resized)
++#AC_TRY_COMPILE([#include <curses.h>], void *x=is_term_resized,
++#  AC_DEFINE(HAVE_CURSES_IS_TERM_RESIZED, 1, Define if you have the 'is_term_resized' function.)
++#  AC_MSG_RESULT(yes),
++#  AC_MSG_RESULT(no)
++#)
++#
++#AC_MSG_CHECKING(for resize_term)
++#AC_TRY_COMPILE([#include <curses.h>], void *x=resize_term,
++#  AC_DEFINE(HAVE_CURSES_RESIZE_TERM, 1, Define if you have the 'resize_term' function.)
++#  AC_MSG_RESULT(yes),
++#  AC_MSG_RESULT(no)
++#)
++#
++#AC_MSG_CHECKING(for resizeterm)
++#AC_TRY_COMPILE([#include <curses.h>], void *x=resizeterm,
++#  AC_DEFINE(HAVE_CURSES_RESIZETERM, 1, Define if you have the 'resizeterm' function.)
++#  AC_MSG_RESULT(yes),
++#  AC_MSG_RESULT(no)
++#)
++#
++#AC_MSG_CHECKING(for /dev/ptmx)
++#
++#if test -r /dev/ptmx
++#then
++#  AC_MSG_RESULT(yes)
++#  AC_DEFINE(HAVE_DEV_PTMX, 1,
++#  [Define if we have /dev/ptmx.])
++#else
++#  AC_MSG_RESULT(no)
++#fi
++#
++#AC_MSG_CHECKING(for /dev/ptc)
++#
++#if test -r /dev/ptc
++#then
++#  AC_MSG_RESULT(yes)
++#  AC_DEFINE(HAVE_DEV_PTC, 1,
++#  [Define if we have /dev/ptc.])
++#else
++#  AC_MSG_RESULT(no)
++#fi
+
+ AC_MSG_CHECKING(for %zd printf() format support)
+ AC_TRY_RUN([#include <stdio.h>
+ #include <stddef.h>
+Index: python/setup.py
+===================================================================
+--- python.orig/setup.py	2007-03-06 17:07:34.000000000 -0300
++++ python/setup.py	2007-03-06 17:07:46.000000000 -0300
+@@ -900,40 +900,40 @@
+                 exts.append( Extension('nis', ['nismodule.c'],
+                                        libraries = libs) )
+ 
+-        # Curses support, requiring the System V version of curses, often
+-        # provided by the ncurses library.
+-        panel_library = 'panel'
+-        if (self.compiler.find_library_file(lib_dirs, 'ncursesw')):
+-            curses_libs = ['ncursesw']
+-            # Bug 1464056: If _curses.so links with ncursesw,
+-            # _curses_panel.so must link with panelw.
+-            panel_library = 'panelw'
+-            exts.append( Extension('_curses', ['_cursesmodule.c'],
+-                                   libraries = curses_libs) )
+-        elif (self.compiler.find_library_file(lib_dirs, 'ncurses')):
+-            curses_libs = ['ncurses']
+-            exts.append( Extension('_curses', ['_cursesmodule.c'],
+-                                   libraries = curses_libs) )
+-        elif (self.compiler.find_library_file(lib_dirs, 'curses')
+-              and platform != 'darwin'):
+-                # OSX has an old Berkeley curses, not good enough for
+-                # the _curses module.
+-            if (self.compiler.find_library_file(lib_dirs, 'terminfo')):
+-                curses_libs = ['curses', 'terminfo']
+-            elif (self.compiler.find_library_file(lib_dirs, 'termcap')):
+-                curses_libs = ['curses', 'termcap']
+-            else:
+-                curses_libs = ['curses']
+-
+-            exts.append( Extension('_curses', ['_cursesmodule.c'],
+-                                   libraries = curses_libs) )
+-
+-        # If the curses module is enabled, check for the panel module
+-        if (module_enabled(exts, '_curses') and
+-            self.compiler.find_library_file(lib_dirs, panel_library)):
+-            exts.append( Extension('_curses_panel', ['_curses_panel.c'],
+-                                   libraries = [panel_library] + curses_libs) )
+-
++#        # Curses support, requiring the System V version of curses, often
++#        # provided by the ncurses library.
++#        panel_library = 'panel'
++#        if (self.compiler.find_library_file(lib_dirs, 'ncursesw')):
++#            curses_libs = ['ncursesw']
++#            # Bug 1464056: If _curses.so links with ncursesw,
++#            # _curses_panel.so must link with panelw.
++#            panel_library = 'panelw'
++#            exts.append( Extension('_curses', ['_cursesmodule.c'],
++#                                   libraries = curses_libs) )
++#        elif (self.compiler.find_library_file(lib_dirs, 'ncurses')):
++#            curses_libs = ['ncurses']
++#            exts.append( Extension('_curses', ['_cursesmodule.c'],
++#                                   libraries = curses_libs) )
++#        elif (self.compiler.find_library_file(lib_dirs, 'curses')
++#              and platform != 'darwin'):
++#                # OSX has an old Berkeley curses, not good enough for
++#                # the _curses module.
++#            if (self.compiler.find_library_file(lib_dirs, 'terminfo')):
++#                curses_libs = ['curses', 'terminfo']
++#            elif (self.compiler.find_library_file(lib_dirs, 'termcap')):
++#                curses_libs = ['curses', 'termcap']
++#            else:
++#                curses_libs = ['curses']
++#
++#            exts.append( Extension('_curses', ['_cursesmodule.c'],
++#                                   libraries = curses_libs) )
++#
++#        # If the curses module is enabled, check for the panel module
++#        if (module_enabled(exts, '_curses') and
++#            self.compiler.find_library_file(lib_dirs, panel_library)):
++#            exts.append( Extension('_curses_panel', ['_curses_panel.c'],
++#                                   libraries = [panel_library] + curses_libs) )
++#
+ 
+         # Andrew Kuchling's zlib module.  Note that some versions of zlib
+         # 1.1.3 have security problems.  See CERT Advisory CA-2002-07:

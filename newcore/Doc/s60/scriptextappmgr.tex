@@ -1,0 +1,557 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Application Manager}
+\label{sec:scriptextappmgr}
+
+The Application Manager service enables Python applications to perform the following tasks:
+\begin {itemize}
+\item Retrieve information about the applications and user installed packages from the phone.
+\item Request for a particular operation by passing the input parameters. If you make an asynchronous service, define a callback function to process the results.
+\end {itemize}
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+appmanager_handle = scriptext.load('Service.AppManager', 'IAppManager')
+\end{verbatim}
+
+The following table summarizes the Application Manager Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.AppManager} \\
+\hline
+{\bf Supported interfaces} & \code{IAppManager} \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Application Manager:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ l | p{10cm} }
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{GetList} \ref{subsec:appmgrgetlist} & Retrieves the required information of user installed packages, all applications, or handler application.  \\
+\hline
+\code{LaunchApp} \ref{subsec:appmgrlaunchapp} & Launches application based on the specified application UID.  \\
+\hline
+\code{LaunchDoc} \ref{subsec:appmgrlaunchdoc} & Launches application based on the Document.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetList}
+\label{subsec:appmgrgetlist}
+
+\code{GetList} is used to retrieve information about user installed packages, all applications, and handler applications. It takes a set of input parameters that define Type and Filter to retrieve the required information. It is available only in synchronous mode.
+
+The following is an example for using \code{GetList}:
+
+\begin{verbatim}
+appmanager_info = appmanager_handle.call('GetList', {'Type': u'Application'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ l | p{10cm} }
+\hline
+{\bf Interface} & \code{IAppManager} \\
+\hline
+{\bf Description} & Retrieves information about user installed packages or handler applications based on document path or MIME type. \\
+\hline
+{\bf Response Model} & Synchronous \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IAppManager} interface is instantiated. \\
+\hline
+{\bf Post-condition} & Nil \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Input Parameters} \break
+
+Input parameters specify the Type of package or application to retrieve, and the Filter for the retrieved information. Input parameter has properties called Type and Filter.
+\begin{table}[htbp]
+\footnotesize
+\begin{center}
+\begin{tabular}{ l | l | p{4cm} | p{10cm} }
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{UserInstalledPackage}, \code{Application} & Performs service based on the following content types. This field is mandatory: \break
+
+For \code{Application} content type, this API returns all the application present in the device, whether it is user installed or pre-installed. \break
+
+For \code{UserInstalledPackage} content type, this API returns all user installed packages. This package contains either the application and the supporting DLL, or only the DLLs.  \\
+\hline
+[Filter] & map & {\bf Key}: \code{DocumentPath} or \code{MimeType} \break
+{\bf Value}: \code{unicode string} & This Filter Criteria is applicable when the Type is \code{Application}. It specifies the Document path or MIME type of the application. For example, document path: {\bf C:>{\textbackslash}{\textbackslash}data{\textbackslash}{\textbackslash}abcd.txt} and MIME type: {\bf image/jpeg}.
+You can use the filter criteria to find out the Handler application.
+If both \code{DocumentPath} and \code{MimeType} are present in the Filter map then, \code{DocumentPath} gets preference over \code{MimeType}.  \\
+\end{tabular}
+\caption{Input parameters for Getlist}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\footnotesize
+\begin{center}
+\begin{tabular}{l|l|p{3cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & Iterable items & {\bf InstalledPackage}: \break
+\code{PackageName} \break
+\code{Version} \break
+\code{UID} \break
+\code{Vendor} \break
+\code{Drive} \break
+{\bf Application}: \break
+\code{UID} \break
+\code{Path} \break
+\code{Caption} \break
+\code{ShortCaption} & An Installed package contains the metadata field and value (for example: name, version, and UID) of the package in the form of a map.
+Installed package map contains the UID of package (In S60, it is UID of the {\bf .sisx} file).\break
+
+In case of \code{Application}, the API returns the UID, path, and caption of the application.
+The API returns the appropriate error code if the application does not match the given criteria. For example, if the Mime type given for one SDK or Device is not valid for another, it returns an error code.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{5cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{AppManager:GetList:Type Missing} & Indicates missing of a content type or a mismatch in the datatype of the given content type.  \\
+\hline
+\code{AppManager:GetList:Filter type mismatch} & Indicates a mismatch in the datatype of the given filter.  \\
+\hline
+\code{AppManger:GetList:Asynchronous version of API is not supported} & Indicates that the asynchronous version of unsupported \code{GetList} is called.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to get the list of applications on S60 device:
+
+\begin{verbatim}
+import scriptext
+
+# Load the desired SAPI
+appmanager_handle = scriptext.load('Service.AppManager', 'IAppManager')
+try:
+   f = open('c:\\data.txt', 'a+')
+   app_info = []
+   appmanager_info = appmanager_handle.call('GetList', {'Type': u'Application'})
+   for item in appmanager_info:
+       app_info.append(item['UID'])
+       app_info.append(item['Caption'])
+       print item['UID']
+       print item['Path']
+       print item['Caption']
+       print item['ShortCaption']
+   f.write(str(app_info))
+except scriptext.ScriptextError, err:
+   print "Error getting the list of Installed Application: ", err
+\end{verbatim}
+
+\subsection{LaunchApp}
+\label{subsec:appmgrlaunchapp}
+
+\code{LaunchApp} is used to launch an application. It takes a set of input parameters that define application ID and the options for launching the application.
+
+The following are the examples for using \code{LaunchApp}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+appmanager_id = appmanager_handle.call('LaunchApp', {'ApplicationID': u's60uid://0x10005a22'})
+\end{verbatim}
+
+\newpage
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+appmanager_id = appmanager_handle.call('LaunchApp', 
+                                       {'ApplicationID': u's60uid://0x10005a22'},  
+                                       callback=launch_app_callback)
+\end{verbatim}
+
+where, \code{launch_app_callback} is a user defined callback function.
+
+The following table summarizes the specification of \code{LaunchApp}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IAppManager}  \\
+\hline
+{\bf Description} & Launches the application based on UID.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IAppManager} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the \code{ApplicationID} and the mode for launching the application. Input parameter has three properties: application ID, command line argument, and options.  Options contain mode, position, and document path. 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range}  \\
+\hline
+\code{ApplicationID} & string & \code{s60uid://<UID>}  \\
+\hline
+[CmdLine] & unicode string & Command line argument  \\
+\hline
+[Options] & map & For detail information on Options, refer to the following table \ref{tab:apprange}  \\
+\end{tabular}
+\caption{Input parameters for LaunchApp}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Key} & {\bf Value}  \\
+\hline
+[Mode] & \code{Chained} or \emph{Standalone}  \\
+\hline
+[Position] & \code{Background} or \emph{foreground}  \\
+\hline
+[DocumentPath] & unicode string
+\end{tabular}
+\caption{Options that can be used with LaunchApp, default values are emphasized}
+\label{tab:apprange}
+\end{center}
+\end{table}
+
+In Asynchronous mode the launching application receives the notification when the launched application dies. The notification is not received if this request is cancelled. Cancelling the request does not close the launched application. \break
+
+Chained mode is applicable for UI based applications only. You will not be able to launch the application in background position in chained mode. \break
+
+{\bf Output Parameters} \break
+
+In asynchronous mode, the \code{input_params} that is passed to the callback function contains \code{ErrorCode}, and an \code{ErrorMessage} if the operation fails. \break 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\end{tabular}
+\caption{Output parameters for LaunchApp}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{6cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{AppManager:LaunchApp:Application ID Missing} & Indicates missing of Application ID or a mismatch in the datatype of the given Application ID.  \\
+\hline
+\code{AppManager:LaunchApp:Command Line type mismatch} & Indicates a mismatch in the datatype of Command Line.  \\
+\hline
+\code{AppManger:LaunchApp:OptionMap type mismatch} & Indicates a mismatch in the datatype of Options.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to launch the {\bf Help.exe}, in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete. 
+def launch_app_callback(trans_id, event_id, input_params):
+    if trans_id != appmanager_id and event_id != scriptext.EventCompleted:
+        print "Error in servicing the request"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "Application Launched Successfully: "
+
+    lock.signal()
+
+# Load appmanage service
+appmanager_handle = scriptext.load('Service.AppManager', 'IAppManager')
+
+# Make a request to query the required information in asynchronous mode
+appmanager_id = appmanager_handle.call('LaunchApp', {'ApplicationID': u's60uid://0x10005a22'}, callback=launch_app_callback)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{LaunchDoc}
+\label{subsec:appmgrlaunchdoc}
+
+\code{LaunchDoc} is used to launch a document in standalone mode or embedded mode. It takes a set of input parameters that specifies the \code{DocumentPath}, \code{MimeType}, and options.
+
+The following are the examples for using \code{LaunchDoc}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+appmanager_id = appmanager_handle.call('LaunchDoc', 
+                                       {'Document': {'DocumentPath': u'c:\\data\\beak.jpg'}})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+appmanager_id = appmanager_handle.call('LaunchDoc', 
+                                       {'Document': {'DocumentPath': u'c:\\data\\beak.jpg'}}, 
+                                       callback=launch_doc_callback)
+\end{verbatim}
+
+where, \code{launch_doc_callback} is a user defined callback function.
+
+The following table summarizes the specification of \code{LaunchDoc}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IAppManager}  \\
+\hline
+{\bf Description} & Launches the application based on a given document.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IAppManager} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Input Parameters} \break
+
+Input parameter specifies the \code{DocumentPath}, \code{MimeType}, and mode options.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{3cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Document & map & {\bf Key}: \code{DocumentPath} or \code{Handle} \break
+{\bf Value}: \code{string} & Specifies path of the document to launch. \break
+
+If \code{MimeType} is not given in input then, it is mandatory to give document as input parameter. \break
+
+If Handle and DocumentPath both are present in map then Handle will get preference.  \\
+\hline
+\code{MimeType} & unicode string & NA & \code{MimeType} of the application to be Launch. \break
+If document is not given in input then it is mandatory to give \code{MimeType} as input parameter.  \\
+\hline
+[Options] & map & {\bf Key}: \code{Mode} \break
+{\bf Value}: Chained or Standalone & By default the mode is Standalone. 
+\end{tabular}
+\caption{Input parameters for Launchdoc}
+\end{center}
+\end{table}
+
+\code{Launchdoc} finds the Handler application internally, in the absence of \code{MimeType}. It launches the application based on the MIME type and returns the path of the new document, if the \code{Document} is absent from the input. \break
+
+In Asynchronous mode the launching application receives a notification when the launched application dies. The notification is not received if this request is cancelled. Cancelling the request does not close the launched application. \break
+
+Chained mode is applicable for UI based applications only.
+
+\break
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ReturnValue}. They also contain \code{ErrorCode}, and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{l|l|p{6cm}|p{5cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Contains the SAPI specific error code when the operation fails. \\
+\hline
+\code{ErrorMessage} & string & NA & Error Description in Engineering English. \\
+\hline
+[ReturnValue] & string & \code{LaunchDoc} returns the document name if it creates a new one. (that is, Return value is optional as only some application creates default document.) \break
+
+If \code{Document} is not mentioned and only the \code{MimeType} is mentioned, then application is launched based on the \code{MimeType} and returns the default document of the application. Creation of the default document depends upon the launched application.  \\
+\end{tabular}
+\caption{Output parameters for LaunchDoc}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\small
+\begin{center}
+\begin{tabular}{p{45mm}|p{9cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{AppManager:LaunchDoc: Document/MimeType Missing or datatype mismatch} & Indicates missing of \code{Document} or \code{MimeType} or a mismatch in the datatype of the given \code{Document} or \code{MimeType}.  \\
+\hline
+\code{AppManager:LaunchDoc: OptionMap type mismatch} & Indicates a mismatch in the datatype of Command Line.  \\
+\hline
+\code{AppManager:LaunchDoc: OptionMap type mismatch} & Indicates a mismatch in the datatype of Options.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+\newpage
+{\bf Example} \break
+
+The following sample code illustrates how to launch an application on S60 device, in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def launch_doc_callback(trans_id, event_id, input_params):
+    if trans_id != appmanager_id and event_id != scriptext.EventCompleted:
+        print "Error in servicing the request"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "Application Launched Successfully: "
+
+    lock.signal()
+
+# Load appmanage service
+appmanager_handle = scriptext.load('Service.AppManager', 'IAppManager')
+
+# Make a request to query the required information in asynchronous mode
+# Path dependent on the environment on which the application is run
+appmanager_id = appmanager_handle.call('LaunchDoc', {'Document': {'DocumentPath': u'c:\\data\\beak.jpg'}}, callback=launch_doc_callback)
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\pagebreak
+

@@ -1,0 +1,445 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{graphics} ---
+  A graphics related services package}
+\label{sec:graphics}
+
+\declaremodule{extension}{graphics}
+\platform{S60}
+\modulesynopsis{A graphics related services package.}
+
+The \module{graphics} module provides access to the graphics primitives and 
+image loading, saving, resizing, and transformation capabilities provided by 
+the Symbian OS. 
+
+The module is usable from both graphical Python applications and
+background Python processes. However, background processes have some
+restrictions, namely that plain string symbolic font names are not
+supported in background processes since background processes have no
+access to the UI framework (see also Section
+\ref{subsubsec:font-specs}).
+
+For an example on using this module, see \cite{PyS60Prog}.
+
+\subsection{Module Level Functions}
+\label{subsec:mylabel7}
+The following free functions - functions that do not belong to any class 
+- are defined in the \module{graphics} module:
+
+\begin{funcdesc}{screenshot}{}
+Takes a screen shot and returns the image in \class{Image} format.
+\end{funcdesc}
+
+\subsection{Image Class Static Methods}
+\label{subsec:image}
+The following \class{Image} class static methods are defined in the 
+\module{graphics} module:
+
+\begin{funcdesc}{Image.new}{size\optional{, mode='RGB16'}}
+Creates and returns a new \class{Image} object with the given size and 
+mode. \var{size} is a two-element tuple. \var{mode} specifies the 
+color mode of the \class{Image} to be created. It can be one of the 
+following:
+
+\begin{itemize}
+\item \code{'1'}: Black and white (1 bit per pixel)
+\item \code{'L'}: 256 gray shades (8 bits per pixel)
+\item \code{'RGB12'}: 4096 colors (12 bits per pixel)
+\item \code{'RGB16'}: 65536 colors (16 bits per pixel)
+\item \code{'RGB'}: 16.7 million colors (24 bits per pixel)
+\end{itemize}
+It will also set the image size in twips according to the density of the device's primary screen. 
+\end{funcdesc}
+
+\begin{funcdesc}{Image.open}{filename}
+Returns a new \class{Image} object (mode \code{RGB16}) that contains the 
+contents of the named file. The supported file formats are JPEG and PNG. The 
+file format is automatically detected based on file contents. 
+\var{filename} should be a full path name.
+\end{funcdesc}
+
+\begin{funcdesc}{Image.inspect}{filename}
+Examines the given file and returns a dictionary of the attributes of the 
+file. At present the dictionary contains only the image size in pixels as a 
+two-element tuple, indexed by key \code{'size'}. 
+\var{filename} should be a full path name.
+\end{funcdesc}
+
+\subsection{Image Objects}
+\label{subsec:image-objects}
+An \class{Image} object encapsulates an in-memory bitmap. 
+
+Note on asynchronous methods: Methods \method{resize}, \method{transpose}, 
+\method{save}, and \method{load} have an optional callback argument. If the 
+callback is not given, the method call is synchronous; when the method
+returns, the operation is complete or an exception has been raised. If
+the callback is given, the method calls are asynchronous. If all
+parameters are valid and the operation can start, the method call will
+return immediately.  The actual computation then proceeds in the
+background. When it is finished, the callback is called with an error
+code as the argument. If the given code is \code{0}, the operation
+completed without errors, otherwise an error occurred.
+
+It is legal to use an unfinished image as a source in a blit operation; this 
+will use the image data as it is at the moment the blit is made and may thus 
+show an incomplete result.
+
+\class{Image} objects have the following methods:
+
+\begin{methoddesc}[Image]{resize}{newsize\optional{, callback=None, keepaspect=0}}
+Returns a new image that contains a resized copy of this image. If 
+\var{keepaspect} is set to \code{1}, the resize will maintain the 
+aspect ratio of the image, otherwise the new image will be exactly the given 
+size. 
+
+If \var{callback} is given, the operation is asynchronous, and the 
+returned image will be only partially complete until \var{callback} is 
+called.
+\end{methoddesc}
+
+\begin{methoddesc}[Image]{transpose}{direction\optional{, callback=None}}
+Creates a new image that contains a transformed copy of this image. The 
+\var{direction} parameter can be one of the following:
+
+\begin{itemize}
+\item \code{FLIP_LEFT_RIGHT}: Flips the image horizontally, exchanging left and right edges.
+\item \code{FLIP_TOP_BOTTOM}: Flips the image vertically, exchanging top and bottom edges.
+\item \code{ROTATE_90}: Rotates the image 90 degrees counterclockwise.
+\item \code{ROTATE_180}: Rotates the image 180 degrees.
+\item \code{ROTATE_270}: Rotates the image 270 degrees counterclockwise.
+\end{itemize}
+
+If \var{callback} is given, the operation is asynchronous and the 
+returned image will be only partially complete until \var{callback} is 
+called.
+\end{methoddesc}
+
+\begin{methoddesc}[Image]{load}{filename\optional{, callback=None}}
+Replaces the contents of this \class{Image} with the contents of the named 
+file, while keeping the current image mode. This \class{Image} object must 
+be of the same size as the file to be loaded.
+
+If \var{callback} is given, the operation is asynchronous and the loaded 
+image will be only partially complete until \var{callback} is called. 
+\var{filename} should be a full path name.
+\end{methoddesc}
+
+\begin{methoddesc}[Image]{save}{filename\optional{,callback=None, format=None, quality=75, bpp=24, compression='default'}}
+Saves the image into the given file. The supported formats are JPEG and PNG. 
+If \var{format} is not given or is set to \code{None}, the format is 
+determined based on the file name extension: \code{'.jpg'} or 
+\code{'.jpeg'} are interpreted to be in JPEG format and \code{'.png'} to 
+be in PNG format. \var{filename} should be a full path name.
+
+When saving in JPEG format, the \var{quality} argument specifies the 
+quality to be used and can range from 1 to 100. 
+
+When saving in PNG format, the \var{bpp} argument specifies how many bits 
+per pixel the resulting file should have, and \var{compression} specifies 
+the compression level to be used. 
+
+Valid values for \var{bpp} are:
+
+\begin{itemize}
+\item \code{1}: Black and white, 1 bit per pixel
+\item \code{8}: 256 gray shades, 8 bits per pixel
+\item \code{24}: 16.7 million colors, 24 bits per pixel
+\end{itemize}
+
+Valid values for \var{compression} are:
+
+\begin{itemize}
+\item \code{'best'}: The highest possible compression ratio, the slowest speed
+\item \code{'fast'}: The fastest possible saving, moderate compression
+\item \code{'no'}: No compression, very large file size
+\item \code{'default'}: Default compression, a compromise between file size and speed 
+\end{itemize}
+
+If \var{callback} is given, the operation is asynchronous. When the 
+saving is complete, the \var{callback} is called with the result code.
+\end{methoddesc}
+
+
+\begin{methoddesc}[Image]{stop}{}
+Stops the current asynchronous operation, if any. If an asynchronous call is 
+not in progress, this method has no effect.
+\end{methoddesc}
+
+\class{Image} objects have the following attributes:
+
+\begin{memberdesc}[Image]{size}
+A two-element tuple that contains the size of the \class{Image}. Read-only.
+\end{memberdesc}
+
+\begin{memberdesc}[Image]{twipsize}
+A two-element tuple that contains the size of the \class{Image} in twips. Read/Write.
+\end{memberdesc}
+
+\subsection{Common Features of Drawable Objects}
+\label{subsec:common}
+Objects that represent a surface that can be drawn on support a set of 
+common drawing methods, described in this section. At present there are two 
+such objects: \class{Canvas} from the \refmodule{appuifw} module and 
+\class{Image} from the \module{graphics} module. 
+
+\subsubsection{Options}
+\label{subsubsec:options}
+Many of these methods support a set of standard options. This set of options 
+is as follows:
+
+\begin{itemize}
+\item \var{outline}: The color to be used for drawing outlines of primitives and text. If \code{None}, the outlines of primitives are not drawn.
+\item \var{fill}: The color to be used for filling the insides of primitives. If \code{None}, the insides of primitives are not drawn. If \var{pattern} is also specified, \var{fill} specifies the color to be used for areas where the pattern is white.
+\item \var{width}: The line width to be used for drawing the outlines of primitives.
+\item \var{pattern}: Specifies the pattern to be used for filling the insides of primitives. If given, this must be either \code{None} or a 1-bit (black and white) \class{Image}.
+\end{itemize}
+
+\subsubsection{Coordinate representation}
+\label{subsubsec:coordinate}
+The methods accept an ordered set of coordinates in the form of a coordinate 
+sequence. Coordinates can be of type \code{int}, \code{long}, or 
+\code{float}. A valid coordinate sequence is a non-empty sequence of 
+either
+
+\begin{itemize}
+\item Alternating x and y coordinates. In this case the sequence length must be even, or
+\item Sequences of two elements, that specify x and y coordinates.
+\end{itemize}
+Examples of valid coordinate sequences:
+
+\begin{itemize}
+\item \code{(1, 221L, 3, 4, 5.85, -3)}: A sequence of three coordinates
+\item \code{[(1,221L),(3,4),[5.12,6])}: A sequence of three coordinates
+\item \code{(1,5)}: A sequence of one coordinate
+\item \code{[(1,5)]}: A sequence of one coordinate
+\item \code{[[1,5]]}: A sequence of one coordinate
+\end{itemize}
+
+Examples of invalid coordinate sequences:
+
+\textbf{Invalid code, do not use!}
+\begin{itemize}
+\item \code{[]}: An empty sequence
+\item \code{(1,2,3)}: Odd number of elements in a flat sequence
+\item \code{[(1,2),(3,4),None]}: Contains an invalid element
+\item \code{([1,2],3,4)}: Mixing the flat and nested form is not allowed
+\end{itemize}
+
+\subsubsection{Color representation}
+\label{subsubsec:color}
+All methods that take color arguments accept the following two color 
+representations:
+
+\begin{itemize}
+\item A three-element tuple of integers in the range from 0 to 255 inclusive, representing the red, green, and blue components of the color.
+\item An integer of the form \code{0xrrggbb}, where \code{rr} is the red, \code{gg} the green, and \code{bb} the blue component of the color. 
+\end{itemize}
+For 12 and 16 bit color modes the color component values are simply 
+truncated to the lower bit depth. For the 8-bit grayscale mode images the 
+color is converted into grayscale using the formula \code{(2*r+5*g+b)/8}, rounded 
+down to the nearest integer. For 1-bit black and white mode images the color 
+is converted into black (0) or white (1) using the formula \code{(2*r+5*g+b)/1024}.
+
+Examples of valid colors:
+
+\begin{itemize}
+\item \code{0xffff00}: Bright yellow
+\item \code{0x004000}: Dark green
+\item \code{(255,0,0)}: Bright red
+\item \code{0}: Black
+\item \code{255}: Bright blue
+\item \code{(128,128,128)}: Medium gray
+\end{itemize}
+
+Examples of invalid colors:
+
+\textbf{Invalid code, do not use!}
+\begin{itemize}
+\item \code{(0,0.5,0.9)}: Floats are not supported
+\item \code{'{\#}ff80c0'}: The HTML color format is not supported
+\item \code{(-1,0,1000)}: Out-of-range values
+\item \code{(1,2)}: The sequence is too short
+\item \code{[128,128,192]}: This is not a tuple
+\end{itemize}
+
+\subsubsection{Font specifications}
+\label{subsubsec:font-specs}
+A font can be specified in three ways: 
+\begin{itemize}
+\item None, meaning the default font
+\item a Unicode string that represents a full font name, such as \code{u'LatinBold19'}
+\item a plain string symbolic name that refers to a font setting currently specified by 
+the UI framework
+\item as a two or three element tuple, where 
+\begin{itemize}
+\item the first element is the font name (unicode or string) or None for default font
+\item the second element is the font height in pixels or None for default size
+\item the third (optional) element is the flags applied to the font or None for default options.
+\end{itemize}
+\end{itemize}
+
+The flags are the following:
+\begin{itemize}
+\item \code{FONT_BOLD} bold
+\item \code{FONT_ITALIC} italic
+\item \code{FONT_SUBSCRIPT} subscript
+\item \code{FONT_SUPERSCRIPT} superscript
+\item \code{FONT_ANTIALIAS} forces the font to be antialiased
+\item \code{FONT_NO_ANTIALIAS} forces the font to not be antialiased
+\end{itemize}
+
+You can combine the flags with the binary or operator ``|''. For
+example, the flags setting \code{FONT_BOLD|FONT_ITALIC} will produce
+text that is both bold and italic.
+
+Note: Antialiasing support is only available for scalable fonts.
+
+You can obtain a list of all available fonts with the 
+\module{appuifw} module function \function{available_fonts}.
+
+The symbolic names for UI fonts are:
+\begin{itemize}
+\item \code{'normal'}
+\item \code{'dense'}
+\item \code{'title'}
+\item \code{'symbol'}
+\item \code{'legend'}
+\item \code{'annotation'}
+\end{itemize}
+Since background processes have no access to the UI framework, these 
+symbolic names are not supported in them. You need to specify the full font 
+name.
+
+\subsubsection{Common Methods of Drawable Objects}
+\label{subsubsec:common}
+\begin{methoddesc}{line}{coordseq\optional{, $<$options$>$}}
+Draws a line connecting the points in the given coordinate sequence. For 
+more information about the choices available for \var{options}, 
+see Section \ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{polygon}{coordseq\optional{, $<$options$>$}}
+Draws a line connecting the points in the given coordinate sequence, and 
+additionally draws an extra line connecting the first and the last point in 
+the sequence. If a fill color or pattern is specified, the polygon is filled 
+with that color or pattern. For more information about the choices available 
+for \var{options}, see Section \ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{rectangle}{coordseq\optional{, $<$options$>$}}
+Draws rectangles between pairs of coordinates in the given sequence. The 
+coordinates specify the top-left and the bottom- right corners of the 
+rectangle. The sequence must have an even number of coordinates. For more 
+information about the choices available for \var{options}, see 
+Section \ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{ellipse}{coordseq\optional{, $<$options$>$}}
+Draws ellipses between pairs of coordinates in the given sequence. The
+coordinates specify the top-left and bottom-right corners of the
+rectangle inside which the ellipse is contained.  The sequence must
+have an even number of coordinates. 
+For more information about the choices available for \var{options}, see 
+Section \ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{pieslice}{coordseq, start, end\optional{, $<$options$>$}}
+Draws pie slices contained in ellipses between pairs of coordinates in
+the given sequence. The start and end parameters are floats that
+specify the start and end points of pie slice as the starting and
+ending angle in radians. The angle \code{0} is to the right, the angle
+\code{pi/2} is straight up, \code{pi} is to the left and\code{-pi/2}
+is straight down. \var{coordseq} is interpreted the same way as for
+the \method{ellipse} method.
+For more 
+information about the choices available for \var{options}, see 
+Section \ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{arc}{coordseq, start, end\optional{, $<$options$>$}}
+Draws arcs contained in ellipses between pairs of coordinates in
+the given sequence. The start and end parameters are floats that
+specify the start and end points of pie slice as the starting and
+ending angle in radians. The angle \code{0} is to the right, the angle
+\code{pi/2} is straight up, \code{pi} is to the left and\code{-pi/2}
+is straight down. \var{coordseq} is interpreted the same way as for
+the \method{ellipse} method.  For more information about the choices
+available for \var{options}, see Section
+\ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{point}{coordseq\optional{, $<$options$>$}}
+Draws points in each coordinate in the given coordinate sequence. If the 
+\var{width} option is set to greater than 1, draws a crude approximation 
+of a circle filled with the outline color in the locations. Note that
+the approximation is not very accurate for large widths; use the
+\method{ellipse} method if you need a precisely formed circle. 
+For more information about the choices
+available for \var{options}, see Section
+\ref{subsubsec:options}.
+\end{methoddesc}
+
+\begin{methoddesc}{clear}{\optional{color=0xffffff}}
+Sets the entire surface of the drawable to the given color, white by 
+default.
+\end{methoddesc}
+
+\begin{methoddesc}{text}{coordseq, text\optional{fill=0, font=None}}
+Draws the given text in the points in the given coordinate sequence
+with the given color (default value is black) and the given font. The
+font specification format is described above.
+\end{methoddesc}
+
+\begin{methoddesc}{measure_text}{text\optional{font=None, maxwidth=-1, maxadvance=-1}}
+Measures the size of the given text when drawn using the given
+font. Optionally you can specify the maximum width of the text or the
+maximum amount the graphics cursor is allowed to move (both in pixels).
+
+Returns a tuple of three values: 
+\begin{itemize}
+\item the bounding box for the text as a 4-tuple: (topleft-x, topleft-y, bottomright-x, bottomright-y)
+\item the number of pixels the graphics cursor would move to the right
+\item the number of characters of the text that fits into the given maximum width and advance
+\end{itemize}
+\end{methoddesc}
+
+\begin{methoddesc}{blit}{image\optional{,target=(0,0), source=((0,0),image.size), mask=None, scale=0}}
+Copies the source area from the given \var{image} to the target area
+in this drawable. The source area is copied in its entirety if
+\var{mask} is not given or is set to \code{None}. If the mask is
+given, the source area is copied where the mask is white. \var{mask}
+can be either \code{None}, a 1-bit (black and white) \class{Image} or
+a grayscale \class{Image}, and must be of the same size as the source image. A grayscale mask acts
+as an alpha channel, i.e. partial transparency.
+
+\var{target} and \var{source} specify the target area in this image 
+and the source area in the given source. They are coordinate sequences of 
+one or two coordinates. If they specify one coordinate, it is interpreted as 
+the upper-left corner for the area; if they specify two coordinates, they 
+are interpreted as the top-left and bottom-right corners of the area.
+
+If \var{scale} is other than zero, scaling is performed on the fly while 
+copying the source area to the target area. If \var{scale} is zero, no 
+scaling is performed, and the size of the copied area is clipped to the 
+smaller of source and target areas.
+
+Note that a \method{blit} operation with scaling is slower than one without 
+scaling. If you need to blit the same \class{Image} many times in a scaled 
+form, consider making a temporary \class{Image} of the scaling result and 
+blitting it without scaling. Note also that the scaling performed by the 
+\method{blit} operation is much faster but of worse quality than the one 
+done by the \method{resize} method, since the \method{blit} method does not 
+perform any antialiasing.
+\end{methoddesc}

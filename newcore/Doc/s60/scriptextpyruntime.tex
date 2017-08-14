@@ -1,0 +1,292 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Overview of scriptext usage}
+\label{sec:scriptextpyruntime}
+
+The following section describes the usage of scriptext module in detail.
+
+\subsection{Module level functions and Data Types}
+\label{subsec:pydatatypes}
+
+{\bf Load} \break
+
+This is the only module level function. It can be used to load a particular service provider. It returns a handler object that can be used to invoke further services supported by the provider.
+
+{\bf scriptextHandle} \break
+
+This is the type of the object which is returned by \code{Load()} API. Services can be invoked using the \code{Call()} API of this object.
+
+The provider returns data wrapped in the objects as mentioned in the following:
+
+\begin{notice}[note]
+Examples of using these objects are listed in the following sections.
+\end{notice}
+
+{\bf scriptextmap} \break
+
+Python wrapper over Platform Service API map object. The following operations are supported over this object:
+
+\begin{itemize}
+\item Finding length of the map
+\item Getting value with a key
+\item Finding if a key exists in the map
+\item Iterating over it
+\end{itemize}
+
+{\bf scriptextlist} \break
+
+Python wrapper over Platform Service API List object. The following operations are supported over this object:
+
+\begin{itemize}
+\item Finding its length
+\item Getting value at a given index
+\item Iterating over it
+\end{itemize}
+
+{\bf scriptextiterable} \break
+
+Python wrapper over Platform Service API Iterable object. The following operation is supported over this object:
+
+\begin{itemize}
+\item Iterating over it
+\end{itemize}
+
+\subsection{Instantiating a Service Object}
+\label{subsec:pyservice}
+
+A Service object can be instantiated using the \code{load} API, with the required service provider details. Import scriptext module before using the method.
+
+{\bf Syntax} \break
+
+\begin{verbatim}
+import scriptext
+scriptext_handle = scriptext.load(<provider>, <interface>)
+\end{verbatim}
+
+{\bf Arguments} \break
+
+The first argument is a string that specifies the name of the service provider. \break
+
+The second argument is a string, that specifies one of the supported interfaces of the <provider>.
+
+{\bf Return Value} \break
+
+The load() method returns a service object for a successful call. This method raises \code{ScriptextError} when the service provider name or the interface name is null.
+
+{\bf Example} \break
+
+The following sample code illustrates how to instantiate messaging service object:
+
+\begin{verbatim}
+import scriptext
+
+try:
+    messaging_handle = scriptext.load("Service.Messaging", "IMessaging")
+
+except err:
+    # Handle error while instantiating the service.
+\end{verbatim}
+
+\subsection{Making Synchronous Request}
+\label{subsec:pyrequestsyncservice}
+
+This method is used to request a specific synchronous service or operation from a service provider, using \code{call()} API.
+
+{\bf Syntax} \break
+
+\begin{verbatim}
+result = service_instance_object.call(operation, parameters)
+\end{verbatim}
+
+{\bf Arguments} \break
+
+The operation argument describes the service requested from the service provider. \break
+
+The parameters argument is a dictionary, which specifies input parameters to the specified request. \break
+
+{\bf Return Value} \break
+
+The Return value contains the service output, and its data type depends on the service requested.
+
+{\bf Example} \break
+
+The following sample code illustrates how to retrieve all the Sender \code{IDs} from Inbox using \code{GetList}:
+
+\begin{verbatim}
+import scriptext
+
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+# This 'GetList' request returns all the SMS in the inbox as an iterable map
+
+sms_iter = messaging_handle.call('GetList', {'Type': u'Inbox'})
+
+sender_list = [] 
+
+for sms_dict in sms_iter: 
+ if sms_dict['MessageType'] == 'SMS': 
+  sender_list.append(sms_dict['Sender'])
+
+print "ID list :", sender_list
+\end{verbatim}
+
+\subsection{Making Asynchronous Request}
+\label{subsec:pyrequestasyncservice}
+
+For making an asynchronous request, a call back function needs to be defined and passed as an additional parameter to the \code{call()} API.
+
+{\bf Syntax} \break
+
+\begin{verbatim}
+result = service_instance_object.call(operation, parameters, callback=callback_function)
+\end{verbatim}
+
+{\bf Arguments} \break
+
+The operation argument describes the service requested from the service provider. The parameters argument is a dictionary, which specifies input parameters to the specified request. \break
+
+\code{callback_function} is an user defined callback function.
+
+The following sample code illustrates how to define a callback handler function to handle the response from an asynchronous request:
+
+\begin{verbatim}
+def callback_function(transactionID, eventID, outParam)
+\end{verbatim}
+
+The following table describes the arguments of the call back function:
+
+\break
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ p{3cm}| p{6cm}| p{6cm} |}
+\hline
+{\bf Argument} & {\bf Description} & {\bf Value}  \\
+\hline
+\code{transactionID} & This is the unique transaction ID associated with the particular asynchronous request. & It is returned as part of the result of the initial asynchronous call. \\
+\hline
+\code{eventID} & Specifies the asynchronous operation status. & For a complete list of \code{EventID}, see \code{EventID} \ref{subsec:appenevent} section in the {\bf Appendix}.  \\
+\hline
+\code{outParam} & This argument is a dictionary that holds the output of an asynchronous call. & Refer to the following table for the dictionary items in \code{outParam}.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The \code{outParam} argument of callback method is a map containing the return value, an error code, and an error message.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ l | p{6cm}| p{6cm} |}
+\hline
+{\bf Properties} & {\bf Description} & {\bf Values}  \\
+\hline
+\code{ReturnValue} & This key contains the information requested by the asynchronous call that initiated the callback. \break
+
+This key is present only if the requested service has a value to return. In this case, \code{outParam} contains only \code{ErrorCode} and \code{ErrorMessage}. & Depends on the Platform Service API and the asynchronous method that was called. Not all calls return this property.  \\
+\hline
+\code{ErrorCode} & Specifies a pre-defined error code & For detail information about Platform Service API error codes and their descriptions, see Service API Error Codes and Description \ref{subsec:appenerrors} section in the {\bf Appendix}.  \\
+\hline
+\code{ErrorMessage} & Describes the error & Depends on the Platform Service API and the asynchronous method that is called.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\break
+{\bf Example} \break
+
+The following sample code illustrates how to retrieve media files from a database, using the operation:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+def media_callback(trans_id, event_id, output_params):
+    # Check if we are interested in this transaction
+    if trans_id == media_trans_id:
+        print "Not the transaction in which we are interested!"
+        return
+
+    # Check if the transaction is complete
+    if event_id != scriptext.EventCompleted:
+        print "Transaction not complete!"
+        return
+
+    # Check if the transaction has resulted in any error
+    if output_params['ReturnCode'] != 0:
+        print output_params['ReturnMessage']
+    else:
+        song_list = []
+        for item in output_params['ReturnValue']: 
+            song_list.append(item['FileName'])
+        print "List of files retrieved:", song_list
+
+    lock.signal()
+
+
+lock = e32.Ao_lock()
+media_handle = scriptext.load('Service.MediaManagement', 'IDataSource')
+
+# Request for the list of mp3s in ascending order
+
+media_trans_id = media_handle.call('GetList', 
+                                   {'Type': u'FileInfo': u'FileExtension', 
+                                               'StartRange': u'.mp3'},
+                                    'Sort': {'Key': u'FileName', 'Order': u'Ascending'}}, 
+                                   callback=media_callback)
+
+lock.wait()
+\end{verbatim}
+
+\subsection{Cancelling of Asynchronous Service Request}
+\label{subsec:pycancelasyncservice}
+
+To cancel an asynchronous request, \code{Cancel} is passed as the operation argument in the \code{call()} API. The \code{transactionID} associated with the asynchronous operation also needs to be passed. After completing the cancel operation, the callback function is called with \code{Event_id} as \code{scriptext.EvenCanceled}.
+
+{\bf Syntax} \break
+
+\begin{verbatim}
+serviceInstance.call('Cancel', {'TransactionID': serviceTransactionID})
+\end{verbatim}
+
+where, \code{transactionID} is associated with the asynchronous operation, which needs to be cancelled.
+
+{\bf Example} \break
+
+The following sample code illustrates how to send and cancel an SMS in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+def sms_send_callback(trans_id, event_id, output_params):
+    if sms_trans_id == trans_id:
+        if event_id == scriptext.EventCanceled:
+            print "SMS Send Canceled"
+        else:
+            print "Event_id was not scriptext.EventCanceled"
+    else:
+        print "Invalid transaction ID received"
+
+sms_trans_id = messaging_handle.call('Send', {'MessageType': u'SMS', 
+                                              'To': u'12345678', 'BodyText': u'Hi'}, 
+                                     callback=sms_send_callback)
+try:
+    messaging_handle.call('Cancel', {'TransactionID': sms_trans_id})
+except scriptext.ScriptextError, err:
+    print "Error cancelling request ", err
+\end{verbatim}
+
+\pagebreak
+
+

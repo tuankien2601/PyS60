@@ -1,0 +1,26 @@
+Index: python2.5-2.5.0/debian/control
+===================================================================
+--- python2.5-2.5.0.orig/debian/control	2007-03-19 16:50:22.000000000 -0300
++++ python2.5-2.5.0/debian/control	2007-03-19 16:50:34.000000000 -0300
+@@ -2,7 +2,7 @@
+ Section: python
+ Priority: optional
+ Maintainer: Luciano Miguel Wolf <luciano.wolf@indt.org.br>
+-Build-Depends: debhelper (>= 4.2), autoconf, zlib1g-dev, libssl-dev, libbz2-dev, libsqlite3-dev (>= 3.3.5-0.2osso1), dpatch, libffi4-dev (>= 4.1.0-1osso1)
++Build-Depends: debhelper (>= 4.2), autoconf, zlib1g-dev, libssl-dev, libbz2-dev, libsqlite3-dev (>= 3.3.5-0.2osso1), dpatch, libffi4-dev (>= 4.1.0-1osso1), libgdbm-dev (>= 1.8.3-2)
+ Standards-Version: 3.6.2
+ 
+ Package: python2.5
+Index: python2.5-2.5.0/debian/rules
+===================================================================
+--- python2.5-2.5.0.orig/debian/rules	2007-03-19 16:50:22.000000000 -0300
++++ python2.5-2.5.0/debian/rules	2007-03-19 16:50:40.000000000 -0300
+@@ -86,8 +86,6 @@
+ 	    $(d_dev)/$(scriptdir)/bsddb \
+ 	    $(d_dev)/$(scriptdir)/xml/{dom,parsers,sax}
+ 
+-#	$(d_dev)/$(scriptdir)/lib-dynload/pyexpat.so \
+-
+ 	# base
+ 	# ====
+ 

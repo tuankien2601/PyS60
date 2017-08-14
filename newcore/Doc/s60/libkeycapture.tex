@@ -1,0 +1,80 @@
+% Copyright (c) 2006 - 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{keycapture} ---
+         Interface for global capturing of key events.}
+\label{sec:keycapture}
+
+\declaremodule{extension}{keycapture}		% not standard, in C
+\platform{S60}
+\modulesynopsis{Interface for global capturing of key events.}
+
+The \module{keycapture} module offers an API for global capturing of key events. The 
+\module{keycapture} module provides the \class{KeyCapturer} object as a tool for listening to 
+events.
+
+The \class{KeyCapturer} object uses a callback method to report the key 
+events. The callback method is called each time any of the specified keys 
+is pressed.
+
+Currently the \module{keycapture} module does not support capturing separate key-up or
+key-down events.
+
+\begin{notice}[note]
+Keycapture module requires SwEvent capability.
+\end{notice}
+
+\subsection{Module Level Constants}
+The following constants are defined in the \module{keycapture} module:
+
+\begin{datadesc}{all_keys}
+A list of all key codes defined in the \module{key_codes} module.
+\end{datadesc}
+
+\subsection{KeyCapturer objects} 
+\label{KeyCapturer objects}
+
+\class{KeyCapturer} object takes a callback method as a mandatory parameter to 
+its constructor. The callback method must have one single parameter for 
+forwarding the key code of the captured key.
+
+There can be several \class{KeyCapturer} objects existing at the same time.
+
+\class{KeyCapturer} object has following methods and properties:
+
+\begin{memberdesc}[KeyCapturer]{keys}
+List of keys to be captured. Can be read and written.
+\\Example:
+\begin{verbatim}
+keys = (key_codes.EkeyUpArrow,)
+keys = keycapture.all_keys
+\end{verbatim} 
+\end{memberdesc}
+
+\begin{memberdesc}[KeyCapturer]{forwarding}
+Specifies whether captured key events are forwarded to other applications or not.
+Either has value 1 or 0. Can be read and written.
+\end{memberdesc}
+
+\begin{methoddesc}[KeyCapturer]{start}{}
+Starts the actual capturing of key events.
+\end{methoddesc}
+
+\begin{methoddesc}[KeyCapturer]{stop}{}
+Stops the actual capturing of key events.
+\end{methoddesc}
+
+\begin{methoddesc}[KeyCapturer]{last_key}{}
+Returns last key code that is captured. 
+\end{methoddesc}

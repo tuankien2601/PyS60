@@ -1,0 +1,61 @@
+Index: python2.5-2.5.1/debian/changelog
+===================================================================
+--- python2.5-2.5.1.orig/debian/changelog	2007-05-09 10:59:46.000000000 -0300
++++ python2.5-2.5.1/debian/changelog	2007-05-09 11:00:39.000000000 -0300
+@@ -1,3 +1,9 @@
++python2.5 (2.5.1-1osso2) unstable; urgency=low
++
++  * Move pydoc and pdb from dev package to python2.5 
++
++ -- Luciano Miguel Wolf <luciano.wolf@indt.org.br>  Wed,  9 May 2007 11:00:04 -0300
++
+ python2.5 (2.5.1-1osso1) unstable; urgency=low
+ 
+   * Upgrade to python2.5.1
+Index: python2.5-2.5.1/debian/onlysdk
+===================================================================
+--- python2.5-2.5.1.orig/debian/onlysdk	2007-05-09 10:59:14.000000000 -0300
++++ python2.5-2.5.1/debian/onlysdk	2007-05-09 10:59:27.000000000 -0300
+@@ -1,5 +1,3 @@
+-pdb
+-pydoc
+ distutils
+ compile
+ encodings/cp
+Index: python2.5-2.5.1/debian/rules
+===================================================================
+--- python2.5-2.5.1.orig/debian/rules	2007-05-09 10:59:14.000000000 -0300
++++ python2.5-2.5.1/debian/rules	2007-05-09 10:59:20.000000000 -0300
+@@ -130,12 +130,18 @@
+ 	# move the interpreter
+ 	mv $(d_dev)/usr/bin/python2.5 $(d_base)/usr/bin/python2.5
+ 
++	# scripts
++	mv $(d_dev)/usr/bin/pydoc $(d_base)/usr/bin/pydoc$(PYVER)
++	mv $(d_dev)/$(scriptdir)/pdb* $(d_base)/$(scriptdir)/
++	ln -sf /usr/lib/python$(PYVER)/pdb.py $(d_base)/usr/bin/pdb$(PYVER)
++	ln -sf pdb$(PYVER) $(d_base)/usr/bin/pdb
++	mv $(d_dev)/$(scriptdir)/pydoc* $(d_base)/$(scriptdir)/
++	ln -sf /usr/lib/python$(PYVER)/pydoc.py $(d_base)/usr/bin/pydoc$(PYVER)
++	ln -sf pydoc$(PYVER) $(d_base)/usr/bin/pydoc
++	
+ 	# dev
+ 	# ===
+ 
+-	# scripts
+-	mv $(d_dev)/usr/bin/pydoc $(d_dev)/usr/bin/pydoc$(PYVER)
+-
+ 	# manpage
+ 	mkdir -p $(d_dev)/usr/share/man/man1
+ 	mv $(d_dev)/usr/man/man1/python.1 $(d_dev)/usr/share/man/man1/$(PYTHON).1
+@@ -165,10 +171,6 @@
+ 
+ 	ln -sf $(PYTHON).1 $(d_dev)/usr/share/man/man1/python.1
+ 	(cd $(d_base)/usr/bin && ln -sf python$(PYVER) python)
+-	ln -sf /usr/lib/python$(PYVER)/pdb.py $(d_dev)/usr/bin/pdb$(PYVER)
+-	ln -sf pdb$(PYVER) $(d_dev)/usr/bin/pdb
+-	ln -sf /usr/lib/python$(PYVER)/pydoc.py $(d_dev)/usr/bin/pydoc$(PYVER)
+-	ln -sf pydoc$(PYVER) $(d_dev)/usr/bin/pydoc
+ 	cp -p Tools/i18n/pygettext.py $(d_dev)/usr/bin/pygettext$(PYVER)
+ 	ln -sf pygettext$(PYVER) $(d_dev)/usr/bin/pygettext
+ 

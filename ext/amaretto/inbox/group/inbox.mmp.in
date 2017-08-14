@@ -1,0 +1,47 @@
+/* Copyright (c) 2005 - 2008 Nokia Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+targettype dll
+TARGET	       ${{PREFIX}}inbox.pyd
+
+CAPABILITY ${{DLL_CAPABILITIES}}
+
+${{COMPILER_FLAGS}}
+#include "../../common.mmp"
+
+SYSTEMINCLUDE    \epoc32\include\python25 
+SYSTEMINCLUDE    \epoc32\include\stdapis 
+SYSTEMINCLUDE    \epoc32\include
+
+USERINCLUDE   ..\inc 
+
+LIBRARY python25.lib
+LIBRARY euser.lib
+LIBRARY eikcore.lib
+LIBRARY cone.lib
+LIBRARY etext.lib
+LIBRARY msgs.lib
+
+
+SOURCEPATH ..\src
+
+SOURCE      inboxmodule.cpp
+SOURCE      inboxadapter.cpp
+
+
+#if defined(ARMCC)
+deffile eabi\inbox 
+#elif defined(WINSCW)
+deffile bwins\inbox 
+#endif

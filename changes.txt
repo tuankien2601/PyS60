@@ -1,0 +1,64 @@
+A brief summary of changes made to Python 2.5.4 source to get it working on
+Symbian:
+
+-  Changed the definition of the PyAPI_DATA and all the python header files
+   which used the earlier PyAPI_DATA to use its new form as DLL data export is
+   not supported on Symbian. A workaround is to have functions that return
+   pointers to the data and macros that hide the calls made to these functions.
+   This is enabled when the macro EXPORT_DATA_AS_FUNCTIONS is defined.
+
+- To handle recursions causing stack overflows gracefully stack checks are done
+  more frequently.
+
+- Disabled creation of byte compiled files when python modules are loaded
+
+- On the Symbian platform a value greater than 1e49 limits the precision to 28
+  above which it crashes the interpreter with panic User24. Added a check so
+  that OverflowError is raised for values greater than 1e49 with precision
+  greater than 28.
+
+- Modified python's core memory APIs so that it defines macros which can
+  be used to set custom malloc/realloc/free functions.
+
+- Python regression suite tests for modules that were not supported on Symbian,
+  were disabled by adding a platform check in the test itself. Limits were
+  reduced in tests which assumed a huge stack was available and were failing
+  with stack overflow error.
+
+- Implementation of the Python TLS API on top of the POSIX threads TLS API.
+  Also added PyThread_AtExit which provides extension modules to register their
+  functions which cleanup resources at thread exit.
+
+- A new exception SymbianError is added which is used to set Symbian errors.
+
+- dynload_shlib is modified to load the function at ordinal 1 which corresponds
+  to the init function (Symbian uses ordinal numbers to identify functions).
+
+- The default file system encoding is set to 'utf-8'
+
+- socketmodule is patched to workaround the OpenC bug related to getaddrinfo.
+
+- A separate copy of site.py and pyconfig.h is maintained in Symbian directory
+  as the changes done to these files is applicable only to Symbian platform
+
+- The classification of core python modules into builtin and PYDs is specified
+  in the modules.cfg file in Symbian\src. This file is parsed by
+  module_config_parser.py which generates and modifies the individual extension
+  and python dll build files. Minor changes were done to some modules' init
+  function and headers to facilitate building them as PYDs.
+
+- To support co-existence of 1.4.x and 1.9.x Python runtimes, the binaries of
+  the latter version are prefixed with 'kf_' and the import hook in site.py is
+  modified to look for the renamed binary.
+
+- Python core files modsupport.c and getargs.c are patched to support va_list's
+  structure definition which is defined in gcce.h
+
+- Added access_points() and set_default_access_point() to the socket module
+  for accessing the list of available access points and to set the default
+  access point.
+
+- linesep changed to '\n' from '\r\n' in os.py.
+
+- Maintaining linked lists to track all memory allocations and open DLLs. These
+  are later used during application exit to cleanup all the resources.

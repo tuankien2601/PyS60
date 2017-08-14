@@ -1,0 +1,1726 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Calendar}
+\label{sec:scriptextcalendar}
+
+The Calendar service enables Python applications to access, create, and manage calendars and their entries stored on a device.
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+\end{verbatim}
+
+The following table summarizes the Calendar Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.Calendar}  \\
+\hline
+{\bf Supported interfaces} & \code{IDataSource}  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Calendar:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{10cm}}
+\hline
+{\bf Services} & {\bf Description}  \\
+\hline
+\code{GetList} \ref{subsec:calendargetlist} & Retrieves a list of available calendars or a list of calendar entries.  \\
+\hline
+\code{Add} \ref{subsec:calendaradd} & Adds a new calendar in the device or a new entry in the specified calendar file.  \\
+\hline
+\code{Delete} \ref{subsec:calendardel} & Deletes a specific calendar from the device or, one or more entries / instances from a specific calendar file. \\
+\hline
+\code{Import} \ref{subsec:calendarimport} & Imports calendar entries from an input file.  \\
+\hline
+\code{Export} \ref{subsec:calendarexport} & Exports calendar entries to an output file.  \\
+\hline
+\code{RequestNotification} \ref{subsec:calendarrequest} & Notifies when add, delete, or modify operation is performed on the entries in the calendar store.
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetList}
+\label{subsec:calendargetlist}
+
+\code{GetList} is used to retrieve the information about available calendar databases or calendar entries. It takes a set of input parameters that define the type of information to return, and how to filter the returned list. It is available only in synchronous.
+
+The following is an example for using \code{GetList}:
+
+\begin{verbatim}
+meeting_list = calendar_handle.call('GetList', {'Type': u'CalendarEntry', 'Filter': {'CalendarName': u'C:Calendar', 'Type': u'Meeting'}})
+\end{verbatim}
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Returns a list of available calendars or calendar entries.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\hline
+{\bf Note} & The calendar file must be present to get a list of entries from a specific calendar.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Calendar} \break
+
+Input parameter specifies the Type and Filter to perform \code{GetList} service.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Calendar} & Indicates that the \code{GetList} service is to be performed on a calendar.  \\
+\hline
+[Filter] & map & \code{DefaultCalendar}: bool & This is an optional parameter. If \code{DefaultCalendar} is set to {\bf True}, \code{GetList} returns the list with one element (default calendar) else, it returns a list of all calendars.  \\
+\end{tabular}
+\caption{Input parameters for Calendar Getlist}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Calendar} \break
+
+Output parameters contain the requested information. It also contains \code{ErrorCode}, and an \code{ErrorMessage} if the operation fails. \code{ReturnValue} contains an array of all Calendars.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{3cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & \code{ScriptextIterableWrapper} & This is an Iterable list of available calendars in the format : {\bf Drivexxx:FileNamexxx}. \\ 
+\end{tabular}
+\caption{Output parameters for Calendar Getlist}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Calendar Entry} \break
+
+Input parameter specifies the Type and Filter to perform \code{GetList} service.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{1cm}|p{5cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Indicates that the \code{GetList} service is performed on calendar entries.  \\
+\hline
+[Filter] & map & {\bf[CalendarName]}: unicode string \break
+{\bf[id]}: unicode string \break
+{\bf[LocalId]}: unicode string \break
+{\bf[StartRange]}: datetime \break
+{\bf[EndRange]}: datetime \break
+{\bf[SearchText]}: unicode string \break
+{\bf[Type]}: unicode string \break
+where, [Type] is one of the following: \break
+\code{Meeting} \break
+\code{ToDo} \break
+\code{Anniversary} \break
+\code{Reminder} \break
+\code{DayEvent} \break
+\code{IncludeAll} & All instances are fetched if Filter is not present. \break
+\code{CalendarName} specifies the calendar used in the format {\bf Drivexxx:Filenamexxx}. If this parameter is not specified then, the default calendar is used.  \code{GetList} returns the entries matching with \code{id} or \code{LocalId}, if only \code{id} or \code{LocalId} is specified. In case of \code{id}, the first entry is the parent entry. This case ignores the other fields in the input map. \break
+
+If any of the Ids (\code{id} and \code{LocalId}) are not specified then, \code{GetList} interprets the input as follows: \break
+
+Returns the instances falling within StartRange and EndRange, if they are specified. \break
+Returns all instances present in Calendar, if StartRange and EndRange are not specified. \break
+Returns all instances present on or after the specified date if only StartRange is specified. \break
+Returns all instances present on or before the specified date if only EndRange is specified. \break
+Matches the string with the summary field of the entry if Search Text is specified. The match is not case sensitive. \break
+Includes only entries of the Type specified in the output if Type parameter is present else, includes all entry types.  \\
+\end{tabular}
+\caption{Input parameters for Calendar Entry Getlist}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Calendar Entry} \break
+
+Output parameter contains \code{ReturnValue}. It also contain \code{ErrorCode}, and an \code{ErrorMessage} if the operation fails. \break
+
+\code{ReturnValue} of  Calendar Entry is an iterable list of entries, which contains all relevant fields of the calendar entry based on the Entry Type (\code{Meeting}, \code{To-Do}, \code{Reminder}, \code{DayEvent}, \code{Anniversary}).
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{3cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & \code{ScriptextIterableWrapper} & For specific information on Types, refer to the following tables: \break
+\code{Meeting}: \ref{tab:calendarmeeting} \break
+\code{To-Do}: \ref{tab:calendarToDo} \break
+\code{Anniversary}: \ref{tab:calendaranniversary} \break
+\code{DayEvent}: \ref{tab:calendardayevent} \break
+\code{Reminder}: \ref{tab:calendarreminder} & \code{ReturnValue} of  Calendar Entry is an iterable list of entries, which contains all relevant fields of the calendar entry based on the Entry Type (\code{Meeting}, \code{To-Do}, \code{Reminder}, \code{DayEvent}, \code{Anniversary}). \break
+
+The output is an Iterable list of instances if \code{id} and \code{LocalId} are not specified in filter. \break
+
+For more information on keys, refer to the section Key Values \ref{subsec:calendarkeyval}.  \\
+\end{tabular}
+\caption{Output parameters for Calendar Entry Getlist}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf string} & {\bf Meeting}  \\
+\hline
+id & string & NA  \\
+\hline
+LocalId & string & NA  \\
+\hline
+Summary & string & NA  \\
+\hline
+SeqNum & 32-bit int & NA \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+EndTime & datetime & NA  \\
+\hline
+InstanceStartTime & datetime (Valid only for instance list) & NA  \\
+\hline
+InstanceEndTime & datetime (Valid only for instance list) & NA  \\
+\hline
+Replication & string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+Description & string & NA  \\
+\hline
+Priority & 32-bit int & NA  \\
+\hline
+AlarmTime & datetime & NA  \\
+\hline
+Location & string & NA  \\
+\hline
+Status & string & \code{Tentative} \break
+\code{Confirmed} \break
+\code{Cancelled} \break
+\code{NullStatus}  \\
+\hline
+RepeatDates & List of dates & NA  \\
+\hline
+ExDates & List of dates & NA  \\
+\hline
+Method & string & NA  \\
+\hline
+PhoneOwner & string & NA  \\
+\hline
+Organizer & CommonName: string \break
+Address: string & NA  \\
+\hline
+Attendees & List of maps & NA  \\
+\hline
+RepeatRule & map & NA  \\
+\end{tabular}
+\caption{Entry type: Meeting}
+\label{tab:calendarmeeting}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf string} & {\bf ToDo}  \\
+\hline
+id & string & NA  \\
+\hline
+LocalId & string & NA  \\
+\hline
+Summary & string & NA  \\
+\hline
+EndTime & datetime & NA  \\
+\hline
+Replication & string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+Description & string & NA  \\
+\hline
+Priority & 32-bit int & NA  \\
+\hline
+AlarmTime & datetime & NA  \\
+\hline
+Status & string & \code{TodoNeedsAction} \break
+\code{TodoCompleted} \break
+\code{TodoInProcess} \break
+\code{Cancelled} \break
+\code{NullStatus}  \\
+\end{tabular}
+\caption{Entry type: ToDo}
+\label{tab:calendarToDo}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf string} & {\bf Anniversary}  \\
+\hline
+id & string & NA  \\
+\hline
+LocalId & string & NA  \\
+\hline
+Summary & string & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+Replication & string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+Description & string & NA  \\
+\hline
+Priority & 32-bit int & NA  \\
+\hline
+AlarmTime & datetime & NA  \\
+\end{tabular}
+\caption{Entry type: Anniversary}
+\label{tab:calendaranniversary}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf string} & {\bf DayEvent}  \\
+\hline
+id & string & NA  \\
+\hline
+LocalId & string & NA  \\
+\hline
+Summary & string & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+EndTime & datetime & NA  \\
+\hline
+Replication & string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+Description & string & NA  \\
+\hline
+Priority & 32-bit int & NA  \\
+\hline
+AlarmTime & datetime & NA  \\
+\end{tabular}
+\caption{Entry type: DayEvent}
+\label{tab:calendardayevent}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf string} & {\bf Reminder}  \\
+\hline
+id & string & NA  \\
+\hline
+LocalId & string & NA  \\
+\hline
+Summary & string & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+Replication & string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+Description & string & NA  \\
+\hline
+Priority & 32-bit int & NA  \\
+\hline
+AlarmTime & datetime & NA  \\
+\end{tabular}
+\caption{Entry type: Reminder}
+\label{tab:calendarreminder}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Message} \break
+
+The following table lists the error messages and their description:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Calendar:GetList:Type is invalid} & Type is missing or invalid Type is passed  \\
+\hline
+\code{Calendar:GetList:Filter is invalid} & Type of Filter parameter is invalid  \\
+\hline
+\code{Calendar:GetList:DefaultCalendar is invalid} & Type passed for \code{DefaultCalendar} is invalid  \\
+\hline
+\code{Calendar:GetList:Id is invalid} & Type passed for \code{Id} is invalid  \\
+\hline
+\code{Calendar:GetList:LocalId is invalid} & Type passed for \code{LocalId} is invalid  \\
+\hline
+\code{Calendar:GetList:StartRange is invalid} & Type passed for StartRange is invalid  \\
+\hline
+\code{Calendar:GetList:EndRange is invalid} & Type passed for EndRange is invalid  \\
+\hline
+\code{Calendar:GetList:SearchText is invalid} & Type passed for \code{SearchText} is invalid  \\
+\hline
+\code{Calendar:GetList:CalendarName is invalid} & Type passed for \code{CalendarName} is invalid  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to display all calendar entries:
+
+\begin{verbatim}
+import scriptext
+
+# Load Calendar service
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+meeting_list = calendar_handle.call('GetList', {'Type': u'CalendarEntry', 'Filter':  {'CalendarName': u'C:Calendar', 'Type': u'Meeting'}})
+for meeting in meeting_list:
+	print 'Id = ' + meeting['id']
+        print 'Description = ' + meeting['Description']
+
+        value = meeting['StartTime']
+        print "Meeting starting time is ", value.day, value.month, value.year, value.hour, ":", value.minute, ":", value.second
+
+        value = meeting['EndTime']
+        print "Meeting End time is ", value.day, value.month, value.year, value.hour, ":", value.minute, ":", value.second
+\end{verbatim}
+
+\subsection{Add}
+\label{subsec:calendaradd}
+
+\code{Add} is used to create a new calendar on the device, add an entry to a calendar, or modify the entry if an entry with the same \code{LocalId} already exists in the calendar. The entry is added to the specified calendar or, if no calendar is specified, to the default one. In case the default calendar does not exist, it is created. It is available only in synchronous mode.
+
+The following is an example for using \code{Add}:
+
+\begin{verbatim}
+calendar_handle.call('Add', {'Type': u'CalendarEntry', 'Item': {'Description': u'This is the meeting description', 'StartTime', start_time, 'EndTime', end_time}})
+where start_time and end_time are datetime objects.
+\end{verbatim}
+
+The following table summarizes the specification of \code{Add}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{10cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Adds a new calendar in the device or a new entry in a specific calendar file.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded. For updating a specific entry, the  \code{Id} must exist and can be retrieved by a call to \code{Add} or \code{GetList}.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Calendar} \break
+
+Input parameter specifies the details of a new calendar. Input parameter has two properties: Type, and Item.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Calendar} & Adds a new calendar  \\
+\hline
+Item & map & \code{CalendarName}: unicode string & Specifies the name of the calendar to be added in the format {\bf Drivexxx: FileNamexxx}.   \\
+\end{tabular}
+\caption{Input parameters for Calendar Add}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Calendar} \break
+
+Output parameter contains an error code and an optional error message if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Calendar Add}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Calendar Entry} \break
+
+\code{Add} performs add or update operations depending on the input parameters of Calendar Entry. Input parameters differ based on the Entry Type (\code{Meeting}, \code{To-Do}, \code{Reminder}, \code{DayEvent}, \code{Anniversary}).
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Adds a new entry or modifies an existing entry depending on the input of Calendar Entry. \\
+\hline
+Item & map & {\bf[CalendarName]}: unicode string \break
+For specific information on Type, refer to the following tables: \break
+\code{Meeting}: \ref{tab:addmeeting} \break
+\code{To-Do}: \ref{tab:addtodo} \break
+\code{Anniversary}: \ref{tab:addanni} \break
+\code{DayEvent}: \ref{tab:adddayevent}\break
+\code{Reminder}: \ref{tab:addreminder} & For different entry types, the corresponding input maps are given. \break
+
+For more information about keys, refer the section Key Values \ref{subsec:calendarkeyval}. \break
+The keys mentioned in the tables for each 'Type' are only applicable for that Type, rest are ignored. \break
+
+The attendee field has a value of type 'map'. \break
+The \code{phoneowner} must match the 'Address' field of one of the attendees, which means that a \code{phoneowner} is an attendee.  \\
+\end{tabular}
+\caption{Input parameters for Calendar Entry Add}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{4cm}|l}
+\hline
+{\bf Type} & {\bf unicode string} & {\bf Meeting}  \\
+\hline
+[Summary] & unicode string & NA  \\
+\hline
+[SeqNum] & 32-bit int & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+EndTime & datetime & NA  \\
+\hline
+[Replication] & unicode string & NA  \\
+\hline
+[Description] & unicode string & NA  \\
+\hline
+[Priority] & 32-bit int & NA  \\
+\hline
+[AlarmTime] & datetime & NA  \\
+\hline
+[Location] & unicode string & NA  \\
+\hline
+[Status] & unicode string & \code{Tentative} \break
+\code{Confirmed} \break
+\code{Cancelled} \break
+\code{NullStatus}  \\
+\hline
+[RepeatDates] & List of dates & NA  \\
+\hline
+[ExDates] & List of dates & NA  \\
+\hline
+[Method] & \code{None} \break
+\code{Publish} \break
+\code{Request} \break
+\code{Reply} \break
+\code{Add} \break
+\code{Cancel} \break
+\code{Refresh} \break
+\code{Counter} \break
+\code{DeclineCounter} & NA  \\
+\hline
+[PhoneOwner] & unicode string & NA  \\
+\hline
+[Organizer] & [CommonName]: string \break
+Address: string & NA  \\
+\hline
+[Attendees] & List of maps & NA  \\
+\hline
+[RepeatRule] & map & NA  \\
+\end{tabular}
+\caption{Entry type: Meeting}
+\label{tab:addmeeting}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{6cm}}
+\hline
+{\bf Type} & {\bf unicode string} & {\bf ToDo}  \\
+\hline
+[Summary] & unicode string & NA  \\
+\hline
+[EndTime] & datetime & NA  \\
+\hline
+[Replication] & unicode string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+[Description] & unicode string & NA  \\
+\hline
+[Priority] & 32-bit int & NA  \\
+\hline
+[AlarmTime] & datetime & NA  \\
+\hline
+[Status] & unicode string & \code{TodoNeedsAction} \break
+\code{TodoCompleted} \break
+\code{TodoInProcess} \break
+\code{Cancelled} \break
+\code{NullStatus}  \\
+\end{tabular}
+\caption{Entry type: ToDo}
+\label{tab:addtodo}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf unicode string} & {\bf Anniversary}  \\
+\hline
+[Summary] & unicode string & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+[Replication] & unicode string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+[Description] & unicode string & NA  \\
+\hline
+[Priority] & 32-bit int & NA  \\
+\hline
+[AlarmTime] & datetime & NA  \\
+\end{tabular}
+\caption{Entry type: Anniversary}
+\label{tab:addanni}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf unicode string} & {\bf DayEvent}  \\
+\hline
+[Summary] & unicode string & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+[EndTime] & datetime (If not specified, the value will be same as StartTime) & NA  \\
+\hline
+[Replication] & unicode string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+[Description] & unicode string & NA  \\
+\hline
+[Priority] & 32-bit int & NA  \\
+\hline
+[AlarmTime] & datetime & NA  \\
+\end{tabular}
+\caption{Entry type: DayEvent}
+\label{tab:adddayevent}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l}
+\hline
+{\bf Type} & {\bf string} & {\bf Reminder}  \\
+\hline
+[Summary] & unicode string & NA  \\
+\hline
+StartTime & datetime & NA  \\
+\hline
+[Replication] & unicode string & \code{Open} \break
+\code{Private} \break
+\code{Restricted}  \\
+\hline
+[Description] & unicode string & NA  \\
+\hline
+[Priority] & 32-bit int & NA  \\
+\hline
+[AlarmTime] & datetime & NA  \\
+\end{tabular}
+\caption{Entry type: Reminder}
+\label{tab:addreminder}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Calendar Entry} \break
+
+Output parameter contains the requested information, an \code{ErrorCode}, and an \code{ErorrMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & string & NA & Returns \code{Id} string of the new entry added. The \code{LocalId} is obtained by a call to \code{GetList}, with \code{Id} as filter parameter.
+\end{tabular}
+\caption{Output parameters for Calendar Entry Add}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Update} \break
+
+Input parameter specifies the type on which an operation is performed and the details of the particular Type.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Adds a new entry or modifies an existing entry depending on the input of Calendar Entry. \\
+\hline
+Item & map & {\bf[CalendarName]}: unicode string \break
+{\bf [LocalId]}: unicode string \break
+{\bf [InstanceStartTime]}: int & \code{CalendarName} must be specified in {\bf Drivexxx:Filenamexxx}.
+If {\bf CalendarName} is not specified then update operation is performed on default calendar. \break
+
+Identifies the Entry by the \code{LocalId}. In case of repeating entry, \code{InstanceStartTime} (applicable only for \code{Meeting} type) is used to identify the instance to be modified. If \code{InstanceStartTime} is not specified then it modifies the whole entry.
+The modifiable fields(except type) is taken from \code{CalendarEntry}. \code{RepeatRule} can be modified or added for Parent entry only. \break
+
+The keys mentioned in the tables for each 'Type' are only applicable for that Type, rest are ignored.  \\
+\end{tabular}
+\caption{Input parameters for Update}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Update} \break
+
+Output parameter contains the \code{Id} of the new entry added, \code{ErrorCode}, and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & string & NA & Returns \code{Id} string of the new entry added. The \code{LocalId} is obtained by a call to \code{GetList}, with \code{Id} as filter parameter.
+\end{tabular}
+\caption{Output parameters for Update}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1010} & Entry exists  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{8cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Calendar:Add:Entry Type is invalid} & Invalid type is passed for \code{Type} parameter  \\
+\hline
+\code{Calendar:Add:InstanceStartTime is invalid} & Invalid type is passed for \code{InstanceStartTime} parameter  \\
+\hline
+\code{Calendar:Add:LocalId is invalid} & Invalid type is passed for \code{LocalId} parameter \\
+\hline
+\code{Calendar:Add:Summary is invalid} & Invalid type is passed for \code{Summary} parameter  \\
+\hline
+\code{Calendar:Add:Description is invalid} & Invalid type is passed for \code{Description} parameter  \\
+\hline
+\code{Calendar:Add:Location is invalid} & Invalid type is passed for \code{Location} parameter  \\
+\hline
+\code{Calendar:Add:Replication is invalid} & Invalid type is passed for \code{Replication} parameter  \\
+\hline
+\code{Calendar:Add:Status is invalid} & Invalid type is passed for \code{Status} parameter  \\
+\hline
+\code{Calendar:Add:Method is invalid} & Invalid type is passed for \code{Method} parameter  \\
+\hline
+\code{Calendar:Add:SeqNum is invalid} & Invalid type is passed for \code{SeqNum } parameter  \\
+\hline
+\code{Calendar:Add:Priority is invalid} & Invalid type is passed for \code{Priority} parameter  \\
+\hline
+\code{Calendar:Add:StartTime is invalid} & Invalid type is passed for \code{StartTime} parameter \\
+\hline
+\code{Calendar:Add:EndTime is invalid} & Invalid type is passed for \code{EndTime} parameter  \\
+\hline
+\code{Calendar:Add:AlarmTime is invalid} & Invalid type is passed for \code{AlarmTime} parameter  \\
+\hline
+\code{Calendar:Add:PhoneOwner is invalid} & Invalid type is passed for \code{PhoneOwner} parameter  \\
+\hline
+\code{Calendar:Add:Organizer is invalid} & Invalid type is passed for \code{Organizer} parameter  \\
+\hline
+\code{Calendar:Add:Attendees is invalid} & Invalid type is passed for \code{Attendees} parameter  \\
+\hline
+\code{Calendar:Add:CommonName is invalid} & Invalid type is passed for \code{CommonName} parameter  \\
+\hline
+\code{Calendar:Add:Address is invalid} & Invalid type is passed for \code{Address} parameter  \\
+\hline
+\code{Calendar:Add:Role is invalid} & Invalid type is passed for \code{Role} parameter  \\
+\hline
+\code{Calendar:Add:Status is invalid} & Invalid type is passed for \code{Status} parameter  \\
+\hline
+\code{Calendar:Add:Rsvp is invalid} & Invalid type is passed for \code{Rsvp} parameter  \\
+\hline
+\code{Calendar:Add:RepeatDates is invalid} & Invalid type is passed for \code{RepeatDates} parameter  \\
+\hline
+\code{Calendar:Add:ExDates is invalid} & Invalid type is passed for \code{ExDates} parameter  \\
+\hline
+\code{Calendar:Add:RepeatRule is invalid} & Invalid type is passed for \code{RepeatRule} parameter  \\
+\hline
+\code{Calendar:Add:Type is invalid} & Invalid type is passed for \code{RepeatRule:Type} parameter  \\
+\hline
+\code{Calendar:Add:Type is missing} & \code{RepeatRule:Type} parameter is missing  \\
+\hline
+\code{Calendar:Add:DaysInWeek is invalid} & Invalid type passed for \code{RepeatRule:DaysInWeek} or list contains invalid data  \\
+\hline
+\code{Calendar:Add:UntilDate is invalid} & Invalid type passed for \code{RepeatRule:UntilDate}  \\
+\hline
+\code{Calendar:Add:RepeatRule:StartDate is invalid} & Invalid type passed for \code{RepeatRule:StartDate}  \\
+\hline
+\code{Calendar:Add:Interval is invalid} & Invalid type is passed for \code{RepeatRule:Interval} parameter  \\
+\hline
+\code{Calendar:Add:MonthDays is invalid} & Invalid type passed for \code{RepeatRule:MonthDays} or list contains invalid data  \\
+\hline
+\code{Calendar:Add:DaysInWeek is invalid} & Invalid type passed for \code{RepeatRule:DaysInWeek} or list contains invalid data  \\
+\hline
+\code{Calendar:Add:DaysOfMonth is invalid} & Invalid type passed for \code{RepeatRule:DaysOfMonth} or list contains invalid data  \\
+\hline
+\code{Calendar:Add:RepeatRule:DaysOfMonth:Day} & Invalid type passed for \code{RepeatRule:DaysOfMonth:Day} \\
+\hline
+\code{Calendar:Add:RepeatRule:DaysOfMonth:WeekNumber} & Invalid type passed for \code{RepeatRule:DaysOfMonth:WeekNumber}  \\
+\hline
+\code{Calendar:Add:Month} & Invalid type passed for \code{RepeatRule:Month}   \\
+\hline
+\code{Calendar:Add:Item is invalid} & Invalid type is passed for \code{Item}  \\
+\hline
+\code{Calendar:Add:CalendarName is invalid} & Invalid type is passed for \code{CalendarName}  \\
+\hline
+\code{Calendar:Add: is invalid} & Invalid type is passed for \code{} parameter  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to add a calendar entry:
+
+\begin{verbatim}
+import scriptext
+import datetime
+
+# Load Calendar service
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+
+start_time = datetime.datetime(2009,03,12,17,0,0)
+end_time = datetime.datetime(2009,03,12,18,0,0)
+
+try:
+    calendar_handle.call('Add', {'Type': u'CalendarEntry', 'Item': {'Type': u'Meeting', 'Description': u'This is the meeting description', 'StartTime': start_time, 'EndTime': end_time}})
+except scriptext.ScriptextError:
+    print 'Error in servicing the request'
+else:
+    print "Add request successfully complete!"
+\end{verbatim}
+
+\subsection{Delete}
+\label{subsec:calendardel}
+
+\code{Delete} is used to remove a calendar from the device or, one or more entries from a calendar. Entries are deleted from the specified calendar or, from the default one if no calendar is specified. You can delete a calendar in synchronous mode. You can delete calendar entries both in synchronous and asynchronous mode.
+
+\begin{notice}[note]
+\begin {itemize}
+\item You cannot delete the default calendar.
+\item To delete a calendar or entries from a calendar, the corresponding calendar file must exist on the device.
+\end {itemize}
+\end{notice}
+
+The following are the examples for using \code{Delete}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+event_id = calendar_handle.call('Delete', {'Type': u'CalendarEntry', 'id': del_id_list})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+event_id = calendar_handle.call('Delete', {'Type': u'CalendarEntry', 'id': del_id_list}, callback= del_callback)
+\end{verbatim}
+
+where \code{del_callback} is a user defined callback function.
+
+The following table summarizes the specification of \code{Delete}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{8cm}}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Deletes the specified calendar from the Device or, one or more entries / instances from a specific calendar file.  \\
+\hline
+{\bf Response Model} & Synchronous for type \code{Calendar} and both synchronous and asynchronous for type \code{CalendarEntry}.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Calendar} \break
+
+Input parameter specifies the type on which the operation is performed and the details of the particular type.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Calendar} & Performs the operation on all available calendars if the  type is \code{Calendar}.  \\
+\hline
+Data & map & \code{CalendarName}: unicode string & Deletes the given calendar. You cannot delete the default calendar.  \\
+\end{tabular}
+\caption{Input parameters for Calendar Delete}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Calendar} \break
+
+Output parameter contains \code{ErrorCode} and an optional \code{ErrorMessage}, which is displayed when the operation fails. 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Calendar Delete}
+\end{center}
+\end{table}
+
+{\bf Input Parameters for Calendar Entry} \break
+
+Input parameter specifies the type on which the operation is performed and the details of the particular type.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Performs the operation on entries of the specified calendar, if the type is \code{CalendarEntry}. \\
+\hline
+Data & map & {\bf[CalendarName]}: unicode string \break
+{\bf [IdList]} or {\bf [LocalIdList]}: List of unicode string \break
+{\bf [StartRange]}: datetime \break
+{\bf [EndRange]}: datetime \break
+{\bf [DeleteAll]}: bool & Uses the default calendar if the \code{CalendarName} is not specified. \break
+You can specify either \code{IdList} or \code{LocalIdList} with StartRange or EndRange or, both. \break
+Deletes the instances within the specified range if range is specified. Deletes entries that match the \code{IdList} or \code{LocalIdList} if no range is specified. \break
+Deletes all entries within the specified calendar if the \code{DeleteAll} field is set. \break
+
+One of the fields from the set \code{IdList} or \code{LocalIdList}, \code{StartRange}, \code{EndRange}, and \code{DeleteAll} must be passed to delete entries. If not, error is returned. Invalid \code{id} or \code{LocalIds} from list are ignored.  \\
+\end{tabular}
+\caption{Input parameters for Calendar Entry Delete}
+\end{center}
+\end{table}
+
+{\bf Output Parameters for Calendar Entry} \break
+
+Output parameter contains \code{ErrorCode}, and an \code{ErrorMessage}, which is displayed when the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Calendar Entry Delete}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1012} & Item not found  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the errors messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{6cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Calendar:Delete:Type is invalid} & Delete called with invalid Type  \\
+\hline
+\code{Calendar:Delete:CalendarName is missing} & Delete (type \code{Calendar}) called without passing \code{CalendarName}  \\
+\hline
+\code{Calendar:Delete:CalendarName is invalid} & Invalid type is passed for \code{CalendarName}  \\
+\hline
+\code{Calendar:Delete:StartRange is invalid} & Invalid type is passed for \code{StartRange} parameter  \\
+\hline
+\code{Calendar:Delete:EndRange is invalid} & Invalid type is passed for \code{EndRange} parameter  \\
+\hline
+\code{Calendar:Delete:DeleteAll is invalid} & Invalid type is passed for \code{DeleteAll} parameter  \\
+\hline
+\code{Calendar:Delete:IdList is invalid} & Invalid type is passed for \code{IdList} parameter  \\
+\hline
+\code{Calendar:Delete:LocalIdList is invalid} & Invalid type is passed for \code{LocalIdList} parameter  \\
+\hline
+\code{Calendar:Delete:Data is missing} & Delete (type \code{CalendarEntry}) called with invalid delete \code{Data}  \\
+\hline
+\code{Calendar:Delete:Data is invalid} & Invalid type is passed for \code{Data} parameter  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to delete a specified calendar entry in asynchronous mode:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+# Using e32.Ao_lock() so that the main function can wait 
+# till the callback is hit.
+lock = e32.Ao_lock()
+
+# Callback function will be called when the requested service is complete
+def del_callback(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in the operation"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    elif event_id == scriptext.EventCompleted:
+        print "Entry deleted successfully."
+
+    lock.signal()
+
+# Returns the list of calendar id's that needs to be deleted.
+del_id_list = get_cal_del_id()
+
+# Load Calendar service
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+event_id = calendar_handle.call('Delete', {'Type': u'CalendarEntry', 'IdList': del_id_list}, callback=del_callback)
+
+print "Waiting for the request to be processed!"
+lock.wait()
+print "Request complete!"
+\end{verbatim}
+
+\subsection{Import}
+\label{subsec:calendarimport}
+
+\code{Import} is used to import entries into a calendar. The information must be imported from an {\bf ICal} or {\bf VCal} file.
+
+\begin{notice}[note]
+If entries are imported to a calendar other than the default one, the corresponding calendar file must exist on the device.
+\end{notice}
+
+The following the examples for using \code{Import}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+calendar_handle.call('Import', {'Type': u'CalendarEntry', 'FileName': u'C:\\data\\input.txt', 'Format': u'VCal'})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+calendar_handle.call('Import', {'Type': u'CalendarEntry', 'FileName': u'C:\\data\\input.txt', 'Format': u'VCal'}, callback= imp_callback))
+\end{verbatim}
+
+where, \code{imp_callback} is an user defined callback function.
+
+The following table summarizes the specification of \code{Import}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Imports the calendar entries from an input file.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous.  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\hline
+{\bf Note} & The specified calendar must exist.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and its details to import. Input parameter properties are Type and Data.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Performs the operation on calendar entries.  \\
+\hline
+Data & map & {\bf[CalendarName]}: unicode string \break
+{\bf Buffer} or {\bf FileName}: unicode string \break
+{\bf Format}: unicode string & Imports entries to a specified calendar or to the default calendar if not specified. \code{CalendarName} must be in the format {\bf Drivexxx:FileNamexxx}. \break
+Either Buffer or \code{FileName} can be given. \code{FileName} must contain the complete path of the file. For example, {\bf C:>{\textbackslash}{\textbackslash}data{\textbackslash}{\textbackslash}importfile.txt} \break
+Buffer or \code{Filename} holds the entries to be imported. \break
+Format specifies the data format of buffer or file. Format can have values {\bf ICal} or {\bf VCal}. {\bf ICal} is supported from Fifth Edition devices onwards.  \\
+\end{tabular}
+\caption{Input parameters Import}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains \code{ReturnValue}. It also contains \code{ErrorCode}, and an \code{ErrorMessage}, if the operation fails. {\bf ReturnValue} contains the Ids of the entries imported.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & iterator & string & An Iterate list of Ids of the entries successfully imported to the specified calendar file. \break
+{\bf Note:} The Id can repeat in case of Modifying entries. \\  
+\end{tabular}
+\caption{Output parameters Import}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Calendar:Import:CalendarName is invalid} & Invalid type is passed for \code{CalendarName}  \\
+\hline
+\code{Calendar:Import:FileName is invalid} & Invalid type is passed for \code{FileName} or, \code{FileName} exceeds 239 characters  \\
+\hline
+\code{Calendar:Import:Buffer is invalid} & Invalid type is passed for Buffer  \\
+\hline
+\code{Calendar:Import:Type is invalid} & Import called with invalid Type  \\
+\hline
+\code{Calendar:Import:Data is missing} & \code{Data} parameter is missing \\
+\hline
+\code{Calendar:Import:Data is invalid} & Invalid type is passed for \code{Data} parameter  \\
+\hline
+\code{Calendar:Import:Format is missing} & Import \code{Format} parameter not specified.  \\
+\hline
+\code{Calendar:Import:FileName is missing} & \code{FileName} is not passed  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to import a calendar entry:
+
+\begin{verbatim}
+# Load Calendar service
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+
+try:
+    calendar_handle.call('Import', {'Type': u'CalendarEntry', 'FileName': u'C:\\Data\\importfile.txt', 'Format': u'VCal' })
+except scriptext.ScriptextError:
+    print 'Error in servicing the request'
+else:
+    print "Import request successfully complete!"
+\end{verbatim}
+
+\subsection{Export}
+\label{subsec:calendarexport}
+
+\code{Export} is used to export the calendar entries to an output file. The information is exported to an {\bf ICal} or {\bf VCal} file. This method can be called both in synchronous and asynchronous mode. 
+
+The following are the examples for using \code{Export}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+calendar_handle.call('Export', {'Type': u'CalendarEntry', 'FileName': u'C:\\Data\\output.txt', 'Format': u'VCal'})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+calendar_handle.call('Export', {'Type': u'CalendarEntry', 'FileName': u'C:\\data\\output.txt', 'Format': u'VCal'}, callback= exp_callback))
+\end{verbatim}
+
+where, \code{exp_callback} is an user defined callback function.
+
+The following table summarizes the specification of \code{Export}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Exports the calendar entries to an output file.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\hline
+{\bf Note} & The specified calendar must exist.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and its details to export. Input parameter properties are Type and Data.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Performs the operation on calendar entries.  \\
+\hline
+Data & map & {\bf[CalendarName]}: unicode string \break
+{\bf Idlist} or {\bf LocalIdList}: List of unicode strings \break
+{\bf FileName}: unicode string \break
+{\bf Format}: unicode string & Exports entries to the default calendar if not specified. \code{CalendarName} must be in the format {\bf Drivexxx:FileNamexxx}. \break
+
+Exports entries in the given format. Format can have values {\bf ICal} or {\bf VCal}. {\bf ICal} is supported from Fifth Edition devices onwards. \break
+
+\code{IdList} or \code{LocalIdList} is a list of Ids of the entries to be exported. Specify either \code{IdList} or \code{LocalIdList}. It exports all the entries from the specified calendar file if the list is not specified. Also, it exports only for valid Ids and ignores the remaining Ids. \break
+
+Entries are exported to the file if \code{FileName} is specified else, 8-bit Data is returned as output. \\
+\end{tabular}
+\caption{Input parameters Export}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output contains the requested information \code{ReturnValue}. It also contains \code{ErrorCode}, and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|l|p{1cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} (Applicable in case \code{FileName} is not specified in data) & 8-bit data & NA & Contains the exported entries in the specified format. It is applicable if \code{FileName} is not specified in input parameters.  \\  
+\end{tabular}
+\caption{Output parameters Export}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{6cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Calendar:Export:Type is invalid} & Export called with invalid Type  \\
+\hline
+\code{Calendar:Export:Data is missing} & Export called without passing input \code{Data}  \\
+\hline
+\code{Calendar:Export:Data is invalid} & Invalid type is passed for input \code{Data} parameter  \\
+\hline
+\code{Calendar:Export:Format is missing} & Export Format not passed in \code{Data}.  \\
+\hline
+\code{Calendar:Export:FileName is invalid} & Invalid type for \code{FileName} parameter or, \code{FileName} exceeds 239 characters  \\
+\hline
+\code{Calendar:Export:IdList is invalid} & Invalid type for input \code{IdList} parameter  \\
+\hline
+\code{Calendar:Export:LocalIdList is invalid} & Invalid type for input \code{LocalIdList} parameter  \\
+\hline
+\code{Calendar:Export:CalendarName is invalid} & Invalid type is passed for \code{CalendarName}  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample illustrates how to export a calendar entry:
+
+\begin{verbatim}
+# Load Calendar service
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+
+try:
+    calendar_handle.call('Export', {'Type': u'CalendarEntry', 'FileName': u'C:\\Data\\importfile.txt', 'Format': u'VCal' })
+except scriptext.ScriptextError:
+    print 'Error in servicing the request'
+else:
+    print "Export request successfully complete!"
+\end{verbatim}
+
+\subsection{RequestNotification}
+\label{subsec:calendarrequest}
+
+\code{RequestNotification} is used to notify the registered client when events such as entry creation, updation, or deletion occurs in a specified calendar. If no calendar is specified, the default calendar is used. This is an asynchronous method.
+
+The following is an example for using \code{RequestNotification}:
+
+\begin{verbatim}
+event_id = calendar_handle.call("RequestNotification", {'Type': u'CalendarEntry'}, callback=calendar_callback)
+\end{verbatim}
+
+The following table summarizes the specification of \code{RequestNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IDataSource}  \\
+\hline
+{\bf Description} & Notifies when add, delete, or modify is performed on the entries in the calendar store.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} & \code{IDataSource} interface is loaded.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\hline
+{\bf Note} & The specified calendar must exist.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the Type and its details to perform operation.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{1cm}|p{2cm}|p{4cm}|p{7cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{CalendarEntry} & Performs the operation on calendar entries.  \\
+\hline
+[Filter] & map & {\bf[CalendarName]}: unicode string \break
+{\bf [LocalIdList]}: List of unicode strings \break
+{\bf [EndRange]}: datetime \break
+{\bf [IncludeUndatedTodos]}: bool & If this entry is not specified then, notifies changes to the default calendar. \code{CalendarName} must be in the format {\bf Drivexxx:FileNamexxx}. \break
+
+\code{LocalIdList} specifies Ids for notification. These are obtained by a call to \code{Getlist}. If it is not specified all the entries are considered. \break
+
+The \code{StartRange} and \code{EndRange} fields specify the time range during which notifications are required. \break
+
+\code{IncludeUndatedTodos} specifies whether notifications are required for \code{ToDo} entries that have no date.  \\
+\end{tabular}
+\caption{Input parameters RequestNotification}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameter contains the type of modification performed on the entries in the Calendar store and the \code{LocalId} of that entry. It also contains \code{ErrorCode}, and an \code{ErrorMessage}, if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description}  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\hline
+\code{ReturnValue} & Iterator (map) & {\bf ChangeType}: string: \code{Add} \break
+\code{Delete} \break
+\code{Modify} \break
+\code{Unknown} \break
+{\bf LocalId}: string & The \code{ChangeType} field indicates the type of modification made to the entries in the calendar store. \break
+The \code{LocalId} gives the Id of the entry that is modified, added, or deleted.  \\  
+\end{tabular}
+\caption{Output parameters RequestNotification}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the errors and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{1000} & Service argument out of range  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+the following table lists the error messages and their description:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{10cm}|p{6cm}}
+\hline
+{\bf Error messages} & {\bf Description}  \\
+\hline
+\code{Calendar:RequestNotification:CalendarName is invalid} & Invalid type is passed for \code{CalendarName}  \\
+\hline
+\code{Calendar:RequestNotification:Type is invalid} & \code{RequestNotification} called with invalid Type  \\
+\hline
+\code{Calendar:RequestNotification:StartRange is invalid} & Invalid type for Filter:StartRange parameter  \\
+\hline
+\code{Calendar:RequestNotification:EndRange is invalid} & IInvalid type for Filter:EndRange parameter  \\
+\hline
+\code{Calendar:RequestNotification:IncludeUndatedTodos is invalid} & Invalid type for Filter: IncludeUndatedTodos parameter.  \\
+\hline
+\code{Calendar:RequestNotification:FileName is invalid} & Invalid type for \code{FileName} parameter or, \code{FileName} exceeds 239 characters  \\
+\hline
+\code{Calendar:RequestNotification:LocalIdList is invalid} & Invalid type for Filter:LocalIdList parameter or, \code{LocalIdList} contains invalid data  \\
+\hline
+\code{Calendar:RequestNotification:Filter is invalid} & Invalid type for Filter parameter  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+\begin{verbatim}
+import scriptext
+import e32
+
+lock = e32.Ao_lock()
+calendar_handle = scriptext.load('Service.Calendar', 'IDataSource')
+
+def calendar_callback(trans_id, event_id, input_params):
+    if event_id != scriptext.EventCompleted:   
+# Check the event status
+        print "Error in retrieving required info"
+        print "Error code is: " + str(input_params["ReturnValue"]["ErrorCode"])
+        if "ErrorMessage" in input_params["ReturnValue"]:
+            print "Error message is: " + input_params["ReturnValue"]["ErrorMessage"]
+    else:
+        print "Modification is: " + str(input_params["ReturnValue"]["ChangeType"])
+    lock.signal()
+
+# Make a request to get notification
+event_id = calendar_handle.call("RequestNotification", {'Type': u'CalendarEntry'}, callback=calendar_callback)
+
+lock.wait()
+\end{verbatim}
+
+\subsection{Key Values}
+\label{subsec:calendarkeyval}
+
+{\bf Calendar Entry} \break
+
+Fields applicable for a particular 'Type' of entry are mentioned in {\bf Add} Section, all other fields are ignored.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{12cm}}
+\hline
+{\bf Key} & {\bf Description}  \\
+\hline
+Type & Specifies whether the entry is a meeting, to-do item, reminder, event or anniversary.  \\
+\hline
+\code{CalendarName} & Specifies Calendar Name. It must be given in the format {\bf Drivexxx:Filenamexxx}.  \\
+\hline
+\code{Summary} & Holds the summary for the calendar entry.  \\
+\hline
+\code{SeqNum} & Holds the sequence number for the calendar entry, used in group scheduling. The default value is 0.  \\
+\hline
+\code{StartTime} & Holds the start time for the calendar entry.  \\
+\hline
+\code{EndTime} & Holds the end time for the calendar entry.  \\
+\hline
+Replication & Specifies replication status of the entry \break
+{\bf Open}: No restriction on access, this is the default value. \break
+{\bf Private}: Data is private, no access. \break
+{\bf Restricted}: Data is confidential, restricted access.  \\
+\hline
+Method & The method property of an entry (only for \code{ICalendar} entry). \break
+\code{None}: This is the default value if not specified. \break
+\code{Publish} \break
+\code{Request} \break
+\code{Reply} \break
+\code{Add} \break
+\code{Cancel} \break
+\code{Refresh} \break
+\code{Counter} \break
+\code{DeclineCounter}  \\
+\hline
+Description & Holds the description for the calendar entry.  \\
+\hline
+Priority & Specifies the priority for the calendar entry (range is 0-255, default value is 0).  \\
+\hline
+\code{AlarmTime} & Holds the alarm time for the calendar entry, must be before \code{StartTime} entry. For entry type \code{ToDo}, it must be before \code{EndTime}.  \\
+\hline
+Location & Holds the location name for an entry of type \code{Meeting}.  \\
+\hline
+Status & Specifies the status for the calendar entry. \break
+\code{Tentative} \break
+\code{Confirmed} \break
+\code{TodoNeedsAction} \break
+\code{TodoCompleted} \break
+\code{TodoInProcess} \break
+\code{Cancelled} \break
+\code{NullStatus}: This is the default value, if not specified.  \\
+\hline
+\code{RepeatDates} & Contains a list of out-of-sequence dates on which the calendar entry repeats.  \\
+\hline
+\code{ExDates} & Contains a list of exception dates that is, occurrences in the original schedule that have been removed and may be replaced with a different occurrence.  \\
+\hline
+\code{PhoneOwner} & Holds the details of the phone owner.  \\
+\hline
+Organizer & Holds the organizer information, applicable for an entry of type \code{Meeting}.  \\
+\hline
+Attendees & Holds the attendee information, applicable for an entry of type \code{Meeting}. For more information, see {\bf Attendee structure}.  \\
+\hline
+\code{RepeatRule} & Contains name-value pairs. For more information, see {\bf Repeat Rule Structure}.  \\
+\end{tabular}
+\caption{Key value- Calendar Entry}
+\end{center}
+\end{table}
+
+{\bf Repeat Rule Structure} \break
+
+Most the fields in the following table are applicable for specific 'Type'.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{3cm}|p{1cm}|p{10cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description}  \\
+\hline
+Type & int & Specifies the type of repeat rule: \break
+(Daily) \break
+(Weekly) \break
+(Monthly) \break
+(Yearly)  \\
+\hline
+\code{[StartDate]} & datetime & Start Time. If not specified Entry \code{StartTime} is taken.  \\
+\hline
+\code{[UntilDate]} & datetime & Holds the end date until which this entry will repeat.  \\
+\code{[Interval]} & int & Specifies the interval between instances of a repeating entry.  \\
+\code{[DaysInWeek]} & List & List of integers. Specifies on what days of the week the rule must repeat. Values are 0(Monday) to 6(Sunday).  \\
+\code{[MonthDays]} & List & List of integers. Specifies on what days of the month (0-30) the rule must repeat.  \\
+\hline
+\code{[DaysOfMonth]} & List & List of maps each having the format: \break
+Day (0 - 6): 32 bit int \break
+\code{WeekNum}: 32 bit int  \\
+\hline
+\code{[Month]} & int & Specifies the month for a yearly repeat rule. Values are 0(January) to 11(December).  \\
+\end{tabular}
+\caption{Key value- Repeat Rule Structure}
+\end{center}
+\end{table}
+
+\begin{notice}[note]
+\begin{itemize}
+\item Specify only Type and \code{UntilDate} for a 'Daily' repeat.
+\item Specify Type, \code{UntilDate}, and \code{DaysInWeek} for a 'Weekly' repeat rule.
+\item Specify Type, \code{UntilDate}, and \code{MonthDays} / \code{DaysOfMonth} for a 'Monthly' repeat rule. The \code{WeekNum} parameter can take values 1, 2, 3, 4 for the first, second, third, and fourth week of the month, or -1 for the last week of the month.
+\item Specify Type, \code{UntilDate}, \code{DaysOfMonth}, and \code{Month} for a 'Yearly' repeat rule. Only first entry in \code{DaysOfMonth} is taken. If specified, \code{DaysOfMonth} and \code{Month} must be given together.
+\item If \code{DaysInWeek}, \code{MonthDays}, \code{DaysOfMonth}, or \code{Month} (whichever applicable for repeat rule 'Type') is not specified, it is calculated from Entry \code{StartTime}.
+\item Interval is an optional parameter for all types.
+\item \code{UntilDate} parameter is set to be the same value as specified for Third Edition and Third Edition FP1 onwards, it is modified internally to be the start time of the last instance of the repeat rule. \break
+If \code{UntilDate} is not specified, it is taken as the maximum time.
+\end{itemize}
+\end{notice}
+
+{\bf Attendee Structure} \break
+
+Most the fields in the following table are applicable for specific 'Type'.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{2cm}|p{1cm}|p{10cm}}
+\hline
+{\bf Key} & {\bf Type} & {\bf Description}  \\
+\hline
+\code{[CommonName]} & string & Holds the common name for group scheduling.  \\
+\hline
+\code{[Role]} & string & Specifies the role of a meeting participant. The possible values are: \break
+\code{Required} \break
+\code{Optional} \break
+\code{NonParticipant} \break
+\code{Chair} \break
+The default  value is \code{Required}.  \\
+\hline
+\code{Address} & string & Specifies the email address of a meeting participant.  \\
+\hline
+\code{[Status]} & string & Specifies the status of an attendee. The possible values are: \break
+\code{NeedsAction} \break
+\code{Accepted} \break
+\code{Tentative} \break
+\code{Confirmed} \break
+\code{Declined} \break
+\code{Completed} \break
+\code{Delegated} \break
+\code{InProcess} \break
+The default value is \code{NeedsAction}  \\
+\hline
+\code{[Rsvp]} & Boolean & Specifies whether or not a response is requested for this attendee. Default value is 0(False).  \\            
+\end{tabular}
+\caption{Key value- Attendee Structure}
+\end{center}
+\end{table}
+\pagebreak
+

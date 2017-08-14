@@ -1,0 +1,106 @@
+% -*- tex -*-
+% Copyright (c) 2008 - 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\label{known-issues}
+
+{\bf Limitations:}
+
+1. On this platform, the stack size is significantly less compared to other platforms and 
+hence deep recursions and high memory consuming operations may cause stack overflow.
+
+2. Calling setsockopt() on UDP sockets requires that the application is signed with NETWORKCONTROL capability.
+
+3. The file access time and modification time are same on Symbian and the same behavior is reflected in the utime module.
+
+4. Using the Listbox widget in large/full screen mode results in an unrefreshed area at the bottom of the screen. This is 
+a S60 platform limitation and as mentioned in the SDK documentation (\url{http://www.forum.nokia.com/infocenter/index.jsp?topic=/S60_3rd_Edition_Cpp_Developers_Library/GUID-759FBC7F-5384-4487-8457-A8D4B76F6AA6/html/classCAknSelectionListDialog.html})
+ it works only in the main pane.
+\break
+{\bf Bugs:}
+
+Information about all known bugs can be got from here \url{https://garage.maemo.org/tracker/?group_id=854}.
+
+\break
+{\bf Failing test cases:}
+
+Below is the summary of the standard regrtest Python module executed on this platform.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+Tests & Comments \\
+\hline
+test_asynchat & This test failed when tested on a 5th edition device and is under investigation. It works fine on 3rd edition and 3rd edition FP2 devices. \\
+test_builtin & test_cmp fails because of Stack Overflow \\
+test_compiler & testCompileLibrary, testLineNo fail because of Stack Overflow. Another reason for this fail is related to the zipping of all the standard Python files. \\
+test_copy & test_deepcopy_reflexive_dict, test_deepcopy_reflexive_list and test_deepcopy_reflexive_tuple fail because of Stack overflow \\
+test_datetime & time conversion issues in the dependent libraries \\
+test_doctest & Python bug (\url{http://bugs.python.org/issue1540}) \\
+test_exceptions & testInfiniteRecursions fail because of Stack Overflow \\
+test_mailbox & Under investigation \\
+test_richcmp & This fail is because of Stack overflow \\
+test_tarfile & Under investigation \\
+test_time & DST conversion issues in the dependent libraries \\
+test_importhooks & This fails because distutils module not supported. \\
+test_pyclbr & This fail is related to the zipping of all the standard Python files. \\
+test_repr & This fail is related to the zipping of all the standard Python files. \\
+test_urllib2 & This fail is related to the zipping of all the standard Python files. \\
+test_urllib2net & Under investigation \\
+\hline
+\end{tabular}
+\caption{Failing test cases}
+\label{tab:image2d}
+\end{center}
+\end{table}
+
+
+{\bf Skipped test cases:} 
+
+These tests are skipped as one or more modules needed by them are not supported on this platform.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l|l|l|l}
+\hline
+test_aepack & test_al & test_applesingle & test_audioop & test_bsddb & test_bsddb185 & test_bsddb3 \\
+test_bz2 & test_cd & test_cl & test_cmd_line & test_commands & test_crypt & test_ctypes \\
+test_curses & test_dbm & test_distutils & test_dl & test_fork1 & test_gdbm & test_gl \\
+test_grp & test_hotshot & test_imageop & test_imgfile & test_ioctl & test_largefile & test_linuxaudiodev \\
+test_macfs & test_macostools & test_macpath & test_mhlib & test_mmap & test_nis & test_openpty \\
+test_ossaudiodev & test_pep277 & test_plistlib & test_poll & test_popen & test_popen2 & test_pty \\
+test_pwd & test_resource & test_rgbimg & test_scriptpackages &test_signal & test_sqlite & test_startfile \\
+test_subprocess & test_sunaudiodev & test_sundry & test_tcl & test_threadsignals & test_wait3 & test_wait4 \\
+test_winreg & test_winsound & test_zipfile64 \\
+\hline
+\end{tabular}
+\caption{Skipped test cases}
+\label{tab:image2d}
+\end{center}
+\end{table}
+
+These tests are also skipped, but are related to the zipping of all the standard Python files.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+test_email & test_email_codecs & test_email_renamed & test_import \\
+\hline
+\end{tabular}
+\caption{Skipped test cases related to zipping of standard Python files}
+\end{center}
+\end{table}
+

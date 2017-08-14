@@ -1,0 +1,147 @@
+% -*- tex -*-
+% Copyright (c) 2008-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\documentclass{manual}
+
+% NOTE: this file controls which chapters/sections of the library
+% manual are actually printed.  It is easy to customize your manual
+% by commenting out sections that you're not interested in.
+
+\title{S60 Module Reference}
+
+\input{boilerplate}
+
+\makeindex                      % tell \index to actually write the
+                                % .idx file
+\makemodindex                   % ... and the module index as well.
+
+%begin{latexonly}
+\ifx\pdftexversion\undefined
+ \usepackage[dvips]{graphicx}
+\else
+ \usepackage[pdftex]{graphicx}
+\fi
+%end{latexonly}
+\usepackage{graphicx}
+
+\usepackage{longtable}
+\usepackage{color}
+
+\graphicspath{{./}{figures/}}
+
+\begin{document}
+
+\maketitle
+
+\ifhtml
+\chapter*{Front Matter\label{front}}
+\fi
+
+\input{copyright}
+% XXX the text itself is redundant, but leaving it out messes up the
+% formatting of the rest of the document - the pages would end up on
+% the wrong side.
+\begin{abstract}
+\noindent
+\input{preamble}
+\end{abstract}
+
+\tableofcontents
+                                % Chapter title:
+
+\begin{flushleft}
+\input{start}
+
+\chapter{Operating System Services and Information \label{s60os}}
+
+\input{libe32}
+\input{libsysinfo}
+
+\chapter{User Interface and Graphics \label{s60graph}}
+
+\input{libappuifw}
+\input{libglobalui}
+\input{libgraphics}
+\input{libcamera}
+\input{libkeycapture}
+\input{libtopwindow}
+\input{libgles}
+\input{libglcanvas}
+\input{libsensorapi}
+\input{libsensorfw}
+
+\chapter{Audio and Communication Services \label{s60ac}}
+
+\input{libaudio}
+\input{libtelephone}
+\input{libmessaging}
+\input{libinbox}
+\input{liblocation}
+\input{libposition}
+\input{libbtsocket}
+
+\chapter{Data Management \label{s60data}}
+
+\input{libcontacts}
+\input{libe32calendar}
+\input{libe32db}
+\input{libe32dbm}
+\input{liblogs}
+
+% \chapter{New Modules\label{s60new}}
+\input{scriptextacronyms}
+\input{libscriptext}
+\input{scriptextpyruntime}
+\input{scriptextappmgr}
+\input{scriptextcalendar}
+\input{scriptextcontact}
+\input{scriptextlandmarks}
+\input{scriptextlocation}
+\input{scriptextlogging}
+\input{scriptextmessage}
+\input{scriptextmediamgmt}
+\input{scriptextsensors}
+\input{scriptextsysinfo}
+\input{scriptextappendix}
+\input{modulerepo}
+\input{extendandembed}
+\input{libabbreviations}
+\input{libreferences}
+
+\appendix
+
+\chapter{Known Issues}
+\input{knownissues}
+\chapter{Reporting Bugs}
+\input{reportingbugs}
+\end{flushleft}
+
+
+%  The ugly "%begin{latexonly}" pseudo-environments are really just to
+%  keep LaTeX2HTML quiet during the \renewcommand{} macros; they're
+%  not really valuable.
+
+
+%begin{latexonly}
+\renewcommand{\indexname}{Module Index}
+%end{latexonly}
+\input{mods60.ind}              % Module Index
+
+%begin{latexonly}
+\renewcommand{\indexname}{Index}
+%end{latexonly}
+\input{s60.ind}                 % Index
+
+\end{document}

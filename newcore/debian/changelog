@@ -1,0 +1,210 @@
+python2.5 (2.5.1-1osso2) unstable; urgency=low
+
+  * Move pydoc and pdb from dev package to python2.5 
+
+ -- Luciano Miguel Wolf <luciano.wolf@indt.org.br>  Wed,  9 May 2007 11:00:04 -0300
+
+python2.5 (2.5.1-1osso1) unstable; urgency=low
+
+  * Upgrade to python2.5.1
+  * Moving BaseHTTPServer, SimpleHTTPServer, SimpleXMLRPCServer, CGIHTTPServer, cgi, cgitb to the main package
+
+ -- Luciano Miguel Wolf <luciano.wolf@indt.org.br>  Wed,  2 May 2007 14:50:34 -0300
+
+python2.5 (2.5.0-1osso12) unstable; urgency=low
+
+  * closes #542 and #711
+
+ -- Luciano Miguel Wolf <luciano.wolf@indt.org.br>  Mon, 25 Apr 2007 15:26:00 -0300
+
+python2.5 (2.5.0-1osso11) unstable; urgency=low
+
+  * gdbm dependency added
+
+ -- Luciano Miguel Wolf <luciano.wolf@indt.org.br>  Mon, 19 Mar 2007 16:51:13 -0300
+
+python2.5 (2.5.0-1osso10) unstable; urgency=low
+
+  * leaves pyexpat module inside python package 
+  * bugfix on race condition with signals
+
+ -- Luciano Miguel Wolf <luciano.wolf@indt.org.br>  Thu, 22 Feb 2007 09:15:00 -0300
+
+python2.5 (2.5.0-1osso9) unstable; urgency=low
+
+  * compiled with sqlite3 support
+  * closes #270
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Fri, 23 Jan 2007 14:55:00 -0300
+
+python2.5 (2.5.0-1osso8) unstable; urgency=low
+
+  * adapting the webbrowser module to use the new osso module API
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Fri, 12 Jan 2007 10:34:00 -0300
+
+python2.5 (2.5.0-1osso8) unstable; urgency=low
+
+  * fixed the "MaemoWebBroser" typo in webbrowser module.
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed, 10 Jan 2007 17:29:00 -0300
+
+python2.5 (2.5.0-1osso7) unstable; urgency=low
+
+  * put the traceback module back to the runtime package. This module is
+    needed by webbrowser module.
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Fri, 5 Jan 2007 14:35:00 -0300
+
+python2.5 (2.5.0-1osso6) unstable; urgency=low
+
+  * changed "all" to "any" in -dev package (readline.so and other binary
+    modules are platform dependent)
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 27 Dec 2006 10:59:00 -0300
+
+python2.5 (2.5.0-1osso5) unstable; urgency=low
+
+  * added "Replaces: python2.4" to the debian/control file
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 26 Dec 2006 11:12:50 -0300
+
+python2.5 (2.5.0-1osso4) unstable; urgency=low
+
+  * put the readline module in -dev package
+  * added provides python-termios
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed, 13 Dec 2006 10:16:11 -0300
+
+python2.5 (2.5.0-1osso3) unstable; urgency=low
+
+  * moving the subprocess module to runtime package
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed,  6 Dec 2006 15:29:09 -0300
+
+python2.5 (2.5.0-1osso2) unstable; urgency=low
+
+  * removing readline dependency
+  * removing curses dependency
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Mon, 5 Dec 2006 14:52:00 -0300
+
+python2.5 (2.5.0-1osso1) unstable; urgency=low
+
+  * update to 2.5.0
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Mon, 4 Dec 2006 18:19:00 -0300
+
+python2.5 (2.5c1-1osso1) unstable; urgency=low
+
+  * update to 2.5c1
+  * conflicts with python2.4 packages
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed, 19 Jul 2006 18:21:33 -0300
+
+python2.4 (2.4.2-1osso13) unstable; urgency=low
+
+  * Passing $OPT with CFLAGS contents to ./configure so it honors the flags
+
+ -- Elvis Pfutzenreuter <elvis.pfutzenreuter@indt.org.br>  Wed, 14 Jun 2006 15:10:00 -0300
+
+python2.4 (2.4.2-1osso12) unstable; urgency=low
+
+  * debian/rules totally refactored
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Fri,  9 Jun 2006 15:21:36 -0300
+
+python2.4 (2.4.2-1osso11) unstable; urgency=low
+  
+  * fixed depends on shlibs
+  * enable "-mthumb" and "-msoft-abi=softfp" flags on gcc
+  * removing "*.exe" from development package
+  * removing "/tmp" from development package
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Mon, 5 Jun 2006 15:36:00 -0300
+
+python2.4 (2.4.2-1osso10) unstable; urgency=low
+  
+  * move python manpage to development package
+  * improve development package description
+  * remove VPATH from Makefile
+  * remove files and modules licensed under GPL
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 19 May 2006 13:36:00 -0300
+
+python2.4 (2.4.2-1osso9) unstable; urgency=low
+  
+  * fixes in development package
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed, 10 May 2006 19:15:00 -0300
+
+python2.4 (2.4.2-1osso8) unstable; urgency=low
+  
+  * modify import.c to not create a new compiled ".pyc/.pyo"
+  * remove xml from python package. Python for maemo will use python-xml
+    package instead.
+  * put xmllib module (used to compile libxml2 bindings and dbus-bindings)
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed, 10 May 2006 15:20:00 -0300
+
+python2.4 (2.4.2-1osso7) unstable; urgency=low
+  
+  * more package cleanups
+  * bump release to recompile in 2.0rc7
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 05 May 2006 16:08:00 -0300
+
+python2.4 (2.4.2-1osso6) unstable; urgency=low
+  
+  * removing unneeded patches
+  * removing lib-tk directory from sys.path
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 02 May 2006 16:56:00 -0300
+
+python2.4 (2.4.2-1osso5) unstable; urgency=low
+  
+  * add binary strip
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 04 Apr 2006 10:03:00 -0300
+
+python2.4 (2.4.2-1osso4) unstable; urgency=low
+  
+  * added /usr/bin/* symlinks
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Mon, 03 Apr 2006 17:33:00 -0300
+
+python2.4 (2.4.2-1osso3) unstable; urgency=low
+  
+  * now including *.so.* files
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Mon, 27 Mar 2006 19:07:00 -0300
+
+python2.4 (2.4.2-1osso2) unstable; urgency=low
+  
+  * fixed bug that remove .svn/tmp when building the package
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Wed, 01 Mar 2006 15:58:00 -0300
+
+python2.4 (2.4.2-1osso1) unstable; urgency=low
+  
+  * First OSSO release for SDK 1.2
+
+ -- Ruda Moura <ruda.moura@indt.org.br>  Thu, 09 Feb 2006 10:16:59 -0300
+
+python2.4 (2.4.2-1indt2) unstable; urgency=low
+
+  * Recompiled against SDK 1.1rc8
+
+ -- Ruda Moura <ruda.moura@indt.org.br>  Fri, 02 Dec 2005 15:27:56 -0300
+
+python2.4 (2.4.2-1indt1) unstable; urgency=low
+
+  * Python 2.4.2 release for Pymaemo.
+
+ -- Osvaldo Santana Neto <osvaldo.santana@indt.org.br>  Tue, 25 Oct 2005 17:07:00 -0400
+
+python2.4 (2.4.2-1) unstable; urgency=low
+
+  * Python 2.4.2 release.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 29 Sep 2005 01:49:28 +0200

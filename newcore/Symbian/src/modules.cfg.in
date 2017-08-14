@@ -1,0 +1,525 @@
+# Copyright (c) 2008-2009 Nokia Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Format for builtin modules : module_name=path\filename -- path w.r.t. newcore.
+# Format for PYDs : module_name,mmp="SOURCE path\filename1|SOURCE path\filename2
+# ...|macros|libraries"[,base]
+# base is mentioned if the PYD is part of the baseruntime
+# Eg: cPickle,mmp="SOURCE Modules\cPickle.c",base
+# Format for PY_MODULES : "path:filename" where ':' is the delimiter. 'path'
+# should be relative to Symbian/src folder. If 'filename' contains directories,
+# then they will be retained in the python25.zip package.
+
+PYD
+
+cPickle,mmp="SOURCE Modules\cPickle.c",base
+_struct,mmp="SOURCE Modules\_struct.c",base
+cmath,mmp="SOURCE Modules\cmathmodule.c"
+math,mmp="SOURCE Modules\mathmodule.c",base
+pyexpat,mmp="SOURCE Modules\pyexpat.c|SOURCE Modules\expat\xmltok.c|SOURCE Modules\expat\xmlrole.c|SOURCE Modules\expat\xmlparse.c|MACRO XML_STATIC HAVE_EXPAT_CONFIG_H",base
+_elementtree,mmp="SOURCE Modules\_elementtree.c|MACRO USE_PYEXPAT_CAPI",base
+cStringIO,mmp="SOURCE Modules\cStringIO.c",base
+operator,mmp="SOURCE Modules\operator.c",base
+itertools,mmp="SOURCE Modules\itertoolsmodule.c",base
+binascii,mmp="SOURCE Modules\binascii.c",base
+errno,mmp="SOURCE Modules\errnomodule.c",base
+_random,mmp="SOURCE Modules\_randommodule.c",base
+_multibytecodec,mmp="SOURCE Modules\cjkcodecs\multibytecodec.c",base
+unicodedata,mmp="SOURCE Modules\unicodedata.c",base
+collections,mmp="SOURCE Modules\collectionsmodule.c",base
+parser,mmp="SOURCE Modules\parsermodule.c"
+_sha,mmp="SOURCE Modules\shamodule.c",base
+_sha256,mmp="SOURCE Modules\sha256module.c",base
+_sha512,mmp="SOURCE Modules\sha512module.c",base
+_functools,mmp="SOURCE Modules\_functoolsmodule.c",base
+_weakref,mmp="SOURCE Modules\_weakref.c",base
+dl,mmp="SOURCE Modules\dlmodule.c"
+array,mmp="SOURCE Modules\arraymodule.c",base
+select,mmp="SOURCE Modules\selectmodule.c",base
+xxsubtype,mmp="SOURCE Modules\xxsubtype.c"
+_socket,mmp="SOURCE Modules\socketmodule.c",base
+fcntl,mmp="SOURCE Modules\fcntlmodule.c",base
+_csv,mmp="SOURCE Modules\_csv.c"
+_locale,mmp="SOURCE Modules\_localemodule.c",base
+_codecs_cn,mmp="SOURCE Modules\cjkcodecs\_codecs_cn.c"
+_codecs_hk,mmp="SOURCE Modules\cjkcodecs\_codecs_hk.c"
+_codecs_jp,mmp="SOURCE Modules\cjkcodecs\_codecs_jp.c"
+_codecs_kr,mmp="SOURCE Modules\cjkcodecs\_codecs_kr.c"
+_codecs_tw,mmp="SOURCE Modules\cjkcodecs\_codecs_tw.c"
+_codecs_iso2022,mmp="SOURCE Modules\cjkcodecs\_codecs_iso2022.c",base
+_md5,mmp="SOURCE Modules\md5module.c|SOURCE Modules\md5.c",base
+_symtable,mmp="SOURCE Modules\symtablemodule.c"
+_lsprof,mmp="SOURCE Modules\_lsprof.c|SOURCE Modules\rotatingtree.c"
+datetime,mmp="SOURCE Modules\datetimemodule.c",base
+_types,mmp="SOURCE Modules\_typesmodule.c",base
+thread,mmp="SOURCE Modules\threadmodule.c",base
+_ssl,mmp="SOURCE Modules\_ssl.c|LIBRARY libssl.lib libcrypto.lib|SYSTEMINCLUDE \epoc32\include\stdapis\openssl",base
+_testcapi,mmp="SOURCE Modules\_testcapimodule.c"
+
+BUILTIN
+
+# Needed by Py_Initialize
+_sre=Modules\_sre.c
+strop=Modules\stropmodule.c
+posix=Modules\posixmodule.c
+imp=Python\import.c
+zlib=Modules\zlibmodule.c
+# Imported in Py_Initialize before platsec_import is available
+zipimport=Modules\zipimport.c
+# Build dependency
+_ast=Python\Python-ast.c
+gc=Modules\gcmodule.c
+# Function "_PyTime_DoubleToTimet" is exported as PyAPI_FUNC
+time=Modules\timemodule.c
+_codecs=Modules\_codecsmodule.c
+
+PY_MODULES
+
+..\..\Lib\:__future__.py:base
+..\..\Lib\:UserDict.py:base
+..\..\Lib\:bisect.py:base
+..\..\Lib\:code.py
+..\..\Lib\:codecs.py:base
+..\..\Lib\:copy.py:base
+..\..\Lib\:copy_reg.py:base
+..\..\Lib\:difflib.py:base
+..\..\Lib\:dircache.py
+..\..\Lib\:doctest.py:base
+..\..\Lib\:filecmp.py
+..\..\Lib\:getopt.py:base
+..\..\Lib\:heapq.py:base
+..\..\Lib\:linecache.py:base
+..\..\Lib\:mimetypes.py:base
+..\..\Lib\:os.py:base
+..\..\Lib\:ntpath.py:base
+..\..\Lib\:random.py:base
+..\..\Lib\:re.py:base
+..\..\Lib\:repr.py:base
+..\..\Lib\:shutil.py
+..\..\Lib\:socket.py:base
+..\..\Lib\:sre_compile.py:base
+..\..\Lib\:sre_constants.py:base
+..\..\Lib\:sre_parse.py:base
+..\..\Lib\:stat.py:base
+..\..\Lib\:string.py:base
+..\..\Lib\:struct.py:base
+..\..\Lib\:textwrap.py:base
+..\..\Lib\:traceback.py:base
+..\..\Lib\:types.py:base
+..\..\Lib\:unittest.py:base
+..\..\Lib\:urllib.py:base
+..\..\Lib\:urllib2.py:base
+..\..\Lib\:urlparse.py:base
+..\..\Lib\:warnings.py:base
+..\..\Lib\:pickle.py:base
+..\..\Lib\:pickletools.py
+..\..\Lib\:locale.py:base
+..\..\Lib\:inspect.py:base
+..\..\Lib\:dis.py:base
+..\..\Lib\:opcode.py:base
+..\..\Lib\:tokenize.py:base
+..\..\Lib\:token.py:base
+..\..\Lib\:pdb.py:base
+..\..\Lib\:bdb.py:base
+..\..\Lib\:cmd.py:base
+..\..\Lib\:pprint.py:base
+..\..\Lib\:tempfile.py:base
+..\..\Lib\:dummy_thread.py:base
+..\..\Lib\:StringIO.py:base
+..\..\Lib\:quopri.py:base
+..\..\Lib\:keyword.py
+..\..\Lib\:_LWPCookieJar.py:base
+..\..\Lib\:_MozillaCookieJar.py:base
+
+..\..\Lib\:encodings\aliases.py:base
+..\..\Lib\:encodings\ascii.py:base
+..\..\Lib\:encodings\base64_codec.py:base
+..\..\Lib\:encodings\big5.py:base
+..\..\Lib\:encodings\big5hkscs.py:base
+..\..\Lib\:encodings\bz2_codec.py:base
+..\..\Lib\:encodings\charmap.py:base
+..\..\Lib\:encodings\cp037.py:base
+..\..\Lib\:encodings\cp1006.py:base
+..\..\Lib\:encodings\cp1026.py:base
+..\..\Lib\:encodings\cp1140.py:base
+..\..\Lib\:encodings\cp1250.py:base
+..\..\Lib\:encodings\cp1251.py:base
+..\..\Lib\:encodings\cp1252.py:base
+..\..\Lib\:encodings\cp1253.py:base
+..\..\Lib\:encodings\cp1254.py:base
+..\..\Lib\:encodings\cp1255.py:base
+..\..\Lib\:encodings\cp1256.py:base
+..\..\Lib\:encodings\cp1257.py:base
+..\..\Lib\:encodings\cp1258.py:base
+..\..\Lib\:encodings\cp424.py:base
+..\..\Lib\:encodings\cp437.py:base
+..\..\Lib\:encodings\cp500.py:base
+..\..\Lib\:encodings\cp737.py:base
+..\..\Lib\:encodings\cp775.py:base
+..\..\Lib\:encodings\cp850.py:base
+..\..\Lib\:encodings\cp852.py:base
+..\..\Lib\:encodings\cp855.py:base
+..\..\Lib\:encodings\cp856.py:base
+..\..\Lib\:encodings\cp857.py:base
+..\..\Lib\:encodings\cp860.py:base
+..\..\Lib\:encodings\cp861.py:base
+..\..\Lib\:encodings\cp862.py:base
+..\..\Lib\:encodings\cp863.py:base
+..\..\Lib\:encodings\cp864.py:base
+..\..\Lib\:encodings\cp865.py:base
+..\..\Lib\:encodings\cp866.py:base
+..\..\Lib\:encodings\cp869.py:base
+..\..\Lib\:encodings\cp874.py:base
+..\..\Lib\:encodings\cp875.py:base
+..\..\Lib\:encodings\cp932.py:base
+..\..\Lib\:encodings\cp949.py:base
+..\..\Lib\:encodings\cp950.py:base
+..\..\Lib\:encodings\euc_jisx0213.py:base
+..\..\Lib\:encodings\euc_jis_2004.py:base
+..\..\Lib\:encodings\euc_jp.py:base
+..\..\Lib\:encodings\euc_kr.py:base
+..\..\Lib\:encodings\gb18030.py:base
+..\..\Lib\:encodings\gb2312.py:base
+..\..\Lib\:encodings\gbk.py:base
+..\..\Lib\:encodings\hex_codec.py:base
+..\..\Lib\:encodings\hp_roman8.py:base
+..\..\Lib\:encodings\hz.py:base
+..\..\Lib\:encodings\idna.py:base:base
+..\..\Lib\:encodings\iso2022_jp.py:base
+..\..\Lib\:encodings\iso2022_jp_1.py:base
+..\..\Lib\:encodings\iso2022_jp_2.py:base
+..\..\Lib\:encodings\iso2022_jp_2004.py:base
+..\..\Lib\:encodings\iso2022_jp_3.py:base
+..\..\Lib\:encodings\iso2022_jp_ext.py:base
+..\..\Lib\:encodings\iso2022_kr.py:base
+..\..\Lib\:encodings\iso8859_1.py:base
+..\..\Lib\:encodings\iso8859_10.py:base
+..\..\Lib\:encodings\iso8859_11.py:base
+..\..\Lib\:encodings\iso8859_13.py:base
+..\..\Lib\:encodings\iso8859_14.py:base
+..\..\Lib\:encodings\iso8859_15.py:base
+..\..\Lib\:encodings\iso8859_16.py:base
+..\..\Lib\:encodings\iso8859_2.py:base
+..\..\Lib\:encodings\iso8859_3.py:base
+..\..\Lib\:encodings\iso8859_4.py:base
+..\..\Lib\:encodings\iso8859_5.py:base
+..\..\Lib\:encodings\iso8859_6.py:base
+..\..\Lib\:encodings\iso8859_7.py:base
+..\..\Lib\:encodings\iso8859_8.py:base
+..\..\Lib\:encodings\iso8859_9.py:base
+..\..\Lib\:encodings\johab.py:base
+..\..\Lib\:encodings\koi8_r.py:base
+..\..\Lib\:encodings\koi8_u.py:base
+..\..\Lib\:encodings\latin_1.py:base
+..\..\Lib\:encodings\mac_arabic.py:base
+..\..\Lib\:encodings\mac_centeuro.py:base
+..\..\Lib\:encodings\mac_croatian.py:base
+..\..\Lib\:encodings\mac_cyrillic.py:base
+..\..\Lib\:encodings\mac_farsi.py:base
+..\..\Lib\:encodings\mac_greek.py:base
+..\..\Lib\:encodings\mac_iceland.py:base
+..\..\Lib\:encodings\mac_latin2.py:base
+..\..\Lib\:encodings\mac_roman.py:base
+..\..\Lib\:encodings\mac_romanian.py:base
+..\..\Lib\:encodings\mac_turkish.py:base
+..\..\Lib\:encodings\mbcs.py:base
+..\..\Lib\:encodings\palmos.py:base
+..\..\Lib\:encodings\ptcp154.py:base
+..\..\Lib\:encodings\punycode.py:base
+..\..\Lib\:encodings\quopri_codec.py:base
+..\..\Lib\:encodings\raw_unicode_escape.py:base
+..\..\Lib\:encodings\rot_13.py:base
+..\..\Lib\:encodings\shift_jis.py:base
+..\..\Lib\:encodings\shift_jisx0213.py:base
+..\..\Lib\:encodings\shift_jis_2004.py:base
+..\..\Lib\:encodings\string_escape.py:base
+..\..\Lib\:encodings\tis_620.py:base
+..\..\Lib\:encodings\undefined.py:base
+..\..\Lib\:encodings\unicode_escape.py:base
+..\..\Lib\:encodings\unicode_internal.py:base
+..\..\Lib\:encodings\utf_16.py:base
+..\..\Lib\:encodings\utf_16_be.py:base
+..\..\Lib\:encodings\utf_16_le.py:base
+..\..\Lib\:encodings\utf_7.py:base
+..\..\Lib\:encodings\utf_8.py:base
+..\..\Lib\:encodings\utf_8_sig.py:base
+..\..\Lib\:encodings\uu_codec.py:base
+..\..\Lib\:encodings\zlib_codec.py:base
+..\..\Lib\:encodings\__init__.py:base
+
+..\..\Lib\:colorsys.py
+..\..\Lib\:subprocess.py
+..\..\Lib\:MimeWriter.py
+..\..\Lib\:mimetools.py:base
+..\..\Lib\:asynchat.py
+..\..\Lib\:asyncore.py
+..\..\Lib\:rfc822.py:base
+..\..\Lib\:atexit.py:base
+..\..\Lib\:base64.py:base
+..\..\Lib\:binhex.py
+..\..\Lib\:popen2.py:base
+..\..\Lib\:calendar.py:base
+..\..\Lib\:ConfigParser.py:base
+..\..\Lib\:cgi.py
+..\..\Lib\:htmlentitydefs.py:base
+..\..\Lib\:codeop.py
+..\..\Lib\:decimal.py
+..\..\Lib\:glob.py:base
+..\..\Lib\:fnmatch.py:base
+..\..\Lib\:Cookie.py
+..\..\Lib\:sets.py:base
+..\..\Lib\:dumbdbm.py
+..\..\Lib\:anydbm.py
+..\..\Lib\:Queue.py:base
+..\..\Lib\:dummy_threading.py:base
+..\..\Lib\:fileinput.py
+..\..\Lib\:fpformat.py
+..\..\Lib\:new.py:base
+..\..\Lib\:functools.py:base
+..\..\Lib\:hmac.py:base
+..\..\Lib\:gzip.py
+..\..\Lib\:hashlib.py:base
+..\..\Lib\:imaplib.py
+..\..\Lib\:sha.py
+..\..\Lib\:formatter.py:base
+..\..\Lib\:HTMLParser.py
+..\..\Lib\:SimpleHTTPServer.py
+..\..\Lib\:httplib.py:base
+..\..\Lib\:py_compile.py
+..\..\Lib\:platform.py:base
+..\..\Lib\:posixpath.py:base
+..\..\Lib\:mailbox.py
+..\..\Lib\:md5.py
+..\..\Lib\:mhlib.py
+..\..\Lib\:netrc.py
+..\..\Lib\:optparse.py:base
+..\..\Lib\:BaseHTTPServer.py:base
+..\..\Lib\:profile.py
+..\..\Lib\:pty.py
+..\..\Lib\:pyclbr.py
+..\..\Lib\:robotparser.py:base
+..\..\Lib\:sgmllib.py:base
+..\..\Lib\:shelve.py
+..\..\Lib\:shlex.py
+..\..\Lib\:stringprep.py:base
+..\..\Lib\:symbol.py
+..\..\Lib\:symtable.py
+..\..\Lib\:_strptime.py:base
+..\..\Lib\:cProfile.py
+..\..\Lib\:zipfile.py
+..\..\Lib\:uu.py:base
+..\..\Lib\:uuid.py
+..\..\Lib\:wave.py
+..\..\Lib\:whichdb.py
+..\..\Lib\:xdrlib.py
+..\..\Lib\:xmllib.py:base
+..\..\Lib\:xmlrpclib.py:base
+..\..\Lib\:chunk.py:base
+..\..\Lib\:threading.py:base
+..\..\Lib\:markupbase.py:base
+..\..\Lib\:commands.py
+..\..\Lib\:pstats.py
+..\..\Lib\:htmllib.py:base
+..\..\Lib\:cookielib.py:base
+..\..\Lib\:contextlib.py:base
+..\..\Lib\:gettext.py:base
+..\..\Lib\:UserList.py
+..\..\Lib\:weakref.py:base
+..\..\Lib\:multifile.py
+..\..\Lib\:sre.py:base
+..\..\Lib\:aifc.py:base
+..\..\Lib\:pydoc.py:base
+..\..\Lib\:pkgutil.py:base
+..\..\Lib\:sndhdr.py:base
+..\..\Lib\:ftplib.py:base
+..\..\Lib\:smtplib.py:base
+..\..\Lib\:imghdr.py:base
+..\..\Lib\:SocketServer.py:base
+..\..\Lib\:UserString.py
+..\..\Lib\:tarfile.py
+..\..\Lib\:runpy.py
+..\..\Lib\:trace.py
+..\..\Lib\:nturl2path.py:base
+..\..\Lib\:tty.py:base
+..\..\Lib\:_threading_local.py:base
+..\..\Lib\:DocXMLRPCServer.py
+..\..\Lib\:csv.py
+
+..\..\Lib\:compiler\ast.py
+..\..\Lib\:compiler\consts.py
+..\..\Lib\:compiler\future.py
+..\..\Lib\:compiler\misc.py
+..\..\Lib\:compiler\pyassem.py
+..\..\Lib\:compiler\pycodegen.py
+..\..\Lib\:compiler\symbols.py
+..\..\Lib\:compiler\syntax.py
+..\..\Lib\:compiler\transformer.py
+..\..\Lib\:compiler\visitor.py
+..\..\Lib\:compiler\__init__.py
+
+..\..\Lib\:hotshot\log.py
+..\..\Lib\:hotshot\stats.py
+..\..\Lib\:hotshot\stones.py
+..\..\Lib\:hotshot\__init__.py
+
+..\..\Lib\:wsgiref\handlers.py
+..\..\Lib\:wsgiref\headers.py
+..\..\Lib\:wsgiref\simple_server.py
+..\..\Lib\:wsgiref\util.py
+..\..\Lib\:wsgiref\validate.py
+..\..\Lib\:wsgiref\__init__.py
+
+..\..\Lib\:xml\__init__.py:base
+..\..\Lib\:xml\etree\cElementTree.py:base
+..\..\Lib\:xml\etree\ElementInclude.py:base
+..\..\Lib\:xml\etree\ElementPath.py:base
+..\..\Lib\:xml\etree\ElementTree.py:base
+..\..\Lib\:xml\etree\__init__.py:base
+..\..\Lib\:xml\dom\domreg.py:base
+..\..\Lib\:xml\dom\expatbuilder.py:base
+..\..\Lib\:xml\dom\minicompat.py:base
+..\..\Lib\:xml\dom\minidom.py:base
+..\..\Lib\:xml\dom\NodeFilter.py:base
+..\..\Lib\:xml\dom\pulldom.py:base
+..\..\Lib\:xml\dom\xmlbuilder.py:base
+..\..\Lib\:xml\dom\__init__.py:base
+..\..\Lib\:xml\parsers\expat.py:base
+..\..\Lib\:xml\parsers\__init__.py:base
+..\..\Lib\:xml\sax\expatreader.py:base
+..\..\Lib\:xml\sax\handler.py:base
+..\..\Lib\:xml\sax\saxutils.py:base
+..\..\Lib\:xml\sax\xmlreader.py:base
+..\..\Lib\:xml\sax\_exceptions.py:base
+..\..\Lib\:xml\sax\__init__.py:base
+
+..\..\Lib\:email\base64mime.py:base
+..\..\Lib\:email\charset.py:base
+..\..\Lib\:email\encoders.py:base
+..\..\Lib\:email\errors.py:base
+..\..\Lib\:email\feedparser.py:base
+..\..\Lib\:email\generator.py:base
+..\..\Lib\:email\header.py:base
+..\..\Lib\:email\iterators.py:base
+..\..\Lib\:email\message.py:base
+..\..\Lib\:email\parser.py:base
+..\..\Lib\:email\quoprimime.py:base
+..\..\Lib\:email\utils.py:base
+..\..\Lib\:email\_parseaddr.py:base
+..\..\Lib\:email\__init__.py:base
+..\..\Lib\:email\mime\application.py:base
+..\..\Lib\:email\mime\audio.py:base
+..\..\Lib\:email\mime\base.py:base
+..\..\Lib\:email\mime\image.py:base
+..\..\Lib\:email\mime\message.py:base
+..\..\Lib\:email\mime\multipart.py:base
+..\..\Lib\:email\mime\nonmultipart.py:base
+..\..\Lib\:email\mime\text.py:base
+..\..\Lib\:email\mime\__init__.py:base
+
+..\..\Lib\:logging\__init__.py:base
+..\..\Lib\:logging\config.py:base
+..\..\Lib\:logging\handlers.py:base
+
+.\:site.py:base
+.\:LICENSE.txt:base
+
+EXT-MODULES
+
+..\..\..\ext\amaretto\socket\src\:btsocket\btsocket.py:base
+..\..\..\ext\amaretto\socket\src\:btsocket\btconsole.py:base
+..\..\..\ext\amaretto\graphics\src\:graphics\graphics.py:base
+..\..\..\ext\amaretto\sysinfo\src\:sysinfo\sysinfo.py:base
+
+..\..\..\ext\amaretto\appui\src\:appuifw\key_codes.py:base
+..\..\..\ext\amaretto\appui\src\:appuifw\interactive_console.py:base
+..\..\..\ext\amaretto\appui\src\:appuifw\series60_console.py:base
+..\..\..\ext\amaretto\appui\appuifw\src\:appuifw\appuifw.py:base
+
+..\..\..\ext\amaretto\calendar\src\:e32calendar\e32calendar.py:base
+..\..\..\ext\amaretto\camera\src\:camera\camera.py:base
+..\..\..\ext\amaretto\camera\src\:camera\viewfinder.py:base
+..\..\..\ext\amaretto\contacts\src\:contacts\contacts.py:base
+..\..\..\ext\amaretto\gles\src\:gles\gles_utils.py:base
+..\..\..\ext\amaretto\keycapture\src\:keycapture\keycapture.py:base
+..\..\..\ext\amaretto\location\src\:location\location.py:base
+..\..\..\ext\amaretto\logs\src\:logs\logs.py:base
+..\..\..\ext\amaretto\messaging\src\:messaging\messaging.py:base
+..\..\..\ext\amaretto\recorder\src\:audio\audio.py:base
+..\..\..\ext\amaretto\telephone\src\:telephone\telephone.py:base
+..\..\..\ext\amaretto\gps\src\:positioning\positioning.py:base
+..\..\..\ext\amaretto\topwindow\src\:topwindow\topwindow.py:base
+..\..\..\ext\amaretto\e32db\src\:e32db\e32dbm.py:base
+..\..\..\ext\amaretto\e32\src\:e32\e32.py:base:base
+..\..\..\ext\amaretto\sensor\src\:sensor\sensor_api.py:base
+..\..\..\ext\amaretto\sensor\src\:sensor\sensor.py:base
+..\..\..\ext\sensorfw\src\:sensor\sensorfw.py:base
+..\..\..\ext\sensorfw\src\:sensor\sensor_defs.py:base
+
+EXT-PYD
+
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:btsocket\${{PREFIX}}e32socket.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:camera\${{PREFIX}}_camera.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:contacts\${{PREFIX}}_contacts.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:e32\${{PREFIX}}_e32.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:e32calendar\${{PREFIX}}_calendar.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:positioning\${{PREFIX}}_locationacq.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:graphics\${{PREFIX}}_graphics.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:keycapture\${{PREFIX}}_keycapture.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:location\${{PREFIX}}_location.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:logs\${{PREFIX}}_logs.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:messaging\${{PREFIX}}_messaging.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:audio\${{PREFIX}}_recorder.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:sysinfo\${{PREFIX}}_sysinfo.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:telephone\${{PREFIX}}_telephone.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:topwindow\${{PREFIX}}_topwindow.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:inbox\${{PREFIX}}inbox.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:glcanvas\${{PREFIX}}glcanvas.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:globalui\${{PREFIX}}globalui.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:gles\${{PREFIX}}gles.pyd:base
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:e32db\${{PREFIX}}e32db.pyd:base
+${{if S60_VERSION==30 or BUILD_PROFILE=="release"
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:sensor\${{PREFIX}}_sensor.pyd:base
+}}
+${{if S60_VERSION >= 32
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:sensor\${{PREFIX}}_sensorfw.pyd:base
+}}
+${{if S60_VERSION >= 32 and INCLUDE_INTERNAL_SRC
+\Epoc32\release\${{DEVICE_PLATFORM}}\${{DEVICE_BUILD}}\:scriptext\${{PREFIX}}scriptext.pyd:base
+}}
+
+EXT-MOD-CFGS
+
+..\..\..\ext\amaretto\topwindow\src\:topwindow
+..\..\..\ext\amaretto\telephone\src\:telephone
+..\..\..\ext\amaretto\sysinfo\src\:sysinfo
+..\..\..\ext\amaretto\messaging\src\:messaging
+..\..\..\ext\amaretto\inbox\src\:inbox
+..\..\..\ext\amaretto\logs\src\:logs
+..\..\..\ext\amaretto\location\src\:location
+..\..\..\ext\amaretto\keycapture\src\:keycapture
+..\..\..\ext\amaretto\graphics\src\:graphics
+..\..\..\ext\amaretto\globalui\src\:globalui
+..\..\..\ext\amaretto\glcanvas\src\:glcanvas
+..\..\..\ext\amaretto\gles\src\:gles
+..\..\..\ext\amaretto\calendar\src\:e32calendar
+..\..\..\ext\amaretto\contacts\src\:contacts
+..\..\..\ext\amaretto\camera\src\:camera
+..\..\..\ext\amaretto\e32\src\:e32
+..\..\..\ext\amaretto\e32db\src\:e32db
+..\..\..\ext\amaretto\socket\src\:btsocket
+..\..\..\ext\amaretto\recorder\src\:audio
+..\..\..\ext\amaretto\appui\appuifw\src\:appuifw
+..\..\..\ext\amaretto\sensor\src\:sensor
+..\..\..\..\internal-src\scriptext\src\:scriptext
+..\..\..\ext\amaretto\gps\src\:positioning

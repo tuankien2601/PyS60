@@ -1,0 +1,90 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{glcanvas} ---
+  UI Control for Displaying OpenGL ES Graphics}
+\label{sec:glcanvas}
+
+\declaremodule{extension}{glcanvas}
+\platform{S60}
+\modulesynopsis{UI Control for Displaying OpenGL ES Graphics}
+
+The \module{glcanvas} module provides a UI control, \class{GLCanvas}, for
+displaying OpenGL ES graphics. \class{GLCanvas} component is similar to the
+\module{appuifw} \class{Canvas} component that supports Symbian OS -level
+drawing.
+
+Internally \class{GLCanvas} uses EGL for displaying the OpenGL ES graphics. EGL,
+as OpenGL ES, is a standard API defined by the Khronos Group
+(www.khronos.org). Specifically, \class{GLCanvas} uses an EGL window surface,
+which supports double-buffered rendering. It is possible to affect selection of
+the EGL config that is used to create the window surface; for details, see the
+documentation of the \class{GLCanvas} constructor.
+
+\class{GLCanvas} instances also hold the OpenGL ES context object, which
+together with the surface, are needed for rendering. When one wants to render
+with a specific OpenGL ES context to a specific surface, they need to be
+\emph{made current}. This also applies to \class{GLCanvas}, which has the
+\code{makeCurrent} method for this purpose. Generally, calling
+\code{makeCurrent} has to be done only if multiple \class{GLCanvas} objects are
+used in the same program, as each \class{GLCanvas} object is automatically made
+current when it is created and it remains current until it is destroyed or
+\code{makeCurrent} of some other \class{GLCanvas} object is called.
+
+\begin{classdesc}{GLCanvas}{redraw_callback, \optional{event_callback=None, resize_callback=None, attributes=None}}
+Constructs a new \class{GLCanvas} object that can be used as a UI control for
+displaying OpenGL ES graphics. Parameters \var{redraw_callback},
+\var{event_callback}, and \var{resize_callback} have the same meaning as with
+\module{appuifw} module \class{Canvas}. Using \var{redraw_callback} to specify
+the OpenGL ES drawing is preferred as it will be automatically called by
+\code{drawNow} method.
+
+Parameter \var{attributes} can be used to specify attributes used in EGL config
+selection. It must be a Python dictionary where keys are EGL attribute names
+(which are defined in the \module{glcanvas} module) and values are integers
+defining the desired attribute values. Unless specified in \var{attributes},
+\code{EGL_BUFFER_SIZE} is set to value based on the display mode of the window
+owned by the underlying \class{CCoeControl} object and \code{EGL_DEPTH_SIZE} is
+set to 16. Attributes specified in \var{attributes} are given to
+\code{eglChooseConfig}. Refer to the EGL specification for a detailed list of
+config attributes and explanation of how the selection of EGL configs works.
+
+The new \class{GLCanvas} object will be made current when the constructor
+returns so \code{makeCurrent} does not have to be called before starting to use
+OpenGL ES calls.
+
+\begin{methoddesc}[GLCanvas]{bind}{key_code, c \optional{, ((x1, y1), (x2, y2))}}
+Sets a callback to be called when a specific key is pressed or pointer event occurs. Parameter
+\var{key_code} should be one of the standard Symbian key codes defined in
+\module{key_codes}. Parameter \var{c} must be a callable object. The optional
+two co-ordinate tuple corresponds to the top left and bottom right points of the
+rectangle to be monitored for pointer events. This argument is ignored for Key events.
+
+For different bind scenarios refer \class{Canvas}'s bind method.
+\end{methoddesc}
+
+\begin{methoddesc}[GLCanvas]{drawNow}{}
+Calls the redraw callback (if set) and then calls \code{eglSwapBuffers} to
+render and display the OpenGL ES graphics.
+\end{methoddesc}
+
+\begin{methoddesc}[GLCanvas]{makeCurrent}{}
+Makes this \class{GLCanvas} object current, meaning that it will be used to
+display the results of the subsequent OpenGL ES calls. In EGL terms this means
+that the EGL context and surface held by this object will be passed to
+\code{eglMakeCurrent}. Using \code{makeCurrent} makes it possible to use several
+\class{GLCanvas} objects in a single application: the receiver of the OpenGL ES
+calls can be switched with \code{makeCurrent} easily.
+\end{methoddesc}
+\end{classdesc}

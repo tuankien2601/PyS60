@@ -1,0 +1,4426 @@
+% Copyright (c) 2005 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+% Converted from Microsoft Word to LaTeX
+% by Chikrii Softlab Word2TeX converter (version 3.0)
+% Copyright (C) 1999-2003 Chikrii Softlab. All rights reserved.
+% http://www.chikrii.com
+% mailto: info@chikrii.com
+% License: CSL#00294E
+
+\documentclass{article}
+\usepackage{latexsym}
+\usepackage{graphicx}
+
+\begin{document}
+
+Copyright {\copyright} 2005 Nokia Corporation. This is Python(r) for S60
+created by Nokia Corporation. Files added by Nokia Corporation are
+licensed under Apache License Version 2.0. The original software,
+including modifications of Nokia Corporation therein, is licensed
+under the applicable license(s) for Python 2.2.2, unless specifically
+indicated otherwise in the relevant source code file.
+
+See \verb|http://www.apache.org/licenses/LICENSE-2.0|
+and \verb|http://www.python.org/2.2.2/license.html|
+
+Python is a registered trademark of the Python Software Foundation.
+
+\newpage 
+Contents
+
+1 Introduction 7
+
+1.1 Scope 7
+
+1.2 Audience 7
+
+1.3 New in Release 1.3.1 8
+
+1.4 Typographical Conventions 8
+
+1.5 Naming Conventions 8
+
+2 API Summary 9
+
+2.1 Python Standard Library 9
+
+2.2 Python for Series 60 Extensions 9
+
+2.2.1 Built-in extensions 9
+
+2.2.2 Dynamically loadable extensions 9
+
+2.3 Third-Party Extensions 9
+
+3 Python for Series 60 UI Programming Model 10
+
+3.1 Overview 10
+
+3.2 Basics of appuifw Module 11
+
+3.3 appuifw UI Controls 11
+
+3.4 Softkeys 12
+
+4 Selected Issues on Python Programming for Series 60 13
+
+4.1 Concurrency Aspects 13
+
+4.2 Current Series 60 Python Script Execution Environment 13
+
+4.3 Standard I/O Streams 14
+
+4.4 Usage of Unicode 14
+
+4.5 Date and Time 14
+
+4.6 Sharing Native Resources between Threads 14
+
+4.7 Scalable User Interface 14
+
+4.8 Error Handling 15
+
+4.9 Limitations and Areas of Development 15
+
+5 appuifw Module 16
+
+5.1 Module Level Functions 16
+
+5.2 Application Type 18
+
+5.3 Form Type 19
+
+5.4 Text Type 21
+
+5.5 Listbox Type 25
+
+5.6 Icon Type 27
+
+5.7 Content{\_}handler Type 28
+
+5.8 Canvas Type 28
+
+6 graphics Module 31
+
+6.1 Module Level Functions 31
+
+6.2 Image Class Static Methods 31
+
+6.3 Image Objects 32
+
+6.4 Common Features of Drawable Objects 33
+
+6.4.1 Options 33
+
+6.4.2 Coordinate representation 34
+
+6.4.3 Color representation 34
+
+6.4.4 Font specifications 35
+
+6.4.5 Common Methods of Drawable Objects 35
+
+7 e32 Module 37
+
+7.1 Module Level Functions 37
+
+7.2 Ao{\_}lock Type 38
+
+7.3 Ao{\_}timer Type 38
+
+8 e32db Module 40
+
+8.1 Module Level Functions 40
+
+8.2 Dbms Type 40
+
+8.3 DB{\_}view Type 41
+
+8.4 Mapping Between SQL and Python Data Types 42
+
+8.5 Date and Time Handling 42
+
+9 e32dbm Module 44
+
+9.1 Module Level Functions 44
+
+9.2 e32dbm Objects 44
+
+10 messaging Module 46
+
+11 inbox Module 47
+
+11.1 Inbox Objects 47
+
+12 location Module 48
+
+13 sysinfo Module 49
+
+14 camera Module 52
+
+15 audio Module 54
+
+15.1 Sound Class Static Methods 54
+
+15.2 Sound Objects 54
+
+16 telephone Module 56
+
+17 calendar Module 57
+
+17.1 Module Level Functions 58
+
+17.2 CalendarDb Objects 58
+
+17.3 Entry Objects 59
+
+17.3.1 AppointmentEntry Objects 61
+
+17.3.2 EventEntry 61
+
+17.3.3 AnniversaryEntry 61
+
+17.3.4 TodoEntry 61
+
+17.3.5 TodoListDict 61
+
+17.3.6 TodoList 62
+
+17.4 Repeat Rules 62
+
+18 contacts Module 64
+
+18.1 Module Level Functions 64
+
+18.2 ContactDb Object 64
+
+18.3 Contact Object 66
+
+18.4 ContactField Object 67
+
+19 Extensions to Standard Library Modules 70
+
+19.1 thread Module 70
+
+19.2 socket Module 70
+
+20 Terms and Abbreviations 72
+
+21 References 74
+
+Appendix A Python Library Module Support 75
+
+Appendix B Extensions to C API 78
+
+B.1 class CSPyInterpreter 78
+
+B.2 Extensions to C API 78
+
+Appendix C Extending Series 60 Python 80
+
+C.1 Overview 80
+
+C.2 Services for Extensions 81
+
+C.3 Example 81
+
+\newpage 
+Change History
+
+\begin{table}[htbp]
+\begin{center}
+\caption{: UI application programming}
+\begin{tabular}{|l|l|p{288pt}|}
+\hline
+December 10, 2004& 
+Version 1.0& 
+Initial document release. \\
+\hline
+& 
+& 
+\­\­\­\­\­\­\­\­\­\­\­ \\
+\hline
+June 29, 2005& 
+Version 1.1.5& 
+Sections 1.3, 3.3, 4.5, 4.6, 4.7, 5.6, 5.8, 6, 13, 14, 15, 16, 17, and 18 added. Sections 1, 3.1, 3.2, 5.1, 5.2, 5.4, 5.5, 7.1, and 19.2 updated. \\
+\hline
+September 28, 2005& 
+Version 1.2& 
+Section 4.7 added. Sections 1.3, 5.1, 5.2, 5.4, 5.5, 5.6, 14, and 20 updated. \\
+\hline
+November 25, 2005& 
+Version 1.3.1& 
+Section 11 added. Sections 5.1, 5.2, 5.3, 7.3 and 15 updated.  \par  \\
+\hline
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+
+\newpage 
+\section{Introduction}
+\label{sec:introduction}
+The Python for Series 60 Platform (Python for Series 60) simplifies 
+application development and provides a scripting solution for the Symbian 
+C++ APIs. This document is for Python for Series 60 release 1.3.1 that is 
+based on Python 2.2.2.
+
+The documentation for Python for Series 60 includes three documents:
+
+\begin{itemize}
+\item Getting Started with Python for Series 60 Platform [5] contains information on how to install Python for Series 60 and how to write your first program.
+\item This document contains API and other reference material.
+\item Programming with Python for Series 60 Platform [6] contains code examples and programming patterns for Series 60 devices that can be used as a basis for programs.
+\end{itemize}
+Python for Series 60 as installed on a Series 60 device consists of:
+
+\begin{itemize}
+\item Python execution environment, which is visible in the application menu of the device and has been written in Python on top of Python for Series 60 Platform (see Series 60 SDK documentation [4])
+\item Python interpreter DLL
+\item Standard and proprietary Python library modules
+\item Series 60 UI application framework adaptation component (a DLL) that connects the scripting domain components to the Series 60 UI
+\item Python Installer program for installing Python files on the device, which consists of:
+	\begin{itemize}
+	\item Recognizer plug-in
+	\item Symbian application written in Python
+	\end{itemize}
+\end{itemize}
+The Python for Series 60 developer discussion board 
+[9] on the Forum Nokia Web site is a useful 
+resource for finding out information on specific topics concerning Python 
+for Series 60. You are welcome to give feedback or ask questions about 
+Python for Series 60 through this discussion board.
+
+\subsection{Scope}
+\label{subsec:scope}
+This document includes the information required by developers to create 
+applications that use Python for Series 60, and some advice on extending the 
+platform.
+
+\subsection{Audience}
+\label{subsec:audience}
+This guide is intended for developers looking to create programs that use 
+the native features and resources of the Series 60 phones. The reader should 
+be familiar with the Python programming language (\underline 
+{http://www.python.org}) and the basics of using Python for Series 60 (see 
+Getting Started with Python for Series 60 Platform 
+[5]).
+
+\newpage 
+\subsection{New in Release 1.3.1}
+\label{subsec:mylabel1}
+This section lists the updates in this document since release 1.2.
+
+\begin{itemize}
+\item New attribute \textsf{focus}, 5.2, Application Type.
+\item Support for float values in \textsf{query} and \textsf{Form}, 5.1, Module Level Functions and 5.3, Form Type respectively.
+\item New type \textsf{Ao{\_}timer}, 7.3, Ao{\_}timer Type.
+\item Section 11, inbox Module has been added.
+\item New functionality in \textsf{Sound}, 15, audio Module.
+\end{itemize}
+\subsection{Typographical Conventions}
+\label{subsec:typographical}
+The following typographical conventions are used in this document:
+
+\begin{table}[htbp]
+\begin{center}
+\caption{: UI layout when appuifw.app.screen is set to 'normal'}
+\begin{tabular}{|p{153pt}|l|}
+\hline
+Bold & 
+Bold is used to indicate windows, views, pages and their elements, menu items, and button names. \\
+\hline
+Italic & 
+Italics are used when referring to another chapter or section in the document and when referring to a manual. Italics are also used for key terms and emphasis. \\
+\hline
+\textsf{Courier }& 
+Courier is used to indicate parameters, file names, processes, commands, directories, and source code text. \\
+\hline
+$>$ & 
+Arrows are used to separate menu items within a path. \\
+\hline
+\end{tabular}
+\label{tab2}
+\end{center}
+\end{table}
+
+\subsection{Naming Conventions}
+\label{subsec:naming}
+Most names of the type \textsf{ESomething} typically indicate a constant 
+defined by the Symbian SDK. More information about these constants can be 
+found in the Symbian SDK documentation.
+
+\section{API Summary}
+\label{sec:mylabel1}
+All built-in object types of the Python language are supported in the Series 
+60 environment. The rest of the programming interfaces are implemented by 
+various library modules as summarized in this chapter.
+
+\subsection{Python Standard Library}
+\label{subsec:python}
+Python for Series 60 platform distribution does not include all of the 
+Python's standard and optional library modules to save storage space in the 
+phone. Nevertheless, many of the excluded modules also work in the Series 60 
+Python environment without any modifications. Some modules are included in 
+the SDK version but not installed in the phone. For a summary of supported 
+library modules, see Appendix A, 
+Python Library Module Support.
+
+When Python, available at \underline {http://www.python.org}, is installed 
+on a PC, the library modules are by default located in \textsf{$\backslash 
+$Python22$\backslash $Lib} on Windows and in \textsf{/usr/lib/python2.2} on 
+Linux. The Python library modules' APIs are documented in G. van Rossum, and 
+F.L. Drake, Jr., editor. [Python] Library Reference. 
+[1]
+
+Python for Series 60 extends some standard modules. These extensions are 
+described in this document, see Chapter \textit{19, Extensions to Standard Library Modules.}
+
+\subsection{Python for Series 60 Extensions}
+\label{subsec:mylabel2}
+There are two kinds of native C++ extensions in the Python for Series 60 
+Platform: built-in extensions and dynamically loadable extensions.
+
+\subsubsection{Built-in extensions}
+\label{subsubsec:built}
+There are two built-in extensions in the Python for Series 60 package:
+
+\begin{itemize}
+\item The \textsf{e32} extension module is built into the Python interpreter on Symbian OS, and implements interfaces to special Symbian OS Platform services that are not accessible via Python standard library modules.
+\item The \textsf{appuifw} module for Python for Series 60 Platform offers UI application framework related Python interfaces.
+\end{itemize}
+\subsubsection{Dynamically loadable extensions}
+\label{subsubsec:dynamically}
+These dynamically loadable extension modules provide proprietary APIs to 
+Series 60 Platform's services: \textsf{graphics} (see Chapter 
+6, graphics Module), 
+\textsf{e32db} (see Chapter \textit{8, e32db Module ), \textsf{messaging} (see Chapter 10, messaging Module), \textsf{inbox} (see Chapter 11, inbox Module), \textsf{location} (see Chapter 12, location Module), \textsf{sysinfo} (see Chapter 13, sysinfo Module), \textsf{camera} (see Chapter 14, camera Module), \textsf{audio} (see Chapter 15, audio Module), \textsf{telephone} (see Chapter 16, telephone Module), \textsf{calendar} (see Chapter 17, calendar Module), and \textsf{contacts }(see Chapter 18, contacts Module).}
+
+\subsection{Third-Party Extensions}
+\label{subsec:third}
+It is also possible to write your own Python extensions. Series 60 related 
+extensions to Python/C API are described in Appendix 
+B, Extensions to C API. For some further guidelines 
+on writing extensions in C/C++, see Appendix C, 
+Extending Series 60 Python. In addition, for an 
+example on porting a simple extension to Series 60, see 
+Programming with Python for Series 60 Platform 
+[6].
+
+\section{Python for Series 60 UI Programming Model}
+\label{sec:python}
+This chapter gives an outline of the conceptual model of UI application 
+programming that underlies the APIs described in the following chapters.
+
+\subsection{Overview}
+\label{subsec:overview}
+\tablename~\ref{tab1} shows the Python for Series 60 environment 
+for UI application programming. The built-in \textsf{appuifw} Python module 
+provides an interface to the Series 60 framework.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.98in,height=4.59in]{API_Reference_for_Python1.eps}}
+\caption{: Examples of a checkbox list (left) and a markable list (right)}
+\label{fig1}
+\end{figure}
+
+The \textsf{appuifw.Content{\_}handler} object type facilitates interfacing 
+to other UI applications and common high-level UI components. It is based on 
+the notion that designated handlers can reduce UI application interaction to 
+operations on MIME-type content.
+
+\newpage 
+\subsection{Basics of appuifw Module}
+\label{subsec:basics}
+\tablename~\ref{tab2} shows the layout of a Series 60 application 
+UI in the normal screen mode and a summary of how it relates to the services 
+available at the \textsf{appuifw} API. For alternative layouts, see 
+\figurename~\ref{fig2}.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=3.49in,height=3.31in]{API_Reference_for_Python2.eps}}
+\caption{: Examples of normal screen (left), large screen (middle), and full screen 
+(right)}
+\label{fig2}
+\end{figure}
+
+The main application window may be set up to be occupied by a UI control.
+
+A multi-view application can show the different views as tabs in the 
+navigation pane and react as the users navigate between tabs. 
+
+Dialogs always take precedence over the usual UI controls and appear on top 
+of them.
+
+\subsection{appuifw UI Controls}
+\label{subsec:appuifw}
+The UI controls are implemented as Python types. These types are available:
+
+\begin{itemize}
+\item \textsf{Text}
+\item \textsf{Listbox}
+\item \textsf{Canvas}
+\end{itemize}
+UI controls appear on the screen as soon as an instance of the corresponding 
+Python type is created and set to the body field (\textsf{app.body}) of the 
+current application UI.
+
+\textsf{Form} is a versatile dialog implemented as a type.
+
+The following dialogs are implemented as functions:
+
+\begin{itemize}
+\item \textsf{note}
+\item \textsf{query}
+\item \textsf{multi{\_}query}
+\item \textsf{selection{\_}list}
+\item \textsf{multi{\_}selection{\_}list}
+\item \textsf{popup{\_}menu}
+\end{itemize}
+A dialog becomes visible as soon as the corresponding Python function has 
+been called. The function returns with the eventual user input or 
+information on the cancellation of the dialog. \textsf{Form} is an 
+exception; it is shown when its \textsf{execute} method is called.
+
+\subsection{Softkeys}
+\label{subsec:softkeys}
+The softkeys are managed by the underlying Series 60 Platform. When no 
+dialog is visible, the right softkey is bound to application exit and the 
+left one represents an Options menu. Python for Series 60 offers an 
+interface for manipulating the menu (see Section 
+5.2, Application Type, 
+\textsf{menu}) and for binding the Exit key to a Python-callable object.
+
+The native code that implements a dialog also manages the softkeys of the 
+dialog, typically OK and Cancel. When the user input needs to be validated 
+before accepting it and dismissing the dialog, it is best to use 
+\textsf{Form}.
+
+\section{Selected Issues on Python Programming for Series 60}
+\label{sec:selected}
+The following issues must be considered when using Python on Series 60.
+
+\subsection{Concurrency Aspects}
+\label{subsec:concurrency}
+The thread that initializes the Python interpreter becomes the main Python 
+thread. This is usually the main thread of a UI application. When an 
+application written in Python launches, the Symbian platform infrastructure 
+creates the main UI thread that starts the Python environment. If a Python 
+program is started as a server with \textsf{e32.start{\_}server}, then the 
+Python main thread is not a UI thread.
+
+It is possible to launch new threads via the services of \textsf{thread} 
+module. Examples of such situations could be to overcome eventual problems 
+with the fixed, relatively small stack size of the main UI application 
+thread; or to perform some background processing while still keeping the UI 
+responsive. These new threads are not allowed to directly manipulate the UI; 
+in other words, they may not use the \textsf{appuifw} module.
+
+Because of the limitations of the Python interpreter's final cleanup, Python 
+applications on the Symbian OS should be designed in such a way that the 
+main thread is the last thread alive.
+
+A facility called active object is used extensively on the Symbian OS to 
+implement co-operative, non-preemptive scheduling within operating system 
+threads. This facility is also utilized with native APIs. A Python 
+programmer is exposed to related concurrency issues particularly in UI 
+programming. Preserving the responsiveness of the UI with the help of active 
+objects needs to be considered when designing the application logic. At the 
+same time it is necessary to take into account the resulting concurrent 
+behavior within the application when active objects are used. While the main 
+execution path of a UI script is blocked in wait for an active object to 
+complete -- either explicitly as a result of using \textsf{e32.Ao{\_}lock}, 
+or indirectly within some other Python API implementation -- the UI-related 
+callbacks may still get called.
+
+The standard \textsf{thread.lock} cannot normally be used for 
+synchronization in the UI application main thread, as it blocks the UI event 
+handling that takes place in the same thread context. The Symbian active 
+object based synchronization service called \textsf{e32.Ao{\_}lock} has been 
+implemented to overcome this problem. The main thread can wait in this lock, 
+while the UI remains responsive.
+
+Python for Series 60 tries to minimize the unwanted exposure of a Python 
+programmer to the active objects of the Symbian OS. The programmer may 
+choose to implement the eventual concurrent behavior of the application with 
+normal threads. However, certain active object based facilities are offered 
+as an option in the \textsf{e32} module.
+
+\subsection{Current Series 60 Python Script Execution Environment}
+\label{subsec:current}
+The current options for installing Python scripts to a Series 60 device are: 
+a stand-alone installation to the device's main application menu, and an 
+installation to a folder hierarchy maintained by the Python execution 
+environment. For more details on this topic, see 
+Programming with Python for Series 60 Platform 
+[6]. In the first case the script application is 
+launched via application menu, and it executes in its own process context. 
+The latter case is suitable for development, testing, and trying out new 
+scripts.
+
+The Python execution environment delivered with Python for Series 60 package 
+has itself been written in Python. It is a collection of scripts that offer 
+an interactive Python console and a possibility to execute scripts located 
+in the directory of the execution environment. Due to this kind of design 
+the scripts are not fully isolated from each other. This means that any 
+changes a script makes in the shared execution environment are visible to 
+other scripts as well. This may be helpful during the development of a 
+script suite, as long as care is taken to avoid unwanted interference 
+between scripts.
+
+For some special issues to consider when writing Python scripts to be run 
+from the current Python execution environment, see 
+Programming with Python for Series 60 Platform 
+[6]. These include the arrangements for standard 
+output and the maintenance of the Options menu contents.
+
+\subsection{Standard I/O Streams}
+\label{subsec:standard}
+The standard Python I/O streams in the \textsf{sys} module are by default 
+connected to underlying C STDLIB's \textsf{stdio} streams that in turn are 
+terminated by dummy file descriptors. Usually Python scripts set the I/O 
+streams suitably by manipulating them at Python level via \textsf{sys} 
+module interface. The \textsf{e32} extension module offers a Python 
+interface for attaching to C STDLIB's output streams, but this service is 
+only recommended for debugging purposes. The \textsf{e32.{\_}stdo} function 
+takes as its argument the name of the file where C STDLIB's \textsf{stdout} 
+and \textsf{stderr} are to be redirected. This makes it possible to capture 
+the low-level error output when the Python interpreter has detected a fatal 
+error and aborts.
+
+\subsection{Usage of Unicode}
+\label{subsec:usage}
+No changes have been made to the standard library modules with regard to 
+string argument and return value types. Series 60 extensions generally 
+accept both plain strings and Unicode strings as arguments, but they return 
+only Unicode strings. APIs that take string arguments for the purpose of 
+showing them on the UI expect Unicode strings. Giving something else may 
+result in garbled appearance of the text on the screen.
+
+\subsection{Date and Time}
+\label{subsec:mylabel3}
+Unix time, seconds since January 1, 1970, 00:00:00 UTC (Coordinated 
+Universal Time), is generally used as the time format in the Python for 
+Series 60 APIs described in this document. The float type is used for 
+storing time values.
+
+\subsection{Sharing Native Resources between Threads}
+\label{subsec:sharing}
+Python for Series 60 objects that wrap native resources cannot be shared 
+between threads. Trying this can lead to a crash.
+
+In general, Python for Series 60 objects that wrap native resources cannot 
+be shared between threads. Trying this can lead to a crash. This is because 
+native resources cannot be shared between native threads. Two examples of 
+this follow:
+
+\begin{itemize}
+\item Symbian OS STDLIB implementation has some limitations that are reflected at OS module support (see Series 60 SDK documentation [4]). For example, STDLIB file descriptors cannot be shared between threads, and for that reason, Python file objects cannot either. 
+\item Sockets as implemented in the Series 60 version of the \textsf{socket} module have the same restriction. 
+\end{itemize}
+\subsection{Scalable User Interface}
+\label{subsec:scalable}
+Series 60 2nd Edition FP3 and further releases.
+
+Series 60 2nd Edition FP3 enables a new feature called scalable user 
+interface. For Python developers scalable user interface is currently 
+visible in new APIs supporting the scalable UI, icon loading, and new screen 
+resolutions. For more information on scalable user interface, see Section 
+5.6, Icon Type of this 
+document, as well as Programming with Python for 
+Series 60 Platform [6]. 
+
+\subsection{Error Handling}
+\label{subsec:error}
+The APIs described in this document may raise any standard Python 
+exceptions. In situations where a Symbian error code is returned, its 
+symbolic name is given as the value parameter of a \textsf{SymbianError} 
+exception.
+
+In case where the functions have nothing special to return, they return 
+\textsf{None} on success.
+
+\subsection{Limitations and Areas of Development}
+\label{subsec:limitations}
+Some OS level concepts to which the standard \textsf{os} library module 
+offers an interface do not exist as such in Symbian OS environment. An 
+example of this is the concept of current working directory.
+
+Reference cycle garbage collection is not in use. Because of this, special 
+care needs to be taken to dismantle cyclic references when a Python program 
+exits. This prevents error messages related to native resources that are 
+left open. The problem could be removed by developing support for collection 
+of cyclic garbage or by performing a special cleanup action on interpreter 
+exit.\textsf{ }The \textsf{gc} module has been ported to the Symbian OS, and 
+it has been verified to work. However, the current distribution has been 
+built without \textsf{gc} support.
+
+\section{appuifw Module}
+\label{sec:appuifw}
+The \textsf{appuifw} module offers an interface to Series 60 UI application 
+framework. The services of this interface may only be used in the context of 
+the main thread, that is, the initial thread of a UI application script.
+
+\subsection{Module Level Functions}
+\label{subsec:module}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{appuifw} module:
+
+\textsf{available{\_}fonts()}
+
+Retrieves a list (Unicode) of all fonts available in the device.
+
+Example:
+
+\textsf{deviceFonts = appuifw.available{\_}fonts()}
+
+\textsf{\textit{input}}\textsf{ query(}\textsf{\textit{label}}\textsf{, 
+}\textsf{\textit{type}}\textsf{ 
+[,}\textsf{\textit{initial{\_}value}}\textsf{])}
+
+Performs a query with a single-field dialog. The prompt is set to 
+\textsf{label}, and the type of the dialog is defined by \textsf{type}. The 
+value of \textsf{type} can be any of the following strings:
+
+\begin{itemize}
+\item \textsf{'text'}
+\item \textsf{'code'}
+\item \textsf{'number'}
+\item \textsf{'date'}
+\item \textsf{'time'}
+\item \textsf{'query'}
+\item \textsf{'float'}
+\end{itemize}
+
+The type of the optional \textsf{initial{\_}value} parameter and the 
+returned input depend on the value of \textsf{type}:
+
+\begin{itemize}
+\item For text fields, (\textsf{'text'}, \textsf{'code'}) it is Unicode
+\item For number fields, it is numeric
+\item For date fields, it is seconds since epoch rounded down to the nearest local midnight
+\end{itemize}
+
+A simple confirmation query and time query take no initial value and return 
+\textsf{True/None} and seconds since local midnight, correspondingly. All 
+queries return \textsf{None} if the users cancel the dialog. 
+
+For \textsf{'float'} query the \textsf{initial{\_}value} setting has no 
+effect.
+
+\textsf{(}\textsf{\textit{input{\_}1}}\textsf{, 
+}\textsf{\textit{input{\_}2}}\textsf{) 
+multi{\_}query(}\textsf{\textit{label{\_}1}}\textsf{, 
+}\textsf{\textit{label{\_}2}}\textsf{)}
+
+A two-field text (Unicode) input dialog. Returns \textsf{None} if the users 
+cancel the dialog.
+
+\textsf{note(}\textsf{\textit{text [}}\textsf{, 
+}\textsf{\textit{type]}}\textsf{)}
+
+Displays a note dialog of the chosen type with \textsf{\textit{text}} 
+(Unicode). The default value for \textsf{type} is \textsf{'info'}, which is 
+automatically used if \textsf{type} is not set. \textsf{type} can be one of 
+the following strings: \textsf{'error'}, \textsf{'info'}, or 
+\textsf{'conf'}. 
+
+\textsf{\textit{index}}\textsf{ 
+popup{\_}menu(}\textsf{\textit{list}}\textsf{ [, 
+}\textsf{\textit{label}}\textsf{])}
+
+A pop-up menu style dialog. \textsf{\textit{list}} representing the menu 
+contents can be a list of Unicode strings or a list of Unicode string pairs 
+(tuples). The resulting dialog list is then a single-style or a double-style 
+list. A single-style list is shown in full; whereas a double-style list 
+shows the items one at a time. Returns \textsf{None} if the users cancel the 
+operation.
+
+\newpage 
+\textsf{\textit{index}}\textsf{ 
+selection{\_}list(choices}\textsf{\textit{=list 
+}}\textsf{[,}\textsf{\textit{ 
+}}\textsf{search{\_}field}\textsf{\textit{=}}\textsf{0])}
+
+Executes a dialog that allows the users to select a list item and returns 
+the \textsf{\textit{index}} of the chosen item, or \textsf{None} if the 
+selection is cancelled by the users. \newline
+\textsf{(choices}\textsf{\textit{=list }}\textsf{[,}\textsf{\textit{ 
+}}\textsf{search{\_}field}\textsf{\textit{=0}}\textsf{]) }consists of 
+keywords and values, where
+
+\begin{itemize}
+\item \textsf{choices} is a list of Unicode strings. 
+\item \textsf{search{\_}field} is \textsf{0} (disabled) by default and is optional. Setting it to \textsf{1} enables a search field (find pane) that facilitates searching for items in long lists. If enabled, the search field appears after you press a letter key.
+\end{itemize}
+\textsf{(}\textsf{\textit{indexes}}\textsf{) 
+multi{\_}selection{\_}list(choices=}\textsf{\textit{list}}\textsf{ [, 
+style=}\textsf{\textit{'checkbox'}}\textsf{, search{\_}field=0])}
+
+Executes a dialog that allows the users to select multiple list items. 
+Returns a tuple of indexes (a pair of Unicode strings) of the chosen items, 
+or \textsf{None} if the selection is cancelled by the users. \newline
+\textsf{(choices=}\textsf{\textit{list}}\textsf{ [, 
+style=}\textsf{\textit{'checkmark'}}\textsf{, search{\_}field=0]) }consists 
+of keywords and values, where
+
+\begin{itemize}
+\item \textsf{choices} is a list of Unicode strings. 
+\item \textsf{style} is an optional string; the default value being \textsf{'checkbox'}. If \textsf{'checkbox'} is given, the list will be a checkbox list, where empty checkboxes indicate what items can be marked. The other possible value that can be set for \textsf{style} is \textsf{'checkmark'}. If \textsf{'checkmark'} is given, the list will be a markable list, which lists items but does not indicate specifically that items can be selected. To select items on a markable list, use the Navigation key to browse the list and the Edit key to select an item. For example views on checkbox and markable lists, see \figurename~\ref{fig1}.
+\item \textsf{search{\_}field} is \textsf{0} (disabled) by default and is optional. Setting it to \textsf{1} enables a search field (find pane) that facilitates searching for items in long lists. If enabled, the search field is always visible with checkbox lists; with markable lists it appears by pressing a letter key.
+\end{itemize}
+
+Example:
+
+\textsf{tuple = appuifw.multi{\_}selection{\_}list(L, style='checkmark', 
+search{\_}field=1)}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.18in]{API_Reference_for_Python3.eps}}
+\caption{: Examples of the options available for Text type}
+\label{fig3}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.84in,height=2.20in]{API_Reference_for_Python4.eps}}
+\caption{: Keycodes and scancodes for phone keys usable from Python applications}
+\label{fig4}
+\end{figure}
+
+\newpage 
+\subsection{Application Type}
+\label{subsec:application}
+A single implicit instance of this type always exists when \textsf{appuifw} 
+module is present and can be referred to with the name \textsf{app}. New 
+instances cannot be created by a Python program.
+
+Instances of \textsf{Application} type have the following attributes:
+
+\textsf{body}
+
+The UI control that is visible in the application's main window. Currently 
+either \textsf{Text}, a \textsf{Listbox} object, \textsf{Canvas}, or 
+\textsf{None}.
+
+\textsf{exit{\_}key{\_}handler}
+
+A callable object that is called when the user presses the Exit softkey. 
+Setting \textsf{exit{\_}key{\_}handler} to \textsf{None} sets it back to the 
+default value.
+
+\textsf{menu}
+
+This can be:
+
+\begin{itemize}
+\item a list of \textsf{(}\textsf{\textit{title}}\textsf{, }\textsf{\textit{callback}}\textsf{)} pairs, where each pair describes an item in the application's menu bar, or
+\item a list of \textsf{(title, ((}\textsf{\textit{title}}\textsf{, }\textsf{\textit{callback}}\textsf{),...))} pairs, where the tuple of Unicode strings \textsf{((}\textsf{\textit{title}}\textsf{, }\textsf{\textit{callback}}\textsf{),...)} creates a submenu.
+\end{itemize}
+
+\textsf{\textit{title}} (Unicode) is the name of the item and 
+\textsf{\textit{callback}} the associated callable object. The maximum 
+allowed number of items in a menu, or items in a submenu, or submenus in a 
+menu is 30.
+
+Example:
+
+\textsf{appuifw.app.menu = [(u"item 1", item1),}
+
+\textsf{(u"Submenu 1", ((u"sub item 1", subitem1), }
+
+\textsf{(u"sub item 2", subitem2) ))}
+
+\textsf{]}
+
+\textsf{screen}
+
+The screen area used by an application. See \figurename~\ref{fig2} for example screens. The appearance of the application on the screen can 
+be affected by setting one of the following values: \textsf{'normal'}, 
+\textsf{'large'}, and \textsf{'full'}.
+
+Examples:
+
+\textsf{appuifw.app.screen='normal'} (a normal screen with title pane and 
+softkeys)
+
+\textsf{appuifw.app.screen='large' } (only softkeys visible)
+
+\textsf{appuifw.app.screen='full'} (a full screen)
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.17in]{API_Reference_for_Python5.eps}}
+\caption{: The calendar module objects}
+\label{fig5}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.17in]{API_Reference_for_Python6.eps}}
+\caption{: Status of library module support}
+\label{fig6}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.17in]{API_Reference_for_Python7.eps}}
+\caption{: An example C/C++ extension snippet.}
+\label{fig7}
+\end{figure}
+
+\textsf{title}
+
+The title, in Unicode, that is visible in the application's title pane.
+
+\textsf{focus}
+
+A callable object that is called with integer as parameter (0 = focus lost, 
+1 = focus regained) when the application receives focus or it is switched to 
+background. Focus is received e.g. when the application is switched from 
+background to foreground or when the focus is regained from screensaver. 
+Similarly when the screensaver is displayed, focus is lost.
+
+Examples:
+
+\textsf{$>>>$ import appuifw}
+
+\textsf{$>>>$ def cb(fg):}
+
+\textsf{... if(fg):}
+
+\textsf{... print "foreground"}
+
+\textsf{... else:}
+
+\textsf{... print "background"}
+
+\textsf{...}
+
+\textsf{$>>>$ appuifw.app.focus=cb}
+
+\textsf{$>>>$ {\#} switch to background, following text from call back:}
+
+\textsf{$>>>$ background}
+
+\textsf{$>>>$ {\#} switch to foreground, following text from call back:}
+
+\textsf{$>>>$ foreground}
+
+Note e.g. for Nokia 6600:
+
+If you define e.g. a call back which takes no parameters you will receive 
+never-ending \textsf{TypeError} exceptions.
+
+Instances of\textsf{ Application} type have the following methods:
+
+\textsf{activate{\_}tab(}\textsf{\textit{index}}\textsf{)}
+
+Activates the tab \textsf{\textit{index}} counting from zero.
+
+\textsf{\textit{name}}\textsf{ full{\_}name()}
+
+Retrieves the full name, in Unicode, of the native application in whose 
+context the current Python interpreter session runs.
+
+\textsf{set{\_}exit()}
+
+Requests a graceful exit from the application as soon as the current script 
+execution returns.
+
+\textsf{set{\_}tabs(}\textsf{\textit{tab{\_}texts 
+}}\textsf{[}\textsf{\textit{,callback=None}}\textsf{])}
+
+Sets tabs with given names on them in the navigation bar; 
+\textsf{\textit{tab{\_}texts}} is a list of Unicode strings. When the users 
+navigate between tabs, \textsf{\textit{callback}} gets called with the index 
+of the active tab as an argument. Tabs can be disabled by giving an empty or 
+one-item \textsf{tab{\_}texts} list.
+
+\subsection{Form Type}
+\label{subsec:mylabel4}
+\textsf{Form} implements a dynamically configurable, editable multi-field 
+dialog. \textsf{Form} caters for advanced dialog use cases with requirements 
+such as free selectability of the combination of fields, possibility of 
+validating the user input, and automatically producing the contents of some 
+dialog fields before allowing the closing of the dialog. 
+
+\textsf{Form([fields=}\textsf{\textit{field{\_}list}}\textsf{, 
+flags=}\textsf{\textit{flag}}\textsf{])}
+
+Creates a \textsf{Form} instance\textsf{.} 
+\textsf{field}\textsf{\textit{{\_}}}\textsf{list} consists of 
+\textsf{tuples}: \textsf{(}\textsf{label, type [,value]}\textsf{)}, where
+
+\textsf{\textit{label}} is a Unicode string
+
+\textsf{\textit{type}} is one of the following strings: 
+\textsf{\textit{'text'}}$, $\textsf{\textit{'number'}}$, $\textsf{\textit{'date'}}$, $\textsf{\textit{'time'}}$,$\textsf{\textit{'combo'}} 
+or\textsf{\textit{'float'}} 
+
+\textsf{value}, depending on \textsf{type}: Unicode string, numeric, float 
+(seconds since Unix epoch rounded down to the nearest local midnight), float 
+(seconds since local midnight), \textsf{([unicode{\_}string 
+}\textsf{\textit{choices}}\textsf{], }\textsf{\textit{index}}\textsf{)}or 
+float
+
+\textsf{Form} can also be configured and populated after construction. The 
+configuration flags are visible as an attribute. \textsf{Form} implements 
+the list protocol that can be used for setting the form fields, as well as 
+obtaining their values after the dialog has been executed.
+
+Instances of \textsf{Form} type have the following attributes:
+
+\textsf{flags}
+
+This attribute holds the values of the various configuration flags. 
+Currently supported flags are:
+
+\textsf{FFormEditModeOnly}
+
+When this flag is set, the form remains in edit mode while \textsf{execute} 
+runs.
+
+\textsf{FFormViewModeOnly}
+
+When this flag is set, the form cannot be edited at all.
+
+\textsf{FFormAutoLabelEdit}
+
+This flag enables support for allowing the end-users to edit the labels of 
+the form fields.
+
+\newpage 
+\textsf{FFormAutoFormEdit}
+
+This flag enables automatic support for allowing the end-users to add and 
+delete the form fields. Note that this is an experimental feature and is not 
+guaranteed to work with all SDK versions.
+
+\textsf{FFormDoubleSpaced}
+
+When this flag is set, double-spaced layout is applied when the form is 
+executed: one field takes two lines, as the label and the value field are on 
+different lines.
+
+\textsf{menu}
+
+A list of \textsf{(}\textsf{\textit{title, callback}}\textsf{)} pairs, where 
+each pair describes an item in the form's menu bar that is active while the 
+dialog is being executed. \textsf{\textit{title}} (Unicode) is the name of 
+the item and \textsf{\textit{callback}} the associated callable object.
+
+\textsf{save{\_}hook}
+
+This attribute can be set to a callable object that receives one argument 
+and returns a Boolean value. It gets called every time the users want to 
+save the contents of an executing \textsf{Form} dialog. A candidate list for 
+new form content - a list representing the currently visible state of the 
+UI - is given as an argument. The list can be modified by 
+\textsf{save{\_}hook}. If \textsf{save{\_}hook} returns \textsf{True}, the 
+candidate list is set as the new contents of the form. Otherwise, the form 
+UI is reset to reflect the field list contained in \textsf{Form} object.
+
+Instances of \textsf{Form} type have the following methods:
+
+\textsf{execute()}
+
+Executes the dialog by making it visible on the UI.
+
+\textsf{insert()}, \textsf{pop()}, \textsf{length()}, subscription, 
+subscription-assignment
+
+A subset of the list interface to access the form instance as a list. The 
+subscript notation \textsf{f[i]} can be used to access or modify the i-th 
+element of the form \textsf{f}. Same limitations as discussed above in the 
+context of the flag \textsf{FFormAutoFormEdit} apply to modifying a form 
+while it is executing. The ability to change the schema of a form while it 
+is executing is an experimental feature.
+
+\subsection{Text Type}
+\label{subsec:mylabel5}
+\textsf{Text} is a text editor UI control. For examples on the options 
+available with \textsf{Text}, see \figurename~\ref{fig3}. 
+
+Instances of \textsf{Text} type have the following attributes:
+
+\textsf{color}
+
+The color of the text. \textsf{color} supports the same color representation 
+models as the \textsf{graphics} module. For the supported color 
+representation models, see Section \textit{6.4.3, Color representation. }
+
+\textsf{focus}
+
+A Boolean attribute that indicates the focus state of the control. Editor 
+control also takes the ownership of the navigation bar, and this feature is 
+needed to enable the usage of this control in applications that use the 
+navigation bar - for example, navigation tabs.
+
+\textsf{font}
+
+The font of the text. There are two possible ways to set this attribute:
+
+\begin{itemize}
+\item Using a supported Unicode font, for example \textsf{u"Latin12"}. Trying to set a font which is not supported by the device has no effect. A list of supported fonts can be retrieved by using \textsf{appuifw.available{\_}fonts} . \newline
+ \newline
+Example, setting font: \newline
+\textsf{t = appuifw.Text() \newline
+t.font = u"albi17b" }(sets font to Albi 17 bold)\textsf{ \newline
+t.font = u"LatinPlain12" }(sets font to Latin Plain 12)
+\item Using one of the default device fonts that are associated with the following labels (plain strings): \newline
+\textsf{'annotation' \newline
+'title' \newline
+'legend' \newline
+'symbol' \newline
+'dense' \newline
+'normal' \newline
+ \newline
+}Example, setting font: \newline
+\textsf{t.font = "title" }(sets font to the one used in titles)\textsf{ \newline
+ \newline
+}Example, checking the currently set font: \newline
+\textsf{unicodeFont = t.font}
+\end{itemize}
+The attribute value retrieved is always a Unicode string. If the font has 
+been set with a label, for example, \textsf{'title'}, the attribute will 
+retrieve the font associated with that label. 
+
+\textsf{highlight{\_}color}
+
+The highlight color of the text. \textsf{highlight{\_}color} supports the 
+same color representation models as the \textsf{graphics} module. For the 
+supported color representation models, see Section 
+\textit{6.4.3, Color representation. }
+
+\textsf{style}
+
+The style of the text. The flags for this attribute are defined in the 
+\textsf{appuifw} module. These flags can be combined by using the binary 
+operator \textsf{or}. The flags can be divided into two types: text style 
+and text highlight. Text style flags can be freely combined with each other. 
+However, one or more text style flags can be combined with only one text 
+highlight flag. The flags are:
+
+text style:
+
+\textsf{STYLE{\_}BOLD} enables bold text.
+
+\textsf{STYLE{\_}UNDERLINE }enables underlined text.
+
+\textsf{STYLE{\_}ITALIC }enables italicized text.
+
+\textsf{STYLE{\_}STRIKETHROUGH }enables marking text with strikethrough 
+formatting.
+
+text highlight:
+
+\textsf{HIGHLIGHT{\_}STANDARD} enables standard highlight.
+
+\textsf{HIGHLIGHT{\_}ROUNDED} enables rounded highlight.
+
+\textsf{HIGHLIGHT{\_}SHADOW} enables shadow highlight.
+
+Only one highlight is allowed to be used at once. Therefore, it is possible 
+to combine only one highlight with one or more text styles.
+
+Examples:
+
+\textsf{t = appuifw.Text()}
+
+These and other similar values and combinations are valid:
+
+\textsf{t.style = appuifw.STYLE{\_}BOLD}
+
+\textsf{t.style = appuifw.STYLE{\_}UNDERLINE}
+
+\textsf{t.style = appuifw.STYLE{\_}ITALIC}
+
+\textsf{t.style = appuifw.STYLE{\_}STRIKETHROUGH}
+
+\textsf{t.style = (appuifw.STYLE{\_}BOLD$\vert 
+$appuifw.STYLE{\_}ITALIC$\vert $appuifw.STYLE{\_}UNDERLINE)}
+
+These values are valid:
+
+\textsf{t.style = appuifw.HIGHLIGHT{\_}STANDARD}
+
+\textsf{t.style = appuifw.HIGHLIGHT{\_}ROUNDED}
+
+\textsf{t.style = appuifw.HIGHLIGHT{\_}SHADOW}
+
+\newpage 
+This combination is not valid:
+
+Invalid code, do not try!
+
+\textsf{t.style = (appuifw.HIGHLIGHT{\_}SHADOW$\vert 
+$appuifw.HIGHLIGHT{\_}ROUNDED)}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.17in]{API_Reference_for_Python8.eps}}
+\label{fig8}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.17in]{API_Reference_for_Python9.eps}}
+\label{fig9}
+\end{figure}
+
+Instances of \textsf{Text} type have the following methods:
+
+\textsf{add(}\textsf{\textit{text}}\textsf{)}
+
+Inserts the Unicode string \textsf{text} to the current cursor position.
+
+\textsf{bind(}\textsf{\textit{event{\_}code, callback}}\textsf{)}
+
+Binds the callable Python object \textsf{\textit{callback}} to event 
+\textsf{\textit{event}}\textit{{\_}}\textsf{\textit{code}}. The key codes are defined in 
+the \textsf{\textit{key{\_}codes}} library module. The call 
+\textsf{bind(}\textsf{\textit{event{\_}code}}\textsf{, None)} clears an 
+existing binding. In the current implementation the event is always passed 
+also to the underlying native UI control.
+
+\textsf{clear()}
+
+Clears the editor.
+
+\textsf{delete([pos=0, len=len()])}
+
+Deletes \textsf{len} characters of the text held by the editor control, 
+starting from the position \textsf{pos}.
+
+\textsf{\textit{cursor{\_}pos}}\textsf{ get{\_}pos()}
+
+Returns the current cursor position.
+
+\textsf{\textit{text{\_}length}}\textsf{ len()}
+
+Returns the length of the text string held by the editor control.
+
+\textsf{\textit{text}}\textsf{ get([pos=0, len=len()])}
+
+Retrieves \textsf{len} characters of the text held by the editor control, 
+starting from the position \textsf{pos}.
+
+\textsf{set(}\textsf{\textit{text}}\textsf{)}
+
+Sets the text content of the editor control to Unicode string 
+\textsf{\textit{text}}.
+
+\textsf{set{\_}pos(}\textsf{\textit{cursor{\_}pos}}\textsf{)}
+
+Sets the cursor to \textsf{\textit{cursor}}\textit{{\_}}\textsf{\textit{pos}}.
+
+\newpage 
+
+\subsection{Listbox Type}
+\label{subsec:listbox}
+An instance of this UI control type is visible as a listbox, also known as a 
+list in Symbian, that can be configured to be a single-line item or a 
+double-item listbox. Figure 6 shows a single-line 
+item Listbox with icons. For more information on the MBM and MIF formats, 
+see Section 5.6, Icon 
+Type.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1.83in,height=2.17in]{API_Reference_for_Python10.eps}}
+\label{fig10}
+\end{figure}
+
+Figure 6: Listbox with icons
+
+\textsf{Listbox(}\textsf{\textit{list}}\textsf{, 
+}\textsf{\textit{callback}}\textsf{)}
+
+Creates a \textsf{Listbox} instance. A callable object 
+\textsf{\textit{callback}} gets called when a listbox selection has been 
+made. \textsf{list} defines the content of the listbox and can be one of the 
+following:
+
+\begin{itemize}
+\item A normal (single-line item) listbox: a list of Unicode strings, for example \textsf{[unicode{\_}string item1, unicode{\_}string item2]}
+\item A double-item listbox: a two-element tuple of Unicode strings , for example \textsf{[(unicode{\_}string item1, unicode{\_}string item1description), (unicode{\_}string item2, unicode{\_}string item2description)]}
+\item A normal (single-line item) listbox with graphics: a two-element tuple consisting of a Unicode string and an \textsf{Icon} object, for example \textsf{[(unicode{\_}string item1, icon1), (unicode{\_}string item2, icon2)]}.
+\item A double-item listbox with graphics: a three-element tuple consisting of two Unicode strings and one \textsf{Icon} object, for example \textsf{[(unicode{\_}string item1, unicode{\_}string item1description, icon1), (unicode{\_}string item2, unicode{\_}string item2description, icon2)]}
+\end{itemize}
+
+Example:
+
+To produce a normal (single-line item) lisbox with graphics:
+
+\textsf{icon1 = appuifw.Icon(u"z:$\backslash \backslash $system$\backslash 
+\backslash $data$\backslash \backslash $avkon.mbm", 28, 29)}
+
+\textsf{icon2 = appuifw.Icon(u"z:$\backslash \backslash $system$\backslash 
+\backslash $data$\backslash \backslash $avkon.mbm ", 40, 41)}
+
+\textsf{entries = [(u"Signal", icon1),}
+
+\textsf{(u"Battery", icon2)]}
+
+\textsf{lb = appuifw.Listbox(entries, lbox{\_}observe)}
+
+\newpage 
+Instances of \textsf{Listbox} type have the following methods:
+
+\textsf{bind(}\textsf{\textit{event{\_}code}}\textsf{, 
+}\textsf{\textit{callback}}\textsf{)}
+
+Binds the callable Python object \textsf{\textit{callback}} to event 
+\textsf{\textit{event}}\textit{{\_}}\textsf{\textit{code}}. The key codes are defined in 
+the \textsf{key{\_}codes} library module. The call 
+\textsf{bind(event}\textsf{\textit{{\_}}}\textsf{code, None)} clears an 
+existing binding. In the current implementation the event is always passed 
+also to the underlying native UI control.
+
+\textsf{\textit{index }}\textsf{current()}
+
+Returns the currently selected item's index in the \textsf{Listbox}.
+
+\textsf{set{\_}list(}\textsf{\textit{list}}\textsf{ 
+[,}\textsf{\textit{current}}\textsf{])}
+
+Sets the \textsf{Listbox} content to a list of Unicode strings or a list of 
+tuples of Unicode strings. \textsf{list} can be one of the following:
+
+\begin{itemize}
+\item A normal (single-style) list: a list of Unicode strings, for example \textsf{[unicode{\_}string item1, unicode{\_}string item2]}
+\item A double-style list box: a two-element tuple of Unicode strings , for example \textsf{[(unicode{\_}string item1, unicode{\_}string item1description), (unicode{\_}string item2, unicode{\_}string item2description)]}
+\item A normal (single-style) list with graphics: a two-element tuple consisting of a Unicode string and an \textsf{Icon} object, for example \textsf{[(unicode{\_}string item1, icon1), (unicode{\_}string item2, icon2)]}.
+\item A double-style list box with graphics: a three-element tuple consisting of two Unicode strings and one \textsf{Icon} object, for example \textsf{[(unicode{\_}string item1, unicode{\_}string item1description, icon1), (unicode{\_}string item2, unicode{\_}string item2description, icon2)]}
+\end{itemize}
+
+Optionally, the initially focused list item can be set.
+
+\subsection{Icon Type}
+\label{subsec:mylabel6}
+An instance of \textsf{Icon} type encapsulates an icon to be used together 
+with a \textsf{Listbox} instance. Note that currently \textsf{Icon} can only 
+be used with \textsf{Listbox} (see Section 5.5, 
+Listbox Type). 
+
+MBM is the native Symbian OS format used for pictures. It is a compressed 
+file format where the files can contain several bitmaps and can be referred 
+to by a number. An \textsf{.mbg} file is the header file usually associated 
+with an \textsf{.mbm} file, which includes symbolic definitions for each 
+bitmap in the file. For example, an \textsf{avkon.mbm} file has an 
+associated index file called \textsf{avkon.mbg}, which is included in Series 
+60 SDKs. For more information on the MBM format and the bitmap converter 
+tool, see Series 60 SDK documentation 
+[4] and search the topics with the key term "How to 
+provide Icons"; this topic also points you to the Bitmap Converter tool that 
+can be used for converting bitmaps into the MBM format.
+
+Series 60 2$^{nd}$ Edition FP3 introduces a new format for icons called 
+Multi-Image File (MIF). This format is very similar to the MBM format and 
+also contains several compressed files. The files to be compressed should be 
+in Scalable Vector Graphics Tiny (SVG-T) format. For more information on the 
+SVG format, see Scalable Vector Graphics (SVG) 1.1 Specification 
+[10].
+
+\textsf{Icon(}\textsf{\textit{filename}}\textsf{, 
+}\textsf{\textit{bitmap}}\textsf{, }\textsf{\textit{bitmapMask}}\textsf{)}
+
+Creates an icon. \textsf{\textit{filename}} is a Unicode file name and must 
+include the whole path. Note that MBM and MIF (MIF only in Series 60 2nd 
+Edition FP3) are the only file formats supported. \textsf{\textit{bitmap}} 
+and \textsf{\textit{bitmapMask}} are integers that represent the index of 
+the icon and icon mask inside that file respectively.
+
+Example:
+
+The following builds an icon with the standard signal symbol:
+
+\textsf{icon = appuifw.Icon(u"z:$\backslash \backslash $system$\backslash 
+\backslash $data$\backslash \backslash $avkon.mbm", 28, 29)}
+
+\subsection{Content{\_}handler Type}
+\label{subsec:content}
+An instance of \textsf{Content{\_}handler} handles data content by its MIME 
+type.
+
+\textsf{Content{\_}handler([}\textsf{\textit{callback}}\textsf{])}
+
+Creates a \textsf{Content{\_}handler} instance. \textsf{Content{\_}handler} 
+handles data content by its MIME type. The optional 
+\textsf{\textit{callback}} is called when the embedded handler application 
+started with the \textsf{open} method finishes. 
+
+Instances of \textsf{Content{\_}handler} type have the following methods:
+
+\textsf{open(}\textsf{\textit{filename}}\textsf{)}
+
+Opens the file \textsf{\textit{filename}} (Unicode) in its handler 
+application if one has been registered for the particular MIME type. The 
+handler application is embedded in the caller's thread. The call to this 
+function returns immediately. When the handler application finishes, the 
+\textsf{\textit{callback}} that was given to the \textsf{Content{\_}handler} 
+constructor is called.
+
+\textsf{open{\_}standalone(}\textsf{\textit{filename}}\textsf{)}
+
+Opens the file \textsf{\textit{filename}} (Unicode) in its handler 
+application if one has been registered for the particular MIME type. The 
+handler application is started in its own process. The call to this function 
+returns immediately. Note that \textsf{\textit{callback}} is not called for 
+applications started with this method.
+
+\subsection{Canvas Type}
+\label{subsec:canvas}
+\textsf{Canvas} is a UI control that provides a drawable area on the screen 
+and support for handling raw key events. \textsf{Canvas} supports the 
+standard drawing methods that are documented in Chapter 
+\textit{6, graphics Module.}
+
+\textsf{Canvas([redraw{\_}callback=}\textsf{\textit{None}}\textsf{, 
+event{\_}callback=}\textsf{\textit{None}}\textsf{])}
+
+Constructs a \textsf{Canvas}. The optional parameters are callbacks that are 
+called when specific events occur. \textsf{redraw{\_}callback} is called 
+whenever a part of the \textsf{Canvas} has been obscured by something, is 
+then revealed, and needs to be redrawn. This can typically happen, for 
+example, when the user switches away from the Python application and back 
+again, or after displaying a pop-up menu. The callback takes as its argument 
+a four-element tuple that contains the top-left and the bottom-right corner 
+of the area that needs to be redrawn. In many cases redrawing the whole 
+\textsf{Canvas} is a reasonable option. 
+
+Be careful of cyclic references here. For example, if the callbacks are 
+methods of an object that holds a reference to the \textsf{Canvas}, a 
+reference cycle is formed that must be broken at cleanup time or the 
+\textsf{Canvas} will not be freed.
+
+If this parameter is given and not set to \textsf{None}, 
+\textsf{event{\_}callback} is called whenever a raw key event is received. 
+There are three kinds of key events: \textsf{EEventKeyDown}, 
+\textsf{EEventKey}, and \textsf{EEventKeyUp}. When a user presses a key 
+down, events \textsf{EEventKeyDown} and \textsf{EEventKey} are generated. 
+When the key is released, an \textsf{EEventKeyUp} event is generated.
+
+The argument to the \textsf{event{\_}callback} is a dictionary that contains 
+the following data for key events:
+
+\begin{itemize}
+\item \textsf{'type': }one of \textsf{EEventKeyDown}, \textsf{EEventKey}, or \textsf{EEventKeyUp}
+\item \textsf{'keycode': }the keycode of the key
+\item \textsf{'scancode': }the scancode of the key
+\item \textsf{'modifiers': }the modifiers that apply to this key event
+\end{itemize}
+
+Each key on the keyboard has one or more scancodes and zero or more keycodes 
+associated with it. A scancode represents the physical key itself and a 
+keycode is the result of state-related operating system defined processing 
+done on the key. For keys that correspond to a symbol in the current 
+character set of the phone, the keycode is equal to the code of the 
+corresponding symbol in that character set. For example, if you are using 
+the Nokia Wireless Keyboard (SU-8W), pressing the key A will always produce 
+the scancode \textsf{65} (ASCII code for an upper case A), but the keycode 
+could be either 65 or 91 (ASCII code for a lower case A) depending on 
+whether or not the Shift key is pressed or Caps Lock is active. 
+
+The \textsf{key{\_}codes} module contains definitions for the keycodes and 
+scancodes. See \figurename~\ref{fig4} for the codes of the most 
+common keys on the phone keypad. 
+
+Some keys are handled in a special way:
+
+\begin{itemize}
+\item A short press of the Edit key causes it to stay down, meaning that no \textsf{EEventKeyUp} event is sent. The event is only sent after a long press.
+\item Detecting presses of the Voice tags key or the Power key is not supported.
+\item If the right softkey is pressed, the \textsf{appuifw.app.exit{\_}key{\_}handler} callback is always executed.
+\end{itemize}
+
+There is no way to prevent the standard action of the Hang-up key, the Menu 
+key, the Power key or the Voice tags key from taking place.
+
+\newpage 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{115pt}|p{270pt}|p{122pt}|}
+\hline
+\begin{enumerate}
+\item EKeyLeftSoftkey \newline
+EScancodeLeftSoftkey
+\item EKeyYes \newline
+EScancodeYes
+\item EKeyMenu \newline
+EScancodeMenu
+\item EKey1...9,0 \newline
+EScancode1...9,0
+\item EKeyStar \newline
+EScancodeStar
+\item EKeyLeftArrow \newline
+EScancodeLeftArrow
+\item EKeyUpArrow \newline
+EScancodeUpArrow
+\item EKeySelect \newline
+EScancodeSelect
+\end{enumerate}
+& 
+\centerline{\includegraphics[width=3.60in,height=2.58in]{API_Reference_for_Python11.eps}} \par & 
+\begin{enumerate}
+\item EKeyRightArrow \newline
+EScancodeRightArrow
+\item EKeyDownArrow \newline
+EScancodeDownArrow
+	\begin{enumerate}
+	\item EKeyRightSoftkey \newline
+EScancodeRightSoftkey
+	\end{enumerate}
+\item EKeyNo \newline
+EScancodeNo
+\item EKeyBackspace \newline
+EScancodeBackspace
+\item EKeyEdit \newline
+EScancodeEdit
+	\begin{enumerate}
+	\item EKeyHash \newline
+EScancodeHash
+	\end{enumerate}
+\end{enumerate}
+ \par  \\
+\hline
+\end{tabular}
+\label{tab3}
+\end{center}
+\end{table}
+
+Instances of \textsf{Canvas} type have the following attribute:
+
+\textsf{size}
+
+A two-element tuple that contains the current width and height of the 
+\textsf{Canvas} as integers.
+
+Instances of \textsf{Canvas} type have the same standard drawing methods 
+that are documented in Chapter \textit{6, graphics Module.}
+
+\section{graphics Module}
+\label{sec:graphics}
+The \textsf{graphics} module provides access to the graphics primitives and 
+image loading, saving, resizing, and transformation capabilities provided by 
+the Symbian OS. 
+
+The module is usable from both graphical Python applications and background 
+Python processes. However, background processes have some restrictions. This 
+means that plain string symbolic font names are not supported in background 
+processes since background processes have no access to the UI framework (see 
+also Section \textit{6.4.4, Font specifications). }
+
+For an example on using this module, see Programming 
+with Python for Series 60 Platform [6].
+
+Functions \textsf{Image.open} and \textsf{Image.inspect} and \textsf{Image} 
+object methods \textsf{load}, \textsf{save}, \textsf{resize}, and 
+\textsf{transpose} are not available for Series 60 1st Edition.
+
+\subsection{Module Level Functions}
+\label{subsec:mylabel7}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{graphics} module:
+
+\textsf{\textit{Image}}\textsf{ screenshot()}
+
+Takes a screen shot and returns the image in \textsf{Image} format.
+
+\subsection{Image Class Static Methods}
+\label{subsec:image}
+The following \textsf{Image} class static methods are defined in the 
+\textsf{graphics} module:
+
+\textsf{\textit{Image}}\textsf{ 
+Image.new(}\textsf{\textit{size}}\textsf{[,mode='RGB16'])}
+
+Creates and returns a new \textsf{Image} object with the given size and 
+mode. \textsf{size} is a two-element tuple. \textsf{mode} specifies the 
+color mode of the \textsf{Image} to be created. It can be one of the 
+following:
+
+\begin{itemize}
+\item \textsf{'1'}: Black and white (1 bit per pixel)
+\item \textsf{'L'}: 256 gray shades (8 bits per pixel)
+\item \textsf{'RGB12'}: 4096 colors (12 bits per pixel)
+\item \textsf{'RGB16'}: 65536 colors (16 bits per pixel)
+\item \textsf{'RGB'}: 16.7 million colors (24 bits per pixel)
+\end{itemize}
+\textsf{\textit{Image}}\textsf{ 
+Image.open(}\textsf{\textit{filename}}\textsf{) }\textbf{Not supported in 
+1st Edition!}
+
+Returns a new \textsf{Image} object (mode \textsf{RGB16}) that contains the 
+contents of the named file. The supported file formats are JPEG and PNG. The 
+file format is automatically detected based on file contents. 
+\textsf{\textit{filename}} should be a full path name.
+
+\textsf{\textit{dict}}\textsf{ 
+Image.inspect(}\textsf{\textit{filename}}\textsf{)}\textbf{ Not supported in 
+1st Edition!}
+
+Examines the given file and returns a dictionary of the attributes of the 
+file. At present the dictionary contains only the image size in pixels as a 
+two-element tuple, indexed by key \textsf{'size'}. 
+\textsf{\textit{filename}} should be a full path name.
+
+\newpage 
+\subsection{Image Objects}
+\label{subsec:mylabel8}
+An \textsf{Image} object encapsulates an in-memory bitmap. 
+
+Note on asynchronous methods: Methods \textsf{resize}, \textsf{transpose}, 
+\textsf{save}, and \textsf{load} have an optional callback argument. If the 
+callback is not given, the method call is synchronous; when the method 
+returns, the operation is complete or an exception has been raised. If the 
+callback is given, the method calls are asynchronous. If all parameters are 
+valid and the operation can start, the method call will return immediately. 
+The actual computation then proceeds in the background. When it is finished, 
+the callback is called with an error code as the argument. If the given code 
+is \textsf{0}, the operation completed without errors, otherwise an error 
+occurred. 
+
+It is legal to use an unfinished image as a source in a blit operation; this 
+will use the image data as it is at the moment the blit is made and may thus 
+show an incomplete result.
+
+\textsf{Image} objects have the following methods:
+
+\textsf{resize(}\textsf{\textit{newsize}}\textsf{[,callback=}\textsf{\textit{None}}\textsf{,keepaspect=0])}\textbf{ 
+Not supported in 1st Edition!}
+
+Returns a new image that contains a resized copy of this image. If 
+\textsf{keepaspect} is set to \textsf{1}, the resize will maintain the 
+aspect ratio of the image, otherwise the new image will be exactly the given 
+size. 
+
+If \textsf{callback} is given, the operation is asynchronous, and the 
+returned image will be only partially complete until \textsf{callback} is 
+called.
+
+\textsf{transpose(}\textsf{\textit{direction}}\textsf{[,callback=cb])}\textbf{ 
+Not supported in 1st Edition!}
+
+Creates a new image that contains a transformed copy of this image. The 
+\textsf{direction} parameter can be one of the following:
+
+\begin{itemize}
+\item \textsf{FLIP{\_}LEFT{\_}RIGHT}: Flips the image horizontally, exchanging left and right edges.
+\item \textsf{FLIP{\_}TOP{\_}BOTTOM}: Flips the image vertically, exchanging top and bottom edges.
+\item \textsf{ROTATE{\_}90}: Rotates the image 90 degrees counterclockwise.
+\item \textsf{ROTATE{\_}180}: Rotates the image 180 degrees.
+\item \textsf{ROTATE{\_}270}: Rotates the image 270 degrees counterclockwise.
+\end{itemize}
+
+If \textsf{callback} is given, the operation is asynchronous and the 
+returned image will be only partially complete until \textsf{callback} is 
+called.
+
+\textsf{load(}\textsf{\textit{filename}}\textsf{[,callback=}\textsf{\textit{None}}\textsf{])}\textbf{ 
+Not supported in 1st Edition!}
+
+Replaces the contents of this \textsf{Image} with the contents of the named 
+file, while keeping the current image mode. This \textsf{Image} object must 
+be of the same size as the file to be loaded.
+
+If \textsf{callback} is given, the operation is asynchronous and the loaded 
+image will be only partially complete until \textsf{callback} is called. 
+\textsf{\textit{filename}} should be a full path name.
+
+\textsf{save(}\textsf{\textit{filename}}\textsf{[,callback=}\textsf{\textit{None}}\textsf{, 
+format=}\textsf{\textit{None}}\textsf{, quality=75, bpp=24, 
+compression=}\textsf{\textit{'default'}}\textsf{]) }\textbf{Not supported in 
+1st Edition!}
+
+Saves the image into the given file. The supported formats are JPEG and PNG. 
+If \textsf{format} is not given or is set to \textsf{None}, the format is 
+determined based on the file name extension: '\textsf{.jpg}' or 
+'\textsf{.jpeg}' are interpreted to be in JPEG format and '\textsf{.png}' to 
+be in PNG format. \textsf{\textit{filename}} should be a full path name.
+
+When saving in JPEG format, the \textsf{quality} argument specifies the 
+quality to be used and can range from 1 to 100. 
+
+When saving in PNG format, the \textsf{bpp} argument specifies how many bits 
+per pixel the resulting file should have, and \textsf{compression} specifies 
+the compression level to be used. 
+
+Valid values for \textsf{bpp} are:
+
+\begin{itemize}
+\item \textsf{1}: Black and white, 1 bit per pixel
+\item \textsf{8}: 256 gray shades, 8 bits per pixel
+\item \textsf{24}: 16.7 million colors, 24 bits per pixel
+\end{itemize}
+
+Valid values for \textsf{compression} are:
+
+\begin{itemize}
+\item \textsf{'best'}: The highest possible compression ratio, the slowest speed
+\item \textsf{'fast'}: The fastest possible saving, moderate compression
+\item \textsf{'no'}: No compression, very large file size
+\item \textsf{'default'}: Default compression, a compromise between file size and speed 
+\end{itemize}
+
+If \textsf{callback} is given, the operation is asynchronous. When the 
+saving is complete, the \textsf{callback} is called with the result code.
+
+\textsf{stop()}
+
+Stops the current asynchronous operation, if any. If an asynchronous call is 
+not in progress, this method has no effect.
+
+\textsf{Image} objects have the following attribute:
+
+\textsf{size}
+
+A two-element tuple that contains the size of the \textsf{Image}. Read-only.
+
+\subsection{Common Features of Drawable Objects}
+\label{subsec:common}
+Objects that represent a surface that can be drawn on support a set of 
+common drawing methods, described in this section. At present there are two 
+such objects: \textsf{Canvas} from the \textsf{appuifw} module and 
+\textsf{Image} from the \textsf{graphics} module. 
+
+\subsubsection{Options}
+\label{subsubsec:options}
+Many of these methods support a set of standard options. This set of options 
+is as follows:
+
+\begin{itemize}
+\item \textsf{outline}: The color to be used for drawing outlines of primitives and text. If \textsf{None}, the outlines of primitives are not drawn.
+\item \textsf{fill}: The color to be used for filling the insides of primitives. If \textsf{None}, the insides of primitives are not drawn. If \textsf{pattern} is also specified, \textsf{fill} specifies the color to be used for areas where the pattern is white.
+\item \textsf{width}: The line width to be used for drawing the outlines of primitives.
+\item \textsf{pattern}: Specifies the pattern to be used for filling the insides of primitives. If given, this must be either \textsf{None} or a 1-bit (black and white) \textsf{Image}.
+\end{itemize}
+
+\newpage 
+\subsubsection{Coordinate representation}
+\label{subsubsec:coordinate}
+The methods accept an ordered set of coordinates in the form of a coordinate 
+sequence. Coordinates can be of type \textsf{int}, \textsf{long}, or 
+\textsf{float}. A valid coordinate sequence is a non-empty sequence of 
+either
+
+\begin{itemize}
+\item Alternating x and y coordinates. In this case the sequence length must be even, or
+\item Sequences of two elements, that specify x and y coordinates.
+\end{itemize}
+Examples of valid coordinate sequences:
+
+\textsf{(1, 221L, 3, 4, 5.85, -3): }A sequence of three coordinates
+
+\textsf{[(1,221L),(3,4),[5.12,6]): }A sequence of three coordinates
+
+\textsf{(1,5):} A sequence of one coordinate
+
+\textsf{[(1,5)]: }A sequence of one coordinate
+
+\textsf{[[1,5]]: }A sequence of one coordinate \newline
+
+Examples of invalid coordinate sequences:
+
+Invalid code, do not use!
+
+\textsf{[]: }An empty sequence
+
+\textsf{(1,2,3): }Odd number of elements in a flat sequence
+
+\textsf{[(1,2),(3,4),None]}: Contains an invalid element
+
+\textsf{([1,2],3,4): }Mixing the flat and nested form is not allowed
+
+\subsubsection{Color representation}
+\label{subsubsec:color}
+All methods that take color arguments accept the following two color 
+representations:
+
+\begin{itemize}
+\item A three-element tuple of integers in the range from 0 to 255 inclusive, representing the red, green, and blue components of the color.
+\item An integer of the form \textsf{0xrrggbb}, where \textsf{rr} is the red, \textsf{gg} the green, and \textsf{bb} the blue component of the color. 
+\end{itemize}
+For 12 and 16 bit color modes the color component values are simply 
+truncated to the lower bit depth. For the 8-bit grayscale mode images the 
+color is converted into grayscale using the formula (2*r+5*g+b)/8, rounded 
+down to the nearest integer. For 1-bit black and white mode images the color 
+is converted into black (0) or white (1) using the formula (2*r+5*g+b)/1024.
+
+Examples of valid colors:
+
+\textsf{0xffff00}: Bright yellow
+
+\textsf{0x004000}: Dark green
+
+\textsf{(255,0,0)}: Bright red
+
+\textsf{0}: Black
+
+\textsf{255}: Bright blue
+
+\textsf{(128,128,128)}: Medium gray \newline
+
+Examples of invalid colors:
+
+Invalid code, do not use!
+
+\textsf{(0,0.5,0.9)}: Floats are not supported
+
+\textsf{'{\#}ff80c0'}: The HTML color format is not supported
+
+\textsf{(-1,0,1000)}: Out-of-range values
+
+\textsf{(1,2)}: The sequence is too short
+
+\textsf{[128,128,192]}: This is not a tuple
+
+\subsubsection{Font specifications}
+\label{subsubsec:mylabel1}
+\textsf{Font} can be specified in two ways. Either as a Unicode string that 
+represents a full font name, such as \textsf{u'LatinBold19'}, or as a plain 
+string symbolic name that refers to a font setting currently specified by 
+the UI framework. You can obtain a list of all available fonts with the 
+\textsf{appuifw }module function \textsf{available{\_}fonts}.
+
+The symbolic names for UI fonts are:
+
+\begin{itemize}
+\item \textsf{'normal'}
+\item \textsf{'dense'}
+\item \textsf{'title'}
+\item \textsf{'symbol'}
+\item \textsf{'legend'}
+\item \textsf{'annotation'}
+\end{itemize}
+Since background processes have no access to the UI framework, these 
+symbolic names are not supported in them. You need to specify the full font 
+name.
+
+\subsubsection{Common Methods of Drawable Objects}
+\label{subsubsec:common}
+\textsf{line(}\textsf{\textit{coordseq}}\textsf{[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+Draws a line connecting the points in the given coordinate sequence. For 
+more information about the choices available for \textsf{\textit{options}}, 
+see Section 6.4.1, 
+Options. 
+
+\textsf{polygon(}\textsf{\textit{coordseq}}\textsf{[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+Draws a line connecting the points in the given coordinate sequence, and 
+additionally draws an extra line connecting the first and the last point in 
+the sequence. If a fill color or pattern is specified, the polygon is filled 
+with that color or pattern. For more information about the choices available 
+for \textsf{\textit{options}}, see Section 6.4.1, 
+Options.
+
+\textsf{rectangle(}\textsf{\textit{coordseq}}\textsf{[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+Draws rectangles between pairs of coordinates in the given sequence. The 
+coordinates specify the top-left and the bottom- right corners of the 
+rectangle. The sequence must have an even number of coordinates. For more 
+information about the choices available for \textsf{\textit{options}}, see 
+Section 6.4.1, Options.
+
+\newpage 
+\textsf{ellipse(}\textsf{\textit{coordseq}}\textsf{[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+\textsf{pieslice(}\textsf{\textit{coordseq}}\textsf{, 
+}\textsf{\textit{start}}\textsf{, }\textsf{\textit{end}}\textsf{, 
+[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+\textsf{arc(}\textsf{\textit{coordseq}}\textsf{, 
+}\textsf{\textit{start}}\textsf{, }\textsf{\textit{end}}\textsf{, 
+[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+Draws complete ellipses or portions of an ellipse between pairs of 
+coordinates in the given sequence. The coordinates specify the top-left and 
+bottom-right corners of the rectangle inside which the ellipse is contained. 
+The sequence must have an even number of coordinates. 
+
+The \textsf{ellipse} method draws complete ellipses, the \textsf{pieslice} 
+method draws sectors of the ellipse and the \textsf{arc} method draws 
+portions of the ellipse arc. The start and end parameters are floats that 
+specify the start and end points of the \textsf{pieslice} or \textsf{arc} as 
+the starting and ending angle in radians. The angle \textsf{0} is to the 
+right, the angle \textsf{pi/2} is straight up, \textsf{pi} is to the left 
+and\textsf{ -pi/2} is straight down.
+
+For more information about the choices available for 
+\textsf{\textit{options}}, see Section 6.4.1, 
+Options.
+
+\textsf{point(}\textsf{\textit{coordseq}}\textsf{, 
+}\textsf{\textit{start}}\textsf{, }\textsf{\textit{end}}\textsf{, 
+[,$<$}\textsf{\textit{options}}\textsf{$>$])}
+
+Draws points in each coordinate in the given coordinate sequence. If the 
+\textsf{width} option is set to greater than 1, draws a crude approximation 
+of a circle filled with the outline color in the locations. Note that the 
+approximation is not very accurate for large widths; use the \textsf{ellipse 
+}method if you need a precisely formed circle. For more information about 
+the choices available for \textsf{\textit{options}}, see Section 
+6.4.1, Options.
+
+\textsf{clear([color=}\textsf{\textit{0xffffff}}\textsf{])}
+
+Sets the entire surface of the drawable to the given color, white by 
+default.
+
+\textsf{text(}\textsf{\textit{coordseq}}\textsf{, 
+}\textsf{\textit{text}}\textsf{, [fill=0, font=u"LatinBold12"])}
+
+Draws the given text in the points in the given coordinate sequence with the 
+given color (default value is black) and the given font (default value is 
+\textsf{u"LatinBold12"}). The font specification format is described above.
+
+\textsf{blit(}\textsf{\textit{image}}\textsf{[,target=(0,0),source=((0,0),image.size),mask=}\textsf{\textit{None}}\textsf{,scale=0])}
+
+Copies the source area from the given \textsf{image} to the target area in 
+this drawable. The source area is copied in its entirety if \textsf{mask} is 
+not given or is set to \textsf{None}. If the mask is given, the source area 
+is copied where the mask is white. \textsf{mask} can be either \textsf{None} 
+or a 1-bit (black and white) \textsf{Image} and must be of the same size as 
+the source image.
+
+\textsf{target} and \textsf{source} specify the target area in this image 
+and the source area in the given source. They are coordinate sequences of 
+one or two coordinates. If they specify one coordinate, it is interpreted as 
+the upper-left corner for the area; if they specify two coordinates, they 
+are interpreted as the top-left and bottom-right corners of the area.
+
+If \textsf{scale} is other than zero, scaling is performed on the fly while 
+copying the source area to the target area. If \textsf{scale} is zero, no 
+scaling is performed, and the size of the copied area is clipped to the 
+smaller of source and target areas.
+
+Note that a \textsf{blit} operation with scaling is slower than one without 
+scaling. If you need to blit the same \textsf{Image} many times in a scaled 
+form, consider making a temporary \textsf{Image} of the scaling result and 
+blitting it without scaling. Note also that the scaling performed by the 
+\textsf{blit} operation is much faster but of worse quality than the one 
+done by the \textsf{resize} method, since the \textsf{blit} method does not 
+perform any antialiasing.
+
+\section{e32 Module }
+\label{sec:mylabel2}
+The \textsf{e32} module offers Symbian OS related utilities that are not 
+related to the UI and are not provided by the standard Python library 
+modules.
+
+\subsection{Module Level Functions}
+\label{subsec:mylabel9}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{e32} module:
+
+\textsf{ao{\_}yield()}
+
+Yields to the active scheduler to have ready active objects with priority 
+above normal scheduled for running. This has the effect of flushing the 
+eventual pending UI events. Note that the UI callback code may be run in the 
+context of the thread that performs an \textsf{ao{\_}yield}. For information 
+on active scheduler, see Series 60 SDK documentation 
+[4].
+
+\textsf{ao{\_}sleep(}\textsf{\textit{interval}}\textsf{ 
+[,}\textsf{\textit{callback}}\textsf{])}
+
+Sleeps for the given \textsf{\textit{interval}} without blocking the active 
+scheduler. When the optional \textsf{\textit{callback}} is given, the call 
+to \textsf{ao{\_}sleep} returns immediately and the 
+\textsf{\textit{callback}} gets called after \textsf{\textit{interval}}. See 
+also Section 7.3, 
+Ao{\_}timer Type.
+
+\textsf{\textit{callgate}}\textsf{ 
+ao{\_}callgate(}\textsf{\textit{wrapped{\_}callable}}\textsf{)}
+
+Wraps \textsf{\textit{wrapped{\_}callable}} into a callable object 
+\textsf{\textit{callgate}} that can be called in any thread. As a result of 
+a call to \textsf{\textit{callgate}}, \textsf{\textit{wrapped{\_}callable}} 
+gets called in the context of the thread that originally created the 
+callgate. Arguments can be given to the call. This is actually a simple 
+wrapping of the Symbian active object facility.
+
+\textsf{\textit{driveletters}}\textsf{ drive{\_}list()}
+
+Returns a list of currently visible drives as a list of Unicode strings 
+\textsf{\textit{'}}$<$\textsf{\textit{driveletter}}$>$:\textsf{\textit{'}}
+
+\textsf{file{\_}copy(}\textsf{\textit{target{\_}name}}\textsf{, 
+}\textsf{\textit{source{\_}name}}\textsf{)}
+
+Copies the file \textsf{\textit{source{\_}name}} to 
+\textsf{\textit{target{\_}name}}. The names must be complete paths.
+
+\textsf{\textit{mode}}\textsf{ in{\_}emulator()}
+
+Returns \textsf{1} if running in an emulator, or \textsf{0} if running on a 
+device.
+
+\textsf{pys60{\_}version}
+
+A string containing the version number of the Python for Series 60 and some 
+additional information. \newline
+Example:
+
+\textsf{$>>>$ import e32}
+
+\textsf{$>>>$ e32.pys60{\_}version}
+
+\textsf{'1.2 final'}
+
+\textsf{pys60{\_}version{\_}info}
+
+A tuple containing the five components of the Python for Series 60 version 
+number: major, minor, micro, release level, and serial. All values except 
+release level are integers; the release level is a string and is 
+either\textsf{ 'alpha'}, \textsf{'beta'}, \textsf{'candidate'}, or 
+\textsf{'final'}. The \textsf{pys60{\_}version{\_}info} value corresponding 
+to the Python for Series 60 version 1.2 is \textsf{(1, 2, 'final', 0)}. 
+
+\newpage 
+\textsf{s60{\_}version{\_}info}
+
+The SDK version with which this Python was compiled (tuple). The following 
+values are possible:
+
+\begin{itemize}
+\item \textsf{(1, 2)} for Series 60 1st Edition
+\item \textsf{(2, 0)} for Series 60 2nd Edition
+\item \textsf{(2, 6)} Series 60 2nd Edition Feature Pack 2
+\end{itemize}
+
+Examples:
+
+\textsf{$>>>$ import e32}
+
+\textsf{$>>>$ e32.pys60{\_}version}
+
+\textsf{'1.2 final'}
+
+\textsf{$>>>$ e32.pys60{\_}version{\_}info}
+
+\textsf{(1, 2, 'final', 0)}
+
+\textsf{$>>>$ e32.s60{\_}version{\_}info}
+
+\textsf{(2, 0)}
+
+\textsf{$>>>$}
+
+\textsf{bool is{\_}ui{\_}thread()}
+
+Returns \textsf{True} if the code that calls this function runs in the 
+context of the UI thread; otherwise returns \textsf{False}.
+
+\textsf{start{\_}exe(}\textsf{\textit{filename, command [,wait]}}\textsf{)}
+
+Launches the native Symbian OS executable \textsf{\textit{filename}} 
+(Unicode) and passes it the \textsf{\textit{command}} string. When 
+\textsf{\textit{wait}} is set, the function synchronously waits for the exit 
+of the executable and returns a value that describes the exit type. Possible 
+values are \textsf{0} for normal exit and \textsf{2} for abnormal exit.
+
+\textsf{start{\_}server(}\textsf{\textit{filename}}\textsf{)}
+
+Starts the Python script in file \textsf{\textit{filename}} (Unicode) as a 
+server in its own process. Note that \textsf{appuifw} module is not 
+available to a server script.
+
+\subsection{Ao{\_}lock Type}
+\label{subsec:mylabel10}
+\textsf{Ao{\_}lock()}
+
+Creates an \textsf{Ao{\_}lock} instance. A Symbian active object based 
+synchronization service. This can be used in the main thread without 
+blocking the handling of UI events. The application should not exit while a 
+thread is waiting in \textsf{Ao{\_}lock}. If \textsf{Ao{\_}lock} is called 
+while another wait is in progress, an \textsf{AssertionError} is raised.
+
+Instances of \textsf{Ao{\_}lock} type have the following methods:
+
+\textsf{wait()}
+
+If the lock has already been signaled, returns immediately. Otherwise blocks 
+in wait for the lock to be signaled. Only one waiter is allowed, so you 
+should avoid recursive calls to this service. \textsf{wait} can only be 
+called in the thread that created the lock object. During the wait, other 
+Symbian-active objects are being served, so the UI will not freeze. This may 
+result in the UI callback code being run in the context of the thread that 
+is waiting in \textsf{Ao{\_}lock}. This must be considered when designing 
+the application logic.
+
+\textsf{signal()}
+
+Signals the lock. The waiter is released.
+
+\subsection{Ao{\_}timer Type}
+\label{subsec:mylabel11}
+The rationale for the \textsf{Ao{\_}timer} type is that you cannot cancel a 
+pending \textsf{e32.ao{\_}sleep}. This is problematic if e.g. the user exits 
+an application which is sleeping. In this case a panic would occur since the 
+sleep is not cancelled - this is the reason you should avoid using 
+\textsf{e32.ao{\_}sleep} and instead use the \textsf{Ao{\_}timer} with 
+appropriate \textsf{cancel} calls if there is for example a possibility for 
+the user to exit the application during a sleep.
+
+\textsf{Ao{\_}timer()}
+
+Creates an \textsf{Ao{\_}timer} instance. A Symbian active object based 
+sleeping service. This can be used in the main thread without blocking the 
+handling of UI events. The application should not exit while a thread has a 
+pending \textsf{after} call in \textsf{Ao{\_}timer}. Only one \textsf{after} 
+invocation can be pending at time for each instance of this type.
+
+Instances of \textsf{Ao{\_}timer} type have the following methods:
+
+\textsf{after(interval [,callback])}
+
+Sleeps for the given interval without blocking the active scheduler. When 
+the optional callback is given, the call to \textsf{after} returns 
+immediately and the callback gets called after interval.
+
+\textsf{cancel()}
+
+Cancels a pending \textsf{after} call.
+
+\section{e32db Module }
+\label{sec:mylabel3}
+The \textsf{e32db} module provides an API for relational database 
+manipulation with a restricted SQL syntax. For details of DBMS support, see 
+Series 60 SDK documentation 
+[4].
+
+\subsection{Module Level Functions}
+\label{subsec:mylabel12}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{e32db} module:
+
+\textsf{\textit{datetimestring}}\textsf{ 
+format{\_}rawtime(}\textsf{\textit{timevalue}}\textsf{)}
+
+Formats the given time value (Symbian time) according to the current 
+system's date/time formatting rules and returns it as a Unicode string.
+
+\textsf{\textit{datetimestring 
+}}\textsf{format{\_}time(}\textsf{\textit{timevalue}}\textsf{)}
+
+Formats the given time value according to the current system's date/time 
+formatting rules and returns it as a Unicode string.
+
+\subsection{Dbms Type}
+\label{subsec:mylabel13}
+\textsf{Dbms()}
+
+Creates a \textsf{Dbms} object. \textsf{Dbms} objects support basic 
+operations on a database. 
+
+Instances of \textsf{Dbms} type have the following methods:
+
+\textsf{begin()}
+
+Begins a transaction on the database.
+
+\textsf{close()}
+
+Closes the database object. It is safe to try to close a database object 
+even if it is not open.
+
+\textsf{commit()}
+
+Commits the current transaction.
+
+\textsf{compact()}
+
+Compacts the database, reclaiming unused space in the database file. 
+
+\textsf{create(}\textsf{\textit{dbname}}\textsf{)}
+
+Creates a database with path \textsf{\textit{dbname}}. 
+
+\textsf{\textit{retval}}\textsf{ execute(}\textsf{\textit{query}}\textsf{)}
+
+Executes an SQL \textsf{\textit{query}}. On success, returns 0 if a DDL (SQL 
+schema update) statement was executed. Returns the number of rows inserted, 
+updated, or deleted, if a DML (SQL data update) statement was executed.
+
+\textsf{open(}\textsf{\textit{dbname}}\textsf{)}
+
+Opens the database in file \textsf{\textit{dbname}}. This should be a full 
+Unicode path name, for example, \textsf{u'c:$\backslash \backslash 
+$foo.db'}.
+
+\textsf{rollback()}
+
+Rolls back the current transaction.
+
+\newpage 
+\subsection{DB{\_}view Type}
+\label{subsec:mylabel14}
+\textsf{Db{\_}view}
+
+Creates a \textsf{Db{\_}view} object. \textsf{DB{\_}view} objects generate 
+rowsets from a SQL query. They provide functions to parse and evaluate the 
+rowsets.
+
+Instances of \textsf{Db{\_}view} type have the following methods:
+
+\textsf{\textit{value}}\textsf{ col(}\textsf{\textit{column}}\textsf{)}
+
+Extracts a \textsf{\textit{value}} from \textsf{\textit{column}} and returns 
+the corresponding Python value. The first column of the rowset has the index 
+1. If the type of the column is not supported, a \textsf{TypeError} is 
+raised. See Table 1 for a list of supported data 
+types.
+
+\textsf{\textit{cols}}\textsf{ col{\_}count()}
+
+Returns the number of columns defined in the rowset.
+
+\textsf{\textit{len}}\textsf{ 
+col{\_}length(}\textsf{\textit{column}}\textsf{)}
+
+Gets the length of the value in \textsf{\textit{column}}: empty columns have 
+a length of zero; non-empty numerical and date/time columns have a length of 
+1. For text columns, the length is the character count, and for binary 
+columns, the length is the byte count.
+
+\textsf{\textit{value}}\textsf{ 
+col{\_}raw(}\textsf{\textit{column}}\textsf{)}
+
+Extracts the value of \textsf{\textit{column}} as raw binary data, and 
+returns it as a Python string. The first column of the rowset has the index 
+1. See Table 1 for a list of supported data types.
+
+\textsf{\textit{value}}\textsf{ 
+col{\_}rawtime(}\textsf{\textit{column}}\textsf{)}
+
+Extracts the value of date/time column as a long integer, which represents 
+the raw Symbian time value. The first column of the rowset has the index 1. 
+See Table 1 for a list of the supported data types.
+
+\textsf{\textit{value}}\textsf{ 
+col{\_}type(}\textsf{\textit{column}}\textsf{)}
+
+Returns the numeric type of the given column as an integer from a 
+Symbian-specific list of types. This function is used in the implementation 
+of method \textsf{col}.
+
+\textsf{\textit{rows}}\textsf{ count{\_}line()}
+
+Returns the number of rows available in the rowset.
+
+\textsf{first{\_}line()}
+
+Positions the cursor on the first row in the rowset.
+
+\textsf{get{\_}line()}
+
+Gets the current row data for access.
+
+\textsf{is{\_}col{\_}null(}\textsf{\textit{column}}\textsf{)}
+
+Tests whether \textsf{\textit{column}} is empty. Empty columns can be 
+accessed like normal columns. Empty numerical columns return a \textsf{0} or 
+an equivalent value, and text and binary columns have a zero length.
+
+\textsf{next{\_}line()}
+
+Moves the cursor to the next row in the rowset.
+
+\textsf{prepare(}\textsf{\textit{db}}\textsf{, 
+}\textsf{\textit{query}}\textsf{)}
+
+Prepares the view object for evaluating an SQL select statement. 
+\textsf{\textit{db}} is a \textsf{Dbms} object and \textsf{\textit{query}} 
+the SQL query to be executed.
+
+For examples on using this module, see Programming 
+with Python for Series 60 Platform [6].
+
+\subsection{Mapping Between SQL and Python Data Types }
+\label{subsec:mapping}
+See Table 1 for a summary of mapping between SQL and 
+Python data types. The \textsf{col} function can extract any value except 
+\textsf{LONG VARBINARY} and return it as the proper Python value. In 
+addition, the \textsf{col{\_}raw} function can extract any column type 
+except \textsf{LONG VARCHAR} and \textsf{LONG VARBINARY} as raw binary data 
+and return it as a Python string.
+
+Inserting, updating, or searching for \textsf{BINARY}, \textsf{VARBINARY}, 
+or \textsf{LONG VARBINARY} values is not supported. \textsf{BINARY} and 
+\textsf{VARBINARY} values can be read with \textsf{col} or 
+\textsf{col{\_}raw}.
+
+\subsection{Date and Time Handling}
+\label{subsec:mylabel15}
+The functions \textsf{col} and \textsf{format{\_}time} use Unix time, 
+seconds since January 1, 1970, 00:00:00 UTC, as the time format. Internally 
+the database uses the native Symbian time representation that provides 
+greater precision and range than the Unix time. The native Symbian time 
+format is a 64-bit value that represents microseconds since January 1st 0 AD 
+00:00:00 local time, nominal Gregorian. BC dates are represented by negative 
+values. Since converting this format to Unix time and back may cause slight 
+round-off errors, you have to use the functions \textsf{col{\_}rawtime} and 
+\textsf{format{\_}rawtime} if you need to be able to handle these values 
+with full precision.
+
+The representation of date and time literals in SQL statements depends on 
+the current system date and time format. Note that the only accepted 
+ordering of day, month, and year is the one that the system is currently 
+configured to use. Dates in other order are rejected. The recommended way to 
+form date/time literals for SQL statements is to use the functions 
+\textsf{format{\_}time} or \textsf{format{\_}rawtime} that format the given 
+date/time values properly according to the current system's date/time format 
+settings.
+
+\newpage 
+Table 1: Mapping between SQL and Python types
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{117pt}|p{144pt}|p{99pt}|p{63pt}|}
+\hline
+SQL type& 
+Symbian column type (in the DBMS C++ API)& 
+Python type& 
+Supported \\
+\hline
+\textsf{BIT}& 
+\textsf{EDbColBit}& 
+\raisebox{-10.50ex}[0cm][0cm]{int}& 
+\raisebox{-27.00ex}[0cm][0cm]{yes} \\
+\cline{1-2} 
+\textsf{TINYINT}& 
+\textsf{EDbColInt8}& 
+ & 
+  \\
+\cline{1-2} 
+\textsf{UNSIGNED TINYINT}& 
+\textsf{EDbColUint8}& 
+ & 
+  \\
+\cline{1-2} 
+\textsf{SMALLINT}& 
+\textsf{EDbColInt16}& 
+ & 
+  \\
+\cline{1-2} 
+\textsf{UNSIGNED SMALLINT}& 
+\textsf{EDbColUint16}& 
+ & 
+  \\
+\cline{1-2} 
+\textsf{INTEGER}& 
+\textsf{EDbColInt32}& 
+ & 
+  \\
+\cline{1-2} 
+\textsf{UNSIGNED INTEGER}& 
+\textsf{EDbColUint32}& 
+ & 
+  \\
+\cline{1-2} 
+\textsf{COUNTER}& 
+\textsf{EDbColUint32 (}with the\textsf{ TDbCol::EAutoIncrement }attribute\textsf{)}& 
+ & 
+  \\
+\cline{1-3} 
+\textsf{BIGINT}& 
+\textsf{EDbColInt64}& 
+long& 
+  \\
+\cline{1-3} 
+\textsf{REAL}& 
+\textsf{EDbColReal32}& 
+\raisebox{-4.50ex}[0cm][0cm]{float  \par }& 
+  \\
+\cline{1-2} 
+\textsf{FLOAT}& 
+\raisebox{-3.00ex}[0cm][0cm]{\textsf{EDbColReal64} \par \textsf{}}& 
+ & 
+  \\
+\cline{1-1} 
+\textsf{DOUBLE}& 
+ & 
+ & 
+  \\
+\cline{1-1} 
+\textsf{DOUBLE PRECISION}& 
+ & 
+ & 
+  \\
+\cline{1-3} 
+\textsf{DATE}& 
+\raisebox{-3.00ex}[0cm][0cm]{\textsf{EDbColDateTime} \par \textsf{}}& 
+\raisebox{-3.00ex}[0cm][0cm]{float \par (or long, with \textsf{col{\_}rawtime()})}& 
+  \\
+\cline{1-1} 
+\textsf{TIME}& 
+ & 
+ & 
+  \\
+\cline{1-1} 
+\textsf{TIMESTAMP}& 
+ & 
+ & 
+  \\
+\cline{1-3} 
+\textsf{CHAR(n)}& 
+\raisebox{-1.50ex}[0cm][0cm]{\textsf{EDbColText}}& 
+\raisebox{-3.00ex}[0cm][0cm]{Unicode}& 
+  \\
+\cline{1-1} 
+\textsf{VARCHAR(n)}& 
+ & 
+ & 
+  \\
+\cline{1-2} 
+\textsf{LONG VARCHAR}& 
+\textsf{EDbColLongText}& 
+ & 
+  \\
+\hline
+\textsf{BINARY(n)}& 
+\raisebox{-1.50ex}[0cm][0cm]{\textsf{EDbColBinary} \par \textsf{}}& 
+\raisebox{-1.50ex}[0cm][0cm]{str}& 
+\raisebox{-1.50ex}[0cm][0cm]{read only} \\
+\cline{1-1} 
+\textsf{VARBINARY(n)}& 
+ & 
+ & 
+  \\
+\hline
+\textsf{LONG VARBINARY}& 
+\textsf{EDbColLongBinary}& 
+n/a& 
+no \\
+\hline
+\end{tabular}
+\label{tab4}
+\end{center}
+\end{table}
+
+\section{e32dbm Module}
+\label{sec:mylabel4}
+The \textsf{e32dbm} module provides a DBM API that uses the native Symbian 
+RDBMS as its storage back-end. The module API resembles that of the 
+\textsf{gdbm} module. The main differences are:
+
+\begin{itemize}
+\item The \textsf{firstkey()} - \textsf{nextkey()} interface for iterating through keys is not supported. Use the \textsf{"for key in db"} idiom or the \textsf{keys} or \textsf{keysiter} methods instead.
+\item This module supports a more complete set of dictionary features than \textsf{gdbm.}
+\item The values are always stored as Unicode, and thus the values returned are Unicode strings even if they were given to the DBM as normal strings.
+\end{itemize}
+\subsection{Module Level Functions}
+\label{subsec:mylabel16}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{e32dbm} module:
+
+\textsf{\textit{e32dbm{\_}object 
+}}\textsf{open(}\textsf{\textit{dbname[,flags[,mode]]}}\textsf{)}
+
+Opens or creates the given database file and returns 
+\textsf{\textit{e32dbm{\_}object}}. Note that \textsf{\textit{dbname}} 
+should be a full path name, for example, \textsf{u'c:$\backslash 
+\backslash $foo.db'}. Flags can be:
+
+\begin{itemize}
+\item '\textsf{r}' - opens an existing database in read-only mode. This is the default value.
+\item '\textsf{w}' - opens an existing database in read-write mode.
+	\begin{itemize}
+	\item '\textsf{c}' -- opens a database in read-write mode. Creates a new database if the database does not exist.
+	\end{itemize}
+\item '\textsf{n}' -- creates a new empty database and opens it in read-write mode.
+\end{itemize}
+If the character 'f' is appended to flags, the database is opened in \textit{fast mode}. In 
+fast mode, updates are written to the database only when one of these 
+methods is called: \textsf{sync}, \textsf{close}, \textsf{reorganize}, or 
+\textsf{clear}.
+
+Since the connection object destructor calls \textsf{close}, it is not 
+strictly necessary to close the database before exiting to ensure that data 
+is saved, but it is still good practice to call the \textsf{close} method 
+when you are done with using the database. Closing the database releases the 
+lock on the file and allows the file to be reopened or deleted without 
+exiting the interpreter.
+
+If you plan to do several updates, it is highly recommended that you open 
+the database in fast mode, since inserts and updates are more efficient when 
+they are bundled together in a larger transaction. This is especially 
+important when you plan to insert large amounts of data, since inserting 
+records to \textsf{e32db} is very slow if done one record at a time.
+
+\subsection{e32dbm Objects}
+\label{subsec:mylabel17}
+The \textsf{e32dbm} objects returned by the \textsf{open} function support 
+most of the standard dictionary methods. The supported dictionary methods 
+are:
+
+\begin{itemize}
+\item \textsf{{\_}{\_}getitem{\_}{\_}}
+\item \textsf{{\_}{\_}setitem{\_}{\_}}
+\item \textsf{{\_}{\_}delitem{\_}{\_}}
+\item \textsf{has{\_}key}
+\item \textsf{update}
+\item {\_}{\_}\textsf{len}{\_}{\_}
+\item {\_}{\_}\textsf{iter}{\_}{\_}
+\item \textsf{iterkeys}
+\item \textsf{iteritems}
+\item \textsf{itervalues}
+\item \textsf{get}
+\item \textsf{setdefault}
+\item \textsf{pop}
+\item \textsf{popitem}
+\item \textsf{clear}
+\end{itemize}
+These work the same way as the corresponding methods in a normal dictionary.
+
+In addition, \textsf{e32dbm} objects have the following methods:
+
+\textsf{close()}
+
+Closes the database. In fast mode, commits all pending updates to disk. 
+\textsf{close} raises an exception if called on a database that is not open.
+
+\textsf{reorganize()}
+
+Reorganizes the database. Reorganization calls \textsf{compact} on the 
+underlying \textsf{e32db} database file, which reclaims unused space in the 
+file. Reorganizing the database is recommended after several updates.
+
+\textsf{sync()}
+
+In fast mode, commits all pending updates to disk.
+
+\section{messaging Module}
+\label{sec:messaging}
+The\textsf{ messaging} module offers APIs to messaging services. Currently, 
+the \textsf{messaging} module has one function:
+
+\textsf{sms{\_}send(}\textsf{\textit{recipient}}\textsf{, 
+}\textsf{\textit{message}}\textsf{)}
+
+Sends an SMS message with body text \textsf{\textit{message}} (Unicode) to 
+telephone number \textsf{\textit{recipient}} (string).
+
+\section{inbox Module}
+\label{sec:inbox}
+The\textsf{ inbox} module offers APIs to device inbox. Currently, the 
+\textsf{inbox} module supports only SMS handling and notifications of 
+incoming messages and Drafts, Sent and Outbox folders are not supported.
+
+\subsection{Inbox Objects}
+\label{subsec:inbox}
+Inbox()
+
+Create an \textsf{Inbox} object.
+
+\textsf{Inbox} objects have the following functions:
+
+sms{\_}list{\_}ids sms{\_}messages\textsf{()}
+
+Returns a list of SMS message IDs in device inbox.
+
+\textsf{sms{\_}content content(sms{\_}id)}
+
+Retrieve the SMS message content in Unicode. 
+
+\textsf{sms{\_}arrival time(sms{\_}id)}
+
+Retrieve the SMS message time of arrival in seconds since epoch. 
+
+\textsf{sms{\_}address address(sms{\_}id)}
+
+Retrieve the SMS message sender address in Unicode. 
+
+\textsf{delete(sms{\_}id)}
+
+Delete the SMS message from inbox.
+
+\textsf{bind(callable)}
+
+Bind a callback to receive new message events in device inbox. When a new 
+message arrives to the device inbox the \textsf{\textit{callback}} gets 
+called with the received message ID. The received message can be other than 
+an SMS message.
+
+Examples:
+
+\textsf{$>>>$ import inbox}
+
+\textsf{$>>>$ i=inbox.Inbox()}
+
+\textsf{$>>>$ m=i.sms{\_}messages()}
+
+\textsf{$>>>$ i.content(m[0])}
+
+\textsf{u'foobar'}
+
+\textsf{$>>>$ i.time(m[0])}
+
+\textsf{1130267365.03125}
+
+\textsf{$>>>$ i.address(m[0])}
+
+\textsf{u'John Doe'}
+
+\textsf{$>>>$ i.delete(m[0])}
+
+\textsf{$>>>$}
+
+\textsf{$>>>$ import inbox }
+
+\textsf{$>>>$ id=0 }
+
+\textsf{$>>>$ def cb(id{\_}cb): }
+
+\textsf{... global id }
+
+\textsf{... id=id{\_}cb }
+
+\textsf{... }
+
+\textsf{$>>>$ i=inbox.Inbox()}
+
+\textsf{$>>>$ i.bind(cb)}
+
+\textsf{$>>>$ {\#} Send and SMS to your inbox here. The "id" gets 
+updated}
+
+\textsf{$>>>$ i.address(id)}
+
+\textsf{u'John Doe'}
+
+\textsf{$>>>$ i.content(id)}
+
+\textsf{u'print 1'}
+
+\textsf{$>>>$}
+
+\section{location Module}
+\label{sec:location}
+The \textsf{location} module offers APIs to location information related 
+services. Currently, the \textsf{location} module has one function:
+
+\textsf{\textit{mcc}}\textsf{, }\textsf{\textit{mnc}}\textsf{, 
+}\textsf{\textit{lac}}\textsf{, }\textsf{\textit{cellid}}\textsf{ 
+gsm{\_}location()}
+
+Retrieves GSM location information: Mobile Country Code, Mobile Network 
+Code, Location Area Code, and Cell ID. A location area normally consists of 
+several base stations. It is the area where the terminal can move without 
+notifying the network about its exact position. \textsf{\textit{mcc}} and 
+\textsf{\textit{mnc}} together form a unique identification number of the 
+network into which the phone is logged.
+
+\section{sysinfo Module}
+\label{sec:sysinfo}
+The \textsf{sysinfo} module offers an API for checking the system 
+information of a Series 60 mobile device. 
+
+The method \textsf{ring{\_}type} is not available for Series 60 1st Edition.
+
+The \textsf{sysinfo} module has the following functions:
+
+\textsf{\textit{battery}}\textsf{ battery()}
+
+Returns the current battery level ranging from 0 to 7, with 0 meaning that 
+the battery is empty and 7 meaning that the battery is full. If using an 
+emulator, value 0 is always returned.
+
+\textsf{(}\textsf{\textit{width, height}}\textsf{) display{\_}twips()}
+
+Returns the width and height of the display in twips. For a definition of a 
+twip, see Chapter 20, Terms 
+and Abbreviations. 
+
+\textsf{(}\textsf{\textit{width, height}}\textsf{) display{\_}pixels()}
+
+Returns the width and height of the display in pixels.
+
+\textsf{\textit{free{\_}space}}\textsf{ free{\_}drivespace()}
+
+Returns the amount of free space left on the drives in bytes, for example 
+\textsf{{\{}u'C:' 100{\}}.} The keys in the dictionary are the drive letters 
+followed by a colon (:). 
+
+\textsf{\textit{imei}}\textsf{ imei()}
+
+Returns the IMEI code of the device as a Unicode string. If using an 
+emulator, the hardcoded string \textsf{u'000000000000000'} is returned.
+
+\textsf{\textit{maxram}}\textsf{ max{\_}ramdrive{\_}size()}
+
+Returns the maximum size of the RAM drive on the device.
+
+\textsf{\textit{ram}}\textsf{ total{\_}ram()}
+
+Returns the amount of RAM memory on the device.
+
+\textsf{\textit{free{\_}ram}}\textsf{ free{\_}ram()}
+
+Returns the amount of free RAM memory available on the device.
+
+\textsf{\textit{rom}}\textsf{ total{\_}rom()}
+
+Returns the amount of read-only ROM memory on the device.
+
+\textsf{\textit{ringtype}}\textsf{ ring{\_}type() }\textbf{Not supported in 
+1st Edition!}
+
+Returns the current ringing type as a string, which can be one of the 
+following: \textsf{'normal'}, \textsf{'ascending'}, 
+\textsf{'ring{\_}once'},\textsf{ 'beep'}, or \textsf{'silent'}.
+
+\textsf{(}\textsf{\textit{major}}$, $\textsf{\textit{minor}}$, $\textsf{\textit{build}}\textsf{) 
+os{\_}version()}
+
+Returns the operating system version number of the device as integers. The 
+returned version is defined by a set of three numbers as follows\footnote{ 
+Descriptions for these values are based on information found in Series 60 
+SDK documentation [4].}:
+
+\begin{itemize}
+\item The major version number, ranging from 0 to 127 inclusive
+\item The minor version number, ranging from 0 to 99 inclusive
+\item The build number, ranging from 0 to 32767 inclusive.
+\end{itemize}
+\textsf{\textit{signal}}\textsf{ signal()}
+
+Returns the current network signal strength ranging from 0 to 7, with 0 
+meaning no signal and 7 meaning a strong signal. If using an emulator, value 
+0 is always returned. 
+
+\newpage 
+\textsf{\textit{sw{\_}version}}\textsf{ sw{\_}version()}
+
+Returns the software version as a Unicode string. If using an emulator, the 
+hardcoded string \textsf{u'emulator'} is returned. For example, a software 
+version can be returned as \textsf{u'V 4.09.1 26-02-04 NHL-10 (c) NMP'}.
+
+\section{camera Module}
+\label{sec:camera}
+Not available for Series 60 1st Edition.
+
+The \textsf{camera} module enables taking photographs. 
+
+The \textsf{camera} module has the following functions\footnote{ 
+Descriptions for some of the values are based on information found in Series 
+60 SDK documentation [4].}:
+
+\textsf{\textit{number}}\textsf{ cameras{\_}available()}
+
+Returns the number of cameras available in the device.
+
+\textsf{\textit{values}}\textsf{ image{\_}modes()}
+
+Returns the image modes supported in the device as a list of strings, for 
+example: \textsf{['RGB12', 'RGB', 'RGB16'].}
+
+\textsf{\textit{values}}\textsf{ image{\_}sizes()}
+
+Returns the image sizes (resolution) supported in the device as a list of 
+\textsf{(x, y)} tuples, for example: \textsf{[(640, 480), (160, 120)]}.
+
+\textsf{\textit{modes}}\textsf{ flash{\_}modes()}
+
+Returns the flash modes available in the device as a list of strings. 
+
+\textsf{\textit{value}}\textsf{ max{\_}zoom()}
+
+Returns the maximum digital zoom value supported in the device as an 
+integer. 
+
+\textsf{\textit{modes}}\textsf{ exposure{\_}modes()}
+
+Returns the exposure settings supported in the device as a list of strings. 
+
+\textsf{\textit{modes}}\textsf{ white{\_}balance{\_}modes()}
+
+Returns the white balance modes available in the device as a list of 
+strings. 
+
+\textsf{\textit{Image}}\textsf{ take{\_}photo([mode='RGB16', size=(640, 
+480), flash='auto', zoom=0, exposure='auto', white{\_}balance='auto', 
+position=0])}
+
+Takes a photograph and returns the image in \textsf{Image} format (for more 
+information on \textsf{Image} format, see Chapter 
+$6,$ graphics Module). If some 
+other application is using the camera, this operation fails, for example 
+with \textsf{SymbianError: KErrInUse}. The settings listed below describe 
+all settings that are supported by the \textsf{camera} module. You can 
+retrieve the mode settings available for your device by using the 
+appropriate functions listed at the beginning of this chapter.
+
+\begin{itemize}
+\item \textsf{mode} is the display mode of the image. The default value is \textsf{'RGB16'}. The following display modes are supported:
+	\begin{itemize}
+	\item \textsf{'RGB12'}: 4096 colors (12 bits per pixel)
+	\item \textsf{'RGB16'}: 65536 colors (16 bits per pixel). Default value, always supported
+	\item \textsf{'RGB'}: 16.7 million colors (24 bits per pixel)
+	\end{itemize}
+\item \textsf{size} is the resolution of the image. The default value is \textsf{(640, 480)}. The following sizes are supported, for example, in Nokia 6630: \textsf{(1280, 960)}, \textsf{(640, 480)} and \textsf{(160, 120)}.
+\item \textsf{flash} is the flash mode setting. The default value is \textsf{'none'}. The following flash mode settings are supported:
+	\begin{itemize}
+	\item \textsf{'none' \newline
+}No flash. Default value, always supported
+	\item \textsf{'auto' \newline
+}Flash will automatically fire when required
+	\item \textsf{'forced' \newline
+}Flash will always fire
+	\item \textsf{'fill{\_}in' \newline
+}Reduced flash for general lighting
+	\item \textsf{'red{\_}eye{\_}reduce' \newline
+}Red-eye reduction mode
+	\end{itemize}
+\item \textsf{zoom} is the digital zoom factor. It is assumed to be on a linear scale from 0 to the maximum zoom value allowed in the device. The default value is \textsf{0}, meaning that zoom is not used. 
+\item \textsf{exposure} is the exposure adjustment of the device. Exposure is a combination of lens aperture and shutter speed used in taking a photograph. The default value is \textsf{'auto'.} The following exposure modes are supported:
+	\begin{itemize}
+	\item \textsf{'auto'} \newline
+Sets exposure automatically. Default value, always supported
+	\item \textsf{'night'} \newline
+Night-time setting for long exposures
+	\item \textsf{'backlight' } \newline
+Backlight setting for bright backgrounds
+	\item \textsf{'center'} \newline
+Centered mode for ignoring surroundings
+	\end{itemize}
+\item \textsf{white{\_}balance} can be used to adjust white balance to match the main source of light. The term white balance refers to the color temperature of the current light. A digital camera requires a reference point to represent white. It will then calculate all the other colors based on this white point. The default value for \textsf{white{\_}balance} is \textsf{'auto'} and the following white balance modes are supported:
+	\begin{itemize}
+	\item \textsf{'auto'} \newline
+Sets white balance automatically. Default value, always supported
+	\item \textsf{'daylight'} \newline
+Sets white balance to normal daylight
+	\item \textsf{'cloudy}' \newline
+Sets white balance to overcast daylight
+	\item \textsf{'tungsten'} \newline
+Sets white balance to tungsten filament lighting
+	\item \textsf{'fluorescent}' \newline
+Sets white balance to fluorescent tube lighting
+	\item \textsf{'flash'} \newline
+Sets white balance to flash lighting
+	\end{itemize}
+\item \textsf{position} is the camera used if the device, such as Nokia 6680, has several cameras. In Nokia 6680, the camera pointing to the user of the device is located in position \textsf{1}, whereas the one pointing away from the user is located in position \textsf{0}. The default \textsf{position} is \textsf{0}.
+\end{itemize}
+\section{audio Module}
+\label{sec:audio}
+The \textsf{audio} module enables recording and playing audio files. The 
+\textsf{audio} module supports all the formats supported by the device, 
+typically: WAV, AMR, MIDI, MP3, AAC, and Real Audio\footnote{ The 
+dynamically loaded audio codec for the sound file is based on the MIME-type 
+information inside the audio file and file extension.}. For more information 
+on the audio types supported by different devices, see the \textit{Forum Nokia} Web site 
+[7] and \textit{Series 60 Platform} Web site [8]. 
+
+\subsection{Sound Class Static Methods}
+\label{subsec:sound}
+The following \textsf{Sound} class static methods are defined in the 
+\textsf{audio} module:
+
+\textsf{\textit{Sound}}\textsf{ 
+Sound.open(}\textsf{\textit{filename}}\textsf{)}
+
+Returns a new initialized \textsf{Sound} object with the named file opened. 
+Note that \textsf{\textit{filename}} should be a full Unicode path name and 
+must also include the file extension, for example \textsf{u'c:$\backslash 
+\backslash $foo.wav'}.
+
+\subsection{Sound Objects}
+\label{subsec:mylabel18}
+The method \textsf{current{\_}volume} is not available for Series 60 1st 
+Edition.
+
+\textsf{Sound} objects have the following functions:
+
+\textsf{play([times=1, interval=0, callback=None])}
+
+Starts playback of an audio file from the beginning. Without the parameters 
+\textsf{times} and \textsf{interval} it plays the audio file one time. 
+\textsf{times }defines the number of times the audio file is played, the 
+default being \textsf{1}. If the audio file is played several times, 
+\textsf{interval} gives the time interval between the subsequent plays in 
+microseconds. The optional callback is called when the end of sound file is 
+reached. Other issues: 
+
+\begin{itemize}
+\item Calling \textsf{play(audio.KMdaRepeatForever)} will repeat the file forever. 
+\item If an audio file is played but not stopped before exiting, the Python script will leave audio playing on; therefore \textsf{stop} needs to be called explicitly prior to exit.
+\item Currently the module does not support playing simultaneous audio files, calling \textsf{play} to a second \textsf{Sound} instance while another audio file is playing, stops the earlier audio file and starts to play the second \textsf{Sound} instance.
+\item Calling \textsf{play} while a telephone call is ongoing plays the sound file to uplink. In some devices the sound file is also played to the device speaker.
+\item Calling \textsf{play} when already playing or recording results in \textsf{RuntimeError}. Calling \textsf{stop} prior to \textsf{play} will prevent this from happening.
+\end{itemize}
+\textsf{stop()}
+
+Stops playback or recording of an audio file.
+
+\textsf{record()}
+
+Starts recording audio data to a file. If the file already exists, the 
+operation appends to the file. For Nokia devices, WAV is typically supported 
+for recording. For more information on the audio types supported by 
+different devices, see the \textit{Forum Nokia} Web site [7] and 
+\textit{Series 60 Platform} Web site [8]. Other issues:
+
+\begin{itemize}
+\item Calling \textsf{record} while a telephone call is ongoing starts the recording of the telephone call. 
+\item Calling \textsf{record} when already playing or recording results in \textsf{RuntimeError}. Calling \textsf{stop} prior to \textsf{record} will prevent this from happening.
+\end{itemize}
+\textsf{close()}
+
+Closes an opened audio file.
+
+\textsf{\textit{state}}\textsf{ state()}
+
+Returns the current state of the \textsf{Sound }type instance. The different 
+states (constants) are defined in the \textsf{audio} module. The possible 
+states\footnote{ Descriptions for these options are based on information 
+found in Series 60 SDK documentation [4].} are:
+
+\begin{itemize}
+\item \textsf{ENotReady} \newline
+The \textsf{Sound} object has been constructed but no audio file is open.
+\item \textsf{EOpen} \newline
+An audio file is open but no playing or recording operation is in progress.
+\item \textsf{EPlaying} \newline
+An audio file is playing.
+\item \textsf{ERecording} \newline
+An audio file is being recorded.
+\end{itemize}
+\textsf{\textit{volume}}\textsf{ max{\_}volume()}
+
+Returns the maximum volume of the device.
+
+\textsf{set{\_}volume(volume)}
+
+Sets the volume. If the given volume is negative, then the volume is set to 
+zero which mutes the device. If the volume is greater than max{\_}volume, 
+then max{\_}volume
+
+is used.
+
+\textsf{\textit{volume}}\textsf{ current{\_}volume()}
+
+Returns the current volume set.
+
+\textsf{\textit{microseconds}}\textsf{ duration()}
+
+The duration of the file.
+
+\textsf{set{\_}position(microseconds)}
+
+Set the position for the playhead.
+
+\textsf{\textit{microseconds}}\textsf{ current{\_}position()}
+
+The current playhead position.
+
+\section{telephone Module}
+\label{sec:telephone}
+This module provides an API to a telephone. 
+
+Since the users of the device can also hang-up the phone explicitly, they 
+might affect the current status of the call. In addition, using this 
+extension in an emulator has no effect since no calls can be connected.
+
+The \textsf{telephone} module has the following functions:
+
+\textsf{dial(}\textsf{\textit{number}}\textsf{)}
+
+Dials the number set in \textsf{\textit{number}}. \textsf{\textit{number}} 
+is a string, for example u'\textsf{+358501234567'} where '\textsf{+}' is the 
+international prefix, '\textsf{358}' is the country code, '\textsf{50}' is 
+the mobile network code (or the area code), and '\textsf{1234567}' is the 
+subscriber number. If there is an ongoing phone call prior to calling 
+\textsf{dial} from Python, then the earlier call is put on hold and a new 
+call is established. Calling \textsf{dial} multiple times when, for example, 
+the first call has been answered and a line has been established results in 
+subsequent calls not being connected.
+
+\textsf{hang{\_}up()}
+
+Hangs up if a call initiated by \textsf{dial} is in process. If this call 
+has already been finished, \textsf{SymbianError: KErrNotReady} is raised.
+
+\section{calendar Module}
+\label{sec:calendar}
+The \textsf{calendar} module offers an API to calendar services. The 
+\textsf{calendar} module represents a Symbian agenda database as a 
+dictionary-like \textsf{CalendarDb} object, which contains \textsf{Entry 
+}objects and which is indexed using the unique IDs of those objects. There 
+are four types of entry objects: \textsf{AppointmentEntry}, 
+\textsf{EventEntry}, \textsf{AnniversaryEntry}, and \textsf{TodoEntry}. 
+
+\textsf{CalendarDb} objects represent a live view into the database. If an 
+entry is changed outside your Python application, the changes are visible 
+immediately, and conversely any changes you commit into the database are 
+visible immediately to other applications. 
+
+In addition to entries, there are todo lists which contain todo entries. 
+Todo lists are accessed using the dictionary-like\textsf{ TodoListDict} and 
+\textsf{TodoList} objects.
+
+All time parameters use Unix time unless stated otherwise. For more 
+information on Unix time, see Section 4.5, 
+Date and Time.
+
+\figurename~\ref{fig5} demonstrates the relationships of the 
+\textsf{calendar} module objects. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.42in,height=4.82in]{API_Reference_for_Python12.eps}}
+\label{fig12}
+\end{figure}
+
+\newpage 
+\subsection{Module Level Functions}
+\label{subsec:mylabel19}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{calendar} module:
+
+\textsf{\textit{Calendardb}}\textsf{ open()}
+
+Opens the default \textsf{calendar} database. Returns a new 
+\textsf{CalendarDb} object.
+
+\textsf{\textit{Calendardb}}\textsf{ 
+open(}\textsf{\textit{filename}}\textsf{)}
+
+Opens the specified \textsf{calendar} database. Returns a new 
+\textsf{CalendarDb} object. \textsf{\textit{filename}} should be a full 
+Unicode path name.
+
+\textsf{\textit{Calendardb}}\textsf{ 
+open(}\textsf{\textit{filename}}\textsf{, 'c')}
+
+Opens the specified \textsf{calendar} database. If it does not already 
+exist, a new one is created. Returns a new \textsf{CalendarDb} object. 
+\textsf{\textit{filename}} should be a full Unicode path name.
+
+\textsf{\textit{Calendardb}}\textsf{ 
+open(}\textsf{\textit{filename}}\textsf{, 'n')}
+
+Creates a new, empty \textsf{calendar} database. \textsf{\textit{filename}} 
+should be a full Unicode path name. Setting \textsf{filename} to an existing 
+file erases the old file and creates a new file by the same name. Returns a 
+new \textsf{CalendarDb} object. 
+
+\subsection{CalendarDb Objects}
+\label{subsec:calendardb}
+Calendar entries and todo lists are stored in a calendar database. There is 
+one default calendar database but more calendar databases can be created by 
+invoking \textsf{open} with parameters \textsf{'n' }or \textsf{'c'}. 
+
+\textsf{CalendarDb} objects have the following methods:
+
+\textsf{\textit{AppointmentEntry}}\textsf{ add{\_}appointment()}
+
+Creates a new appointment entry. The entry is not added and saved into the 
+database until \textsf{Entry.commit} is called.
+
+\textsf{\textit{EventEntry}}\textsf{ add{\_}event()}
+
+Creates a new event entry. The entry is not added and saved into the 
+database until \textsf{Entry.commit} is called.
+
+\textsf{\textit{AnniversaryEntry}}\textsf{ add{\_}anniversary()}
+
+Creates a new anniversary entry. The entry is not added and saved into the 
+database until \textsf{Entry.commit} is called.
+
+\textsf{\textit{TodoEntry}}\textsf{ add{\_}todo()}
+
+Creates a new todo entry. The entry is not added and saved into the database 
+until \textsf{Entry.commit} is called.
+
+\textsf{\textit{entry{\_}instances 
+}}\textsf{find{\_}instances(}\textsf{\textit{start{\_}date}}\textsf{,}\textsf{\textit{end{\_}date}}\textsf{,search{\_}str=u''[,appointments=0,events=0,anniversaries=0,todos=0])}
+
+The parameters for this function include the start date, end date, search 
+string, and optional parameters. The optional parameters define the entry 
+types to be included into the search. By default all entry types are 
+included. Returns a list that contains \textsf{Entry} instances found in the 
+search. An instance is a dictionary that contains the entry ID and the 
+datetime value. An entry may have several instances if it is repeated, for 
+example once every week, etc. However, all the returned instances occur on 
+the same day, i.e. on the first day between the start and end datetime 
+values that contains instances. To search all instances between the initial 
+start and end datetime values, you may have to execute several searches and 
+change the start datetime value for each search. A match is detected if the 
+search string is a substring of an entry's content. 
+
+\textsf{\textit{entry{\_}instances}}\textsf{ 
+monthly{\_}instances(}\textsf{\textit{month}}\textsf{,appointments=0,events=0,anniversaries=0,todos=0)}
+
+The parameters for this function include \textsf{\textit{month}} (float) and 
+optional parameters. The optional parameters define the entry types to be 
+returned. Returns a list that contains entry instances occurring during the 
+specified calendar month.
+
+\textsf{\textit{entry{\_}instances}}\textsf{ 
+daily{\_}instances(}\textsf{\textit{day}}\textsf{,appointments=0,events=0,anniversaries=0,todos=0)}
+
+The parameters for this function include \textsf{\textit{day}} (float) and 
+optional parameters. The optional parameters define the entry types to be 
+returned. Returns a list that contains entry instances occurring on the 
+specified day.
+
+\textsf{\textit{id}}\textsf{ add{\_}todo{\_}list([name=None])}
+
+Creates a new todo list. \textsf{name} sets the name of the todo list 
+(Unicode). Returns the ID of the created todo list.
+
+\textsf{\textit{vcalendar{\_}string}}\textsf{ 
+export{\_}vcalendars(tuple$<$int,..$>)$}
+
+Returns a \textsf{vcalendar} string that contains the specified entries in 
+vCalendar format. The parameter for this function is a tuple that contains 
+the entry IDs of the exported entries.
+
+\textsf{\textit{entry{\_}ids}}\textsf{ import{\_}vcalendars(string)}
+
+Imports \textsf{vcalendar} entries, given in the string parameter, to the 
+database. Returns a tuple that contains the unique IDs of the imported 
+entries.
+
+\textsf{todo{\_}lists}
+
+Enables the \textsf{TodoListDict} (dictionary-like) object to access the 
+todo lists of this database.
+
+\textsf{del db[id]}
+
+Deletes the given calendar \textsf{Entry} from the database. \textsf{db} is 
+the \textsf{CalendarDb} object and \textsf{id} is the unique ID of the 
+calendar \textsf{Entry}.
+
+\textsf{\textit{EntryObject}}\textsf{ db[id]}
+
+Returns a calendar \textsf{Entry} object indicated by the unique ID. The 
+returned object can be one of the following: \textsf{AppointmentEntry}, 
+\textsf{EventEntry}, \textsf{AnniversaryEntry}, or \textsf{TodoEntry}. 
+\textsf{db} is the \textsf{CalendarDb} object and \textsf{id} is the unique 
+ID of the calendar \textsf{Entry}. 
+
+\textsf{\textit{Success}}\textsf{ compact()}
+
+Compacts the database file. The returned value (integer) indicates the 
+success of compaction; a value other than zero means that the compaction was 
+successful.
+
+\subsection{Entry Objects}
+\label{subsec:entry}
+An \textsf{Entry} object represents a live view into the state of a single 
+entry in the database. You can access the entries with an entry's unique ID. 
+If you create a new entry using \textsf{db.add{\_}appointment} etc., it is 
+saved into the database only if you call the entry's \textsf{commit} method. 
+In case an entry is already saved into the database, the autocommit mode is 
+on by default and all the changes are automatically saved into the database, 
+unless you call the entry's \textsf{begin} method. If you call the entry's 
+\textsf{begin} method, the changes are not saved into the database until you 
+call the entry's \textsf{commit} method. \newline
+
+Database entries cannot be locked. In other words, other applications are 
+able to make changes to the database entries you are using (not directly to 
+the \textsf{EntryObjects} you are using, but to their representation in the 
+database) at the same time you are modifying them, even if you use 
+\textsf{begin} and \textsf{commit} methods. 
+
+\newpage 
+\textsf{Entry} objects have the following methods and properties:
+
+\textsf{content}
+
+Sets or returns the entry's content text (Unicode).
+
+\textsf{commit()}
+
+Saves the entry or in case of a new entry adds the entry into the database. 
+Note that this can be called only in case of a new entry, created with 
+\textsf{db.add{\_}appointment} etc., or after \textsf{begin} is called. 
+
+\textsf{rollback()}
+
+Undoes the changes made after last \textsf{commit}.
+
+\textsf{set{\_}repeat(}\textsf{\textit{dictionary}}\textsf{)}
+
+Sets the repeat data of the entry. \textsf{\textit{dictionary}} is a repeat 
+data dictionary that contains all the repeat rules. For more information on 
+repeat rules, see Section \textit{17.4, Repeat Rules.}
+
+\textsf{\textit{repeat{\_}dict}}\textsf{ get{\_}repeat()}
+
+Returns the repeat data dictionary of the entry.
+
+\textsf{location}
+
+Sets or returns the entry's location data (Unicode), for example meeting 
+room information. 
+
+\textsf{set{\_}time(}\textsf{\textit{start}}\textsf{, 
+}\textsf{\textit{end}}\textsf{)}
+
+Sets the start and end datetime values of the entry (floats). If only one 
+parameter is given, the other will have the same value. 
+
+In case of events, anniversaries, and todo entries the datetime values are 
+truncated to corresponding date values.
+
+\textsf{TodoEntries} can be made undated with 
+\textsf{TodoEntry.set{\_}time(None)}. Making the todo entry undated means 
+removing the start and end date and all the repeat rules.
+
+\textsf{start{\_}time}
+
+Returns the start datetime value (float) of the entry or \textsf{None} if 
+the start datetime of the entry is not set.
+
+\textsf{end{\_}time}
+
+Returns the end datetime value (float) of the entry or \textsf{None} if the 
+end datetime of the entry is not set.
+
+\textsf{id}
+
+Returns the unique ID of the entry.
+
+\textsf{last{\_}modified}
+
+Returns the datetime value (float) of the entry's last modification in 
+universal time.
+
+\textsf{alarm}
+
+Sets or returns an alarm datetime value (float) for the entry. Returns 
+\textsf{None} if \textsf{alarm} is not set. Alternatively removes the alarm 
+if the value is set to \textsf{None}. 
+
+Alarms can be set to all \textsf{Entry} types. However, only alarms set to 
+Appointments and Anniversaries will actually cause an alarm; this is similar 
+to the Calendar application in your Nokia device, which allows you to set an 
+alarm only for Meetings and Anniversaries. In addition, alarms set to any 
+entries residing in a database other than the default database do not cause 
+actual alarms either.
+
+\textsf{priority}
+
+Sets or returns the priority of the entry, which can be an integer ranging 
+from 0 to 255. Native Phonebook and Calendar applications in Nokia devices 
+use value 1 for high priority, 2 for normal priority, and 3 for low 
+priority. 
+
+\textsf{crossed{\_}out}
+
+Sets or returns the crossed out value of an entry. A value that is 
+interpreted as false means that the entry is not crossed out, whereas a 
+value that is interpreted as true means that the entry is crossed out. Note 
+that \textsf{TodoEntries} must also have a cross-out time while the other 
+entry types cannot have one. If \textsf{TodoEntry} is crossed out using this 
+method, the moment of crossing out is set to the cross-out time of the 
+\textsf{TodoEntry}. See also Section \textit{17.3.4, TodoEntry, \textsf{cross{\_}out{\_}time.}}
+
+\textsf{replication}
+
+Sets or returns the entry's replication status, which can be one of the 
+following: \textsf{'open'}, \textsf{'private',} or \textsf{'restricted'}.
+
+\textsf{\textit{vcalendar{\_}string}}\textsf{ as{\_}vcalendar()}
+
+Returns this entry as a vCalendar string.
+
+\subsubsection{AppointmentEntry Objects}
+\label{subsubsec:appointmententry}
+\textsf{AppointmentEntry} class contains no additional methods compared to 
+the \textsf{Entry} class from which it is derived.
+
+\subsubsection{EventEntry}
+\label{subsubsec:evententry}
+\textsf{EventEntry} class contains no additional methods compared to the 
+\textsf{Entry} class from which it is derived.
+
+\subsubsection{AnniversaryEntry}
+\label{subsubsec:anniversaryentry}
+\textsf{AnniversaryEntry} class contains no additional methods compared to 
+the \textsf{Entry} class from which it is derived.
+
+\subsubsection{TodoEntry}
+\label{subsubsec:todoentry}
+\textsf{TodoEntry }objects represent todo entry types. They have additional 
+properties compared to the \textsf{Entry} class from which they are derived.
+
+\textsf{TodoEntry }objects have the following additional properties:
+
+\textsf{cross{\_}out{\_}time}
+
+Sets or returns the cross-out date value of the entry. The returned value 
+can be \textsf{None} meaning that the entry is not crossed out, or the 
+cross-out date (float). The set value must be date (float). Setting a 
+cross-out time also crosses out the entry. See also Section \textit{17.3, Entry Object, \textsf{crossed{\_}out}.}
+
+\textsf{todo{\_}list}
+
+Sets or returns the ID of the todo list to which this entry belongs.
+
+\subsubsection{TodoListDict}
+\label{subsubsec:todolistdict}
+\textsf{TodoListDict} objects are dictionary-like objects that enable 
+accessesing todo lists. 
+
+\textsf{TodoListDict} objects have the following property:
+
+\textsf{default{\_}list}
+
+Returns the ID of the default todo list.
+
+\subsubsection{TodoList}
+\label{subsubsec:todolist}
+\textsf{TodoList} objects are dictionary-like objects that enable 
+accessesing todo lists. \newline
+\textsf{TodoList} objects have the following properties:
+
+\textsf{name}
+
+Sets or returns the name of the todo list as a Unicode string.
+
+\textsf{id}
+
+Returns the ID of the todo list as an integer.
+
+\subsection{Repeat Rules}
+\label{subsec:repeat}
+Repeat rules specify an entry's repeat status, that is, the recurrence of 
+the entry. There are six repeat types: 
+
+\begin{itemize}
+\item \textsf{daily}: repeated daily
+\item \textsf{weekly}: repeat on the specified days of the week, such as Monday and Wednesday, etc.
+\item \textsf{monthly{\_}by{\_}dates}: repeat monthly on the specified dates, such as the 15th and 17th day of the month
+\item \textsf{monthly{\_}by{\_}days}: repeat monthly on the specified days, such as the fourth Wednesday of the month, or the last Monday of the month
+\item \textsf{yearly{\_}by{\_}date}: repeat yearly on the specified date, such as December 24
+\item \textsf{yearly{\_}by{\_}day}: repeat yearly on the specified day, such as every third Tuesday of May
+\end{itemize}
+There are exceptions to repeat rules. For example, you can specify the 
+datetime value (float) in such a way that the entry is not repeated on a 
+specific day even if the repeat rule would specify otherwise.
+
+You must set the start and end dates (floats) of the repeat. The end date 
+can also be set to \textsf{None} to indicate that the repeating continues 
+forever. You can set \textsf{interval} defining how often the repeat occurs, 
+for example in a daily repeat: \textsf{1} means every day, \textsf{2} means 
+every second day, etc. You can also set the \textsf{days} specifier which 
+lets you explicitly specify the repeat days; for example in a weekly repeat 
+you can set \textsf{"days":[0,2]} which sets the repeat to occur on Mondays 
+and Wednesdays. If you do not set the \textsf{days} specifier, the repeat 
+days are calculated automatically based on the start date.
+
+You can modify repeat data by calling \textsf{rep{\_}data = 
+entry.get{\_}repeat}, then making changes to \textsf{rep{\_}data} 
+dictionary, and then calling \textsf{entry.set{\_}repeat(rep{\_}data)}.
+
+Repeating can be cancelled by calling \textsf{entry.set{\_}repeat} with a 
+parameter that is interpreted to be false, such as 
+\textsf{entry.set{\_}repeat(None)}.
+
+Repeat definition examples:
+
+\textsf{repeat = {\{}"type":"daily", {\#}repeat type}
+
+\textsf{"exceptions":[exception{\_}day, exception{\_}day+2*24*60*60], 
+\newline
+{\#}no appointment on those days}
+
+\textsf{"start":appt{\_}start{\_}date, {\#}start of the repeat}
+
+\textsf{"end":appt{\_}start{\_}date+30*24*60*60, {\#}end of the repeat}
+
+\textsf{"interval":1{\}} {\#}interval (1=every day, 2=every second day 
+etc.)}
+
+\newpage 
+\textsf{repeat = {\{}"type":"weekly", {\#}repeat type}
+
+\textsf{"days":[0,1], {\#}which days in a week (Monday, Tuesday)}
+
+\textsf{"exceptions":[exception{\_}day], {\#}no appointment on that day}
+
+\textsf{"start":appt{\_}start{\_}date, {\#}start of the repeat}
+
+\textsf{"end":appt{\_}start{\_}date+30*24*60*60, {\#}end of the repeat}
+
+\textsf{"interval":1{\}} \newline
+{\#}interval (1=every week, 2=every second week etc.) }
+
+\textsf{repeat = {\{}"type":"monthly{\_}by{\_}days", {\#}repeat type}
+
+\textsf{{\#} appointments on second Tuesday and last Monday of the month}
+
+\textsf{"days":[{\{}"week":1, "day":1{\}},{\{}"week":4, "day":0{\}}],}
+
+\textsf{"exceptions":[exception{\_}day], {\#}no appointment on that day }
+
+\textsf{"start":appt{\_}start{\_}date, {\#}start of the repeat}
+
+\textsf{"end":appt{\_}start{\_}date+30*24*60*60, {\#}end of the repeat}
+
+\textsf{"interval":1{\}} \newline
+{\#}interval (1=every month, 2=every second month etc.)}
+
+\textsf{repeat = {\{}"type":"monthly{\_}by{\_}dates", {\#}repeat type}
+
+\textsf{"days":[0,15], \newline
+{\#} appointments on the 1st and 16th day of the month.}
+
+\textsf{"exceptions":[exception{\_}day], {\#}no appointment on that day}
+
+\textsf{"start":appt{\_}start{\_}date, {\#}start of the repeat}
+
+\textsf{"end":appt{\_}start{\_}date+30*24*60*60, {\#}end of the repeat}
+
+\textsf{"interval":1{\}} \newline
+{\#}interval (1=every month, 2=every second month etc.)}
+
+\textsf{repeat = {\{}"type":"yearly{\_}by{\_}date", {\#}repeat type}
+
+\textsf{"exceptions":[exception{\_}day], {\#}no appointment on that day }
+
+\textsf{"start":appt{\_}start{\_}date, {\#}start of the repeat}
+
+\textsf{"end":appt{\_}start{\_}date+3*365*24*60*60, {\#}end of the repeat}
+
+\textsf{"interval":1{\}} \newline
+{\#}interval (1=every year, 2=every second year etc.)}
+
+\textsf{repeat = {\{}"type":"yearly{\_}by{\_}day", {\#}repeat type}
+
+\textsf{{\#} appointments on the second Tuesday of February}
+
+\textsf{"days":{\{}"day":1, "week":1, "month":1{\}},}
+
+\textsf{"exceptions":[exception{\_}day], {\#}no appointment on that day }
+
+\textsf{"start":appt{\_}start{\_}date, {\#}start of the repeat}
+
+\textsf{"end":appt{\_}start{\_}date+3*365*24*60*60, {\#}end of the repeat}
+
+\textsf{"interval":1{\}} \newline
+{\#}interval (1=every year, 2=every second year etc.)}
+
+\section{contacts Module}
+\label{sec:contacts}
+The \textsf{contacts} module offers an API to address book services allowing 
+the creation of contact information databases. The \textsf{contacts} module 
+represents a Symbian contact database as a dictionary-like 
+\textsf{ContactDb} object, which contains \textsf{Contact} objects and which 
+is indexed using the unique IDs of those objects. A \textsf{Contact} object 
+is itself a list-like object, which contains \textsf{ContactField} objects 
+and which is indexed using the field indices. Unique IDs and field indices 
+are integers. The \textsf{ContactDb} object supports a limited subset of 
+dictionary functionality. Therefore, only \textsf{{\_}{\_}iter{\_}{\_}}, 
+\textsf{{\_}{\_}getitem{\_}{\_}}, \textsf{{\_}{\_}delitem{\_}{\_}}, 
+\textsf{{\_}{\_}len{\_}{\_}, keys}, \textsf{values}, and \textsf{items} are 
+included.
+
+\textsf{ContactDb} objects represent a live view into the database. If a 
+contact is changed outside your Python application, the changes are visible 
+immediately, and conversely any changes you commit into the database are 
+visible immediately to other applications. It is possible to lock a contact 
+for editing, which will prevent other applications from modifying the 
+contact for as long as the lock is held. This can be done in, for example, a 
+contacts editor application when a contact is opened for editing, very much 
+like with the Contacts application in your Nokia device. If you try to 
+modify a contact without locking it for editing, the contact is 
+automatically locked before the modification and released immediately 
+afterwards.
+
+\subsection{Module Level Functions}
+\label{subsec:mylabel20}
+The following free functions - functions that do not belong to any class 
+- are defined in the \textsf{Contact} module:
+
+\textsf{\textit{ContactDb}}\textsf{ 
+open([}\textsf{\textit{filename}}\textsf{ 
+[,}\textsf{\textit{mode}}\textsf{]])}
+
+Opens a contacts database. \textsf{\textit{filename}} should be a full 
+Unicode path name. If \textsf{\textit{filename}} is not given, opens the 
+default contacts database. If \textsf{\textit{mode}} is not given, the 
+database must exist. If \textsf{\textit{mode}} is '\textsf{c}', the database 
+is created if it does not already exist. If \textsf{\textit{mode}} is 
+'\textsf{n}', a new, empty database is created, overwriting the possible 
+previous database.
+
+Using \textsf{open} together with the additional parameters 
+\textsf{\textit{filename}} or \textsf{\textit{mode}} is intended for testing 
+purposes only. Due to Series 60 SDK functionality, the \textsf{open} method 
+can sometimes be unreliable with these parameters. 
+
+\subsection{ContactDb Object}
+\label{subsec:contactdb}
+There is one default contact database, but it is possible to create several 
+databases with the \textsf{open} function.
+
+\textsf{ContactDb} objects have the following methods:
+
+\textsf{\textit{Contact}}\textsf{ add{\_}contact()}
+
+Adds a new contact into the database. Returns a \textsf{Contact} object that 
+represents the new contact. The returned object is already locked for 
+modification. Note that a newly created contact will contain some empty 
+default fields. If you do not want to use the default fields for anything, 
+you can ignore them. 
+
+\textsf{\textit{matches}}\textsf{ 
+find(}\textsf{\textit{searchterm}}\textsf{)}
+
+Finds the contacts that contain the given Unicode string as a substring and 
+returns them as a list.
+
+\textsf{import{\_}vcards(}\textsf{\textit{vcards}}\textsf{)}
+
+Imports the vCard(s) in the given string into the database. 
+
+\textsf{\textit{vcards}}\textsf{ 
+export{\_}vcards((}\textsf{\textit{id}}\textsf{,...))}
+
+Converts the contacts corresponding to the given IDs to vCards and returns 
+them as a string.
+
+\textsf{\textit{id{\_}list}}\textsf{ keys()}
+
+Returns a list of unique IDs of all \textsf{Contact} objects in the 
+database.
+
+\textsf{\textit{status}}\textsf{ compact{\_}required()}
+
+Verifies whether compacting is recommended. Returns an integer value 
+indicating either a true or false state. Returns \textsf{True} if more than 
+32K of space is unused and if this comprises more than 50 percent of the 
+database file, or if more than 256K is wasted in the database file. 
+
+\textsf{compact()}
+
+Compacts the database to its minimum size.
+
+\textsf{del db[id]}
+
+Deletes the given contact from the database.
+
+\textsf{\textit{typedict{\_}list}}\textsf{ field{\_}types()}
+
+Returns a list of dictionary objects that contains information on all 
+supported field types. The list contains dictionary objects, which each 
+describe one field type. The most important keys in the dictionary are 
+\textsf{'type'} and \textsf{'location'} which together indentify the field 
+type. \textsf{'type'} can have string values such as 
+\textsf{'email{\_}address'}. \textsf{'location'} can have the string values 
+\textsf{'none'}, \textsf{'home',} or \textsf{'work'}. Another important key 
+is \textsf{'storagetype'}, which defines the storage type of the field. 
+\textsf{'storagetype'}can have the string values \textsf{'text'}, 
+\textsf{'datetime'}, \textsf{'item{\_}id',} or \textsf{'binary'}. Note that 
+the \textsf{Contacts} extension does not support adding, reading, or 
+modifying fields of any other type than '\textsf{text'} or 
+\textsf{'datetime'}. The other content returned by \textsf{field{\_}types} 
+is considered to be advanced knowledge and is not documented here.
+
+\subsection{Contact Object}
+\label{subsec:contact}
+A \textsf{Contact} object represents a live view into the state of a single 
+contact in the database. You can access the fields either with a contact's 
+numeric field ID as \textsf{contact[fieldid]}, or using the \textsf{find} 
+method. Attempting to modify a contact while it has been locked for editing 
+in another application will raise the exception \textsf{ContactBusy}.
+
+\textsf{Contact} objects have the following attributes:
+
+\textsf{id}
+
+The unique ID of this \textsf{Contact}. Read-only.
+
+\textsf{title}
+
+The title of this \textsf{Contact}. Read-only.
+
+\textsf{Contact} objects have the following methods:
+
+\textsf{begin()}
+
+Locks the contact for editing. This prevents other applications from 
+modifying the contact for as long as the lock is held. This method will 
+raise the exception \textsf{ContactBusy} if the contact has already been 
+locked.
+
+\textsf{commit()}
+
+Releases the lock and commits the changes made into the database.
+
+\textsf{rollback()}
+
+Releases the lock and discards all changes that were made. The contact 
+remains in the state it was before \textsf{begin}.
+
+\textsf{\textit{vcard}}\textsf{ as{\_}vcard()}
+
+Returns the contact as a string in vCard format.
+
+\textsf{add{\_}field(type[, value[, label=field{\_}label][, 
+location=location{\_}spec])}
+
+Adds a new field into this \textsf{Contact}. This method raises 
+\textsf{ContactBusy} if the contact has been locked by some other 
+application. \textsf{type} can be one of the supported field types as a 
+string. The following field types can be added at present:
+
+\begin{itemize}
+\item \textsf{city}
+\item \textsf{company{\_}name}
+\item \textsf{country}
+\item \textsf{date}
+\item \textsf{dtmf{\_}string}
+\item \textsf{email{\_}address}
+\item \textsf{extended{\_}address}
+\item \textsf{fax{\_}number}
+\item \textsf{first{\_}name}
+\item \textsf{job{\_}title}
+\item \textsf{last{\_}name}
+\item \textsf{mobile{\_}number}
+\item \textsf{note}
+\item \textsf{pager{\_}number}
+\item \textsf{phone{\_}number}
+\item \textsf{po{\_}box}
+\item \textsf{postal{\_}address}
+\item \textsf{postal{\_}code}
+\item \textsf{state}
+\item \textsf{street{\_}address}
+\item \textsf{url}
+\item \textsf{video{\_}number}
+\item \textsf{wvid}
+\end{itemize}
+
+The following field types are recognized but cannot be created at present:
+
+\begin{itemize}
+\item \textsf{first{\_}name{\_}reading}
+\item \textsf{last{\_}name{\_}reading}
+\item \textsf{picture}
+\item \textsf{speeddial}
+\item \textsf{thumbnail{\_}image}
+\item \textsf{voicetag}
+\end{itemize}
+
+All supported field types are passed as strings or Unicode strings, except 
+for \textsf{'date}' which is a float that represents Unix time. For more 
+information on Unix time, see Section 4.5, 
+Date and Time.
+
+\textsf{field{\_}label} is the name of the field shown to the user. If you 
+do not pass a label, the default label for the field type is used.
+
+\textsf{location{\_}spec}, if given, must be \textsf{'home'} or 
+\textsf{'work'}. Note that not all combinations of type and location are 
+valid. The settings of the current contacts database in use determine which 
+ones are valid. 
+
+\textsf{\textit{matching{\_}fields}}\textsf{ find([type=field{\_}type][, 
+location=field{\_}location])}
+
+Finds the fields of this contact that match the given search specifications. 
+If no parameters are given, all fields are returned.
+
+\textsf{del contact[}\textsf{\textit{fieldindex}}\textsf{]}
+
+Deletes the given field from this contact. Note that since this will change 
+the indices of all fields that appear after this field in the contact, and 
+since the \textsf{ContactField} objects refer to the fields by index, old 
+\textsf{ContactField }objects that refer to fields after the deleted field 
+will refer to different fields after this operation.
+
+\subsection{ContactField Object}
+\label{subsec:contactfield}
+A \textsf{ContactField} represents a field of a \textsf{Contact} at a 
+certain index. A \textsf{ContactField} has attributes, some of which can be 
+modified. If the parent \textsf{Contact} has not been locked for editing, 
+modifications are committed immediately to the database. If the parent 
+\textsf{Contact} has been locked, the changes are committed only when 
+\textsf{commit} is called on the \textsf{Contact}.
+
+\textsf{ContactField} objects have the following attributes:
+
+\textsf{label}
+
+The user-visible label of this field. Read-write.
+
+\textsf{value}
+
+The value of this field. Read-write.
+
+\textsf{type}
+
+The type of this field. Read-only.
+
+\textsf{location}
+
+The location of this field. This can be \textsf{'none'}, \textsf{'work'}, or 
+\textsf{'home'}.
+
+\textsf{schema}
+
+A dictionary that contains some properties of this field. The contents of 
+this dictionary correspond to those returned by the \textsf{ContactDb} 
+method \textsf{field{\_}types}. The contents of this dictionary correspond 
+to those returned by the \textsf{ContactDb} method \textsf{field{\_}types}.
+
+\section{Extensions to Standard Library Modules}
+\label{sec:extensions}
+The following standard modules have been extended.
+
+\subsection{thread Module}
+\label{subsec:thread}
+The following function has been added to the standard \textsf{thread} 
+module:
+
+\textsf{ao{\_}waittid(}\textsf{\textit{thread{\_}id}}\textsf{)}
+
+Synchronizes with the end of the execution of the thread identified by the 
+given \textsf{\textit{thread{\_}id}}. The implementation is based on a 
+Symbian OS active object. For the blocking behavior, see Section 
+7.2, Ao{\_}lock Type.
+
+\subsection{socket Module}
+\label{subsec:socket}
+Bluetooth (BT) support has been added to the standard \textsf{socket} 
+module. The following related constants and functions are defined:
+
+In release 1.0 the functions \textsf{bt{\_}advertise{\_}service}, 
+\textsf{bt{\_}obex{\_}receive}, and 
+\textsf{bt{\_}rfcomm{\_}get{\_}available{\_}server{\_}channel} incorrectly 
+expected to be given the internal \textsf{e32socket.socket} object as the 
+socket parameter instead of the proper \textsf{socket} object. Now the 
+functions work correctly. The old calling convention is still supported but 
+it is deprecated and may be removed in a future release.
+
+\textsf{AF{\_}BT}
+
+Represents the Bluetooth address family.
+
+\textsf{BTPROTO{\_}RFCOMM}
+
+This constant represents the Bluetooth protocol RFCOMM.
+
+\textsf{RFCOMM,} \textsf{OBEX}
+
+Bluetooth service classes supported by \textsf{bt{\_}advertise{\_}service}.
+
+\textsf{AUTH}, \textsf{ENCRYPT}, \textsf{AUTHOR}
+
+Bluetooth security mode flags.
+
+\textsf{bt{\_}advertise{\_}service(}\textsf{\textit{name}}\textsf{, 
+}\textsf{\textit{socket}}\textsf{, }\textsf{\textit{flag, class}}\textsf{)}
+
+Sets a service advertising the service \textsf{\textit{name}} (Unicode) on 
+local channel that is bound to \textsf{\textit{socket}}. If 
+\textsf{\textit{flag}} is \textsf{True}, the advertising is turned on, 
+otherwise it is turned off. The service class to be advertised is either 
+RFCOMM or OBEX.
+
+\textsf{(}\textsf{\textit{address}}\textsf{, 
+}\textsf{\textit{services}}\textsf{) 
+bt{\_}discover([}\textsf{\textit{address}}\textsf{])}
+
+Performs the Bluetooth device discovery (if the optional BT device address 
+is not given) and the discovery of RFCOMM class services on the chosen 
+device. Returns a pair: BT device address, dictionary of services, where 
+Unicode service name is the key and the corresponding port is the value.
+
+\textsf{(}\textsf{\textit{address}}\textsf{, 
+}\textsf{\textit{services}}\textsf{) 
+bt{\_}obex{\_}discover([}\textsf{\textit{address}}\textsf{])}
+
+Same as \textsf{discover}, but for discovery of OBEX class services on the 
+chosen device.
+
+\textsf{bt{\_}obex{\_}send{\_}file(}\textsf{\textit{address}}\textsf{, 
+}\textsf{\textit{channel}}\textsf{, }\textsf{\textit{filename}}\textsf{)}
+
+Sends file \textsf{\textit{filename}} (Unicode) wrapped into an OBEX object 
+to remote \textsf{\textit{address}}, \textsf{\textit{channel}}.
+
+\textsf{bt{\_}obex{\_}receive(}\textsf{\textit{socket}}\textsf{, 
+}\textsf{\textit{filename}}\textsf{)}
+
+Receives a file as an OBEX object, unwraps and stores it into 
+\textsf{\textit{filename}} (Unicode). \textsf{\textit{socket}} is a bound 
+\textsf{OBEX} socket.
+
+\textsf{\textit{port}}\textsf{ 
+bt{\_}rfcomm{\_}get{\_}available{\_}server{\_}channel(}\textsf{\textit{socket}}\textsf{)}
+
+Gets an available RFCOMM server channel for \textsf{\textit{socket}}.
+
+\textsf{set{\_}security(}\textsf{\textit{socket}}\textsf{, 
+}\textsf{\textit{mode}}\textsf{)}
+
+Sets the security level of the given bound \textsf{\textit{socket}}. The 
+\textsf{\textit{mode}} is an integer flag that is formed using a binary 
+\textsf{or} operation of one or more of: \textsf{AUTH} (authentication), 
+\textsf{ENCRYPT}, \textsf{AUTHOR} (authorization). Example: 
+\textsf{set{\_}security(s, AUTH $\vert $ AUTHOR)}.
+
+When listening to a Bluetooth socket on the phone, it is necessary to set 
+the security level.
+
+SSL is not supported in Series 60 1st Edition. SSL client certificates are 
+not supported at all.
+
+For examples on the usage of these functions, see 
+Programming with Python for Series 60 Platform 
+[6].
+
+\section{Terms and Abbreviations}
+\label{sec:terms}
+The following list defines the terms and abbreviations used in this 
+document:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|p{153pt}|l|}
+\hline
+AAC; Adaptive Audio Coding& 
+AAC provides basically the same sound quality as MP3 while using a smaller bit rate. AAC is mainly used to compress music. \\
+\hline
+Advertise& 
+Advertise service in Bluetooth makes it known that a certain Bluetooth service is available.  \\
+\hline
+AMR& 
+Adaptive Multi-rate Codec file format. \\
+\hline
+API & 
+Application Programming Interface \\
+\hline
+Bluetooth & 
+Bluetooth is a technology for wireless communication between devices that is based on a low-cost short-range radio link. \\
+\hline
+BPP & 
+Bits Per Pixel  \\
+\hline
+C STDLIB& 
+Symbian OS's implementation of the C standard library \\
+\hline
+Dialog& 
+A temporary user interface window for presenting context-specific information to the user, or prompting for information in a specific context. \\
+\hline
+Discovery& 
+Discovery is a process where Bluetooth finds other nearby Bluetooth devices and their advertised services. \\
+\hline
+DLL & 
+Dynamic link library \\
+\hline
+GSM; Global System for Mobile communication& 
+GSM is a digital mobile telephone system that uses a variation of time division multiple access. It digitizes and compresses data, then sends it down a channel with two other streams of user data, each in its own time slot. \\
+\hline
+GUI& 
+Graphical User Interface \\
+\hline
+I/O & 
+input/output \\
+\hline
+IP & 
+Internet Protocol \\
+\hline
+MBM; MultiBitMap& 
+The native Symbian OS format used for pictures. MBM files can be generated with the "\textsf{bmconv.exe}" tool included in the Series 60 SDK. \\
+\hline
+MIDI; Musical Instrument Digital Interface& 
+A protocol and a set of commands for storing and transmitting information about music. \\
+\hline
+MIF; Multi-Image File& 
+MIF files are similar to MBM files and can contain compressed SVG-T files. This file type can be generated with the "\textsf{MifConv.exe}" tool. \\
+\hline
+MIME; Multipurpose Internet Mail Extensions& 
+MIME is an extension of the original Internet e-mail protocol that can be used to exchange different kinds of data files on the Internet. \\
+\hline
+MP3& 
+A standard technology and format for compressing a sound sequence into a very small file while preserving the original level of sound quality when it is played. \\
+\hline
+OS & 
+Operating System \\
+\hline
+Real Audio& 
+An audio format developed by Real Networks. \\
+\hline
+RDBMS& 
+Relational database management system \\
+\hline
+SMS; Short Message System (within GSM)& 
+SMS is a service for sending messages of up to 160 characters, or 224 characters if using a 5-bit mode, to mobile phones that use GSM communication. \\
+\hline
+Softkey& 
+Softkey is a key that does not have a fixed function nor a function label printed on it. On a phone, selection keys reside below or above on the side of the screen, and derive their meaning from what is presently on the screen. \\
+\hline
+SQL & 
+Structured Query Language \\
+\hline
+SVG, SVG-T; Scalable Vector Graphics (-Tiny)& 
+XML-based vector graphics format for describing two-dimensional graphics and graphical applications. \\
+\hline
+Twip& 
+Twips are screen-independent units to ensure that the proportion of screen elements are the same on all display systems. A twip is defined as 1/1440 of an inch, or 1/567 of a centimeter. \\
+\hline
+UI& 
+User Interface \\
+\hline
+UI control& 
+UI control is a GUI component that enables user interaction and represents properties or operations of an object. \\
+\hline
+WAV & 
+A file format for recording sound, especially in multimedia applications.  \\
+\hline
+& 
+ \\
+\hline
+\end{tabular}
+\label{tab5}
+\end{center}
+\end{table}
+
+\section{References}
+\label{sec:references}
+\begin{enumerate}
+\item G. van Rossum, and F.L. Drake, Jr., editor. [Python] Library Reference. Available at \underline {http://www.python.org/doc}
+\item G. van Rossum, and F.L. Drake, Jr., editor. Extending and Embedding [the Python Interpreter]. Available at \underline {http://www.python.org/doc}
+\item G. van Rossum, and F.L. Drake, Jr., editor. Python/C API [Reference Manual]. Available at \underline {http://www.python.org/doc}
+\item Series 60 SDK documentation
+\item Getting Started with Python for Series 60 Platform
+\end{enumerate}
+\underline {http://www.forum.nokia.com/}
+
+\begin{enumerate}
+\item Programming with Python for Series 60 Platform 
+\end{enumerate}
+\underline {http://www.forum.nokia.com/}
+
+\begin{enumerate}
+\item Audio {\&} Video section on the \textit{Forum Nokia} Web site (for Nokia devices)
+\end{enumerate}
+\underline {http://www.forum.nokia.com/audiovideo}
+
+\begin{enumerate}
+\item Developers section on the \textit{Series 60 Platform} Web site (for all Series 60 devices)
+\end{enumerate}
+\underline {http://www.series60.com/}
+
+\begin{enumerate}
+\item Python for Series 60 developer discussion board \newline
+\underline {http://discussion.forum.nokia.com/}
+\item Scalable Vector Graphics (SVG) 1.1 Specification \newline
+\underline {http://www.w3.org/TR/SVG/}
+\item Python Library Module Support
+\end{enumerate}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Name& 
+Type& 
+Status& 
+Remarks \\
+\hline
+\textsf{{\_}testcapi}& 
+PYD& 
+Y& 
+ \\
+\hline
+\textsf{anydbm}& 
+PY& 
+X& 
+DBM API is implemented by PY \textsf{e32dbm} that relies on PYD \textsf{e32db} (see Chapter 9, e32dbm Module) \\
+\hline
+\textsf{atexit}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{base64}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{bdb}& 
+PY& 
+(X)& 
+ \\
+\hline
+\textsf{binascii}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{cmd}& 
+PY& 
+(X)& 
+ \\
+\hline
+\textsf{code}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{codecs}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{codeop}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{copy}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{copy{\_}reg}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{cStringIO}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{dis}& 
+PY& 
+(X)& 
+ \\
+\hline
+\textsf{errno}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{exceptions}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{{\_}{\_}future{\_}{\_}}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{httplib}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{imp}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{keyword}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{linecache}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{marshal}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{math}& 
+built-in& 
+X& 
+ \\
+\hline
+\end{tabular}
+\label{tab6}
+\end{center}
+\end{table}
+
+\textsf{md5}\footnote{
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm}\textsf{}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{mimetools}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{operator}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{os, os.path}& 
+PY& 
+X& 
+Wraps built-in \textsf{e32posix}. Limitations discussed in Section 4.9, Limitations and Areas of Development. \\
+\hline
+\textsf{pdb}& 
+PY& 
+(X)& 
+ \\
+\hline
+\textsf{quopri}& 
+PY& 
+X& 
+ \\
+\hline
+Name& 
+Type& 
+Status& 
+Remarks \\
+\hline
+\textsf{random}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{re}& 
+PY& 
+X& 
+Uses PY \textsf{sre} as its engine. \\
+\hline
+\textsf{repr}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{rfc822}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{select}& 
+PY& 
+X& 
+A minimal implementation: \textsf{select} is supported only for input from sockets. \\
+\hline
+\textsf{socket}& 
+PY& 
+X& 
+Requires PYD \textsf{e32socket}. Contains extensions as described in Section 19.2, socket Module. Limitations discussed in Section 4.9, Limitations and Areas of Development.  \\
+\hline
+\textsf{sre}& 
+PY& 
+X& 
+Wraps built-in \textsf{{\_}sre}. \\
+\hline
+\textsf{string}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{StringIO}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{struct}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{sys}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{thread}& 
+built-in& 
+X& 
+Contains extensions as described in Section 19.1, thread Module \\
+\hline
+\textsf{threading}& 
+PY& 
+(X)& 
+ \\
+\hline
+\textsf{time}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{traceback}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{types}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{urllib}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{urlparse }(urlsplit only)\textsf{}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{uu}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{warnings}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{whichdb}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{xreadlines}& 
+built-in& 
+X& 
+ \\
+\hline
+\textsf{zipfile}& 
+PY& 
+X& 
+ \\
+\hline
+\textsf{zlib}& 
+PYD& 
+X& 
+ \\
+\hline
+\end{tabular}
+\label{tab7}
+\end{center}
+\end{table}
+
+Table 2 uses the following coding for module types:
+
+\begin{itemize}
+\item PY -- module is implemented in Python.
+\item Built-in -- module is a built-in C/C++ module.
+\item PYD -- module is a dynamically loadable C/C++ module.
+\end{itemize}
+For support status, the following codes are used:
+
+\begin{enumerate}
+\item[\textbullet] X -- included to the Series 60 Python distribution.
+\item[\textbullet] (X) -- not included to the Series 60 Python distribution, but works both on phone and SDK.
+\item[\textbullet] Y -- included only to the SDK distribution.
+\item Extensions to C API
+\end{enumerate}
+The native API exported by the interpreter in Series 60 environment consists 
+of \textsf{class CSPyInterpreter}, Python/C API (see G. van Rossum, and F.L. 
+Drake, Jr., editor. Python/C API [Reference Manual]. 
+[3]), and a small set of extensions to Python/C API.
+
+\begin{enumerate}
+\item class CSPyInterpreter
+\end{enumerate}
+\textsf{class CSPyInterpreter} offers an interface for initializing the 
+interpreter and for running scripts. It exports the following public 
+interface:
+
+\textsf{static CSPyInterpreter*}
+
+\textsf{NewInterpreterL(TBool aCloseStdlib = ETrue,}
+
+\textsf{void(*aStdioInitFunc)(void*) = NULL,}
+
+\textsf{void* aStdioInitCookie = NULL);}
+
+\textsf{TInt RunScript(int argc, char** argv);}
+
+\textsf{void PrintError();}
+
+\textsf{void (*iStdI)(char* buf, int n);}
+
+\textsf{void (*iStdO)(const char* buf, int n);}
+
+The caller of the constructor \textsf{CSPyInterpreter::NewInterpreterL} may 
+provide its own function \textsf{aStdioInitFunc} for initializing Symbian OS 
+STDLIB's standard I/O descriptors. It gets called with the argument 
+\textsf{aStdioInitCookie}. The \textsf{CSPyInterpreter} class can also be 
+requested to leave STDLIB open at its destruction.
+
+The \textsf{CSPyInterpreter::RunScript} method establishes a Python 
+interpreter context and runs the script file whose full path name is in 
+\textsf{argv[0] }with the given argument vector. After completion, it leaves 
+the interpreter context and returns a Symbian error code to indicate success 
+or failure.
+
+The \textsf{CSPyInterpreter::PrintError} method can be used to print current 
+Python exception information to the standard error output.
+
+\begin{enumerate}
+\item Extensions to C API
+\end{enumerate}
+Defined in \textsf{symbian{\_}python{\_}ext{\_}util.h}:
+
+\textsf{PyObject* SPyErr{\_}SetFromSymbianOSErr(int error)}
+
+Sets Python exception of type \textsf{PyExc{\_}SymbianError} with the value 
+field set to symbolic name of the Symbian OS enumeration value 
+\textsf{error} and returns \textsf{NULL}. In case \textsf{error} has the 
+special value \textsf{KErrPython}, it assumes that a Python exception has 
+already been set and returns \textsf{NULL}.
+
+\textsf{SPyAddGlobal(), SPyAddGlobalString(), SPyGetGlobal(), 
+SPyGetGlobalString(), SPyRemoveGlobal()} and 
+\textsf{SPyRemoveGlobalString(}\textsf{)}
+
+Can be used for storing module implementation's global data. They are thin 
+wrappers around \textsf{PyDict{\_}SetItem,} 
+\textsf{PyDict{\_}SetItemString,} \textsf{PyDict{\_}GetItem,} 
+\textsf{PyDict{\_}GetItemString,} \textsf{PyDict{\_}DelItem,} 
+\textsf{PyDict{\_}DelItemString}, correspondingly, and can be used in the 
+same way.
+
+\textsf{PYTHON{\_}TLS-$>$thread{\_}state} (defined in 
+\textsf{"python{\_}globals.h"})
+
+Thread state and interpreter lock management must be performed according to 
+the instructions; see G. van Rossum, and F.L. Drake, Jr., editor. Python/C 
+API [Reference Manual]. [3]. Python for Series 60 
+Platform extends the Python/C API by offering a facility for querying the 
+related Python thread state (\textsf{"PYTHON{\_}TLS -$>$ thread{\_}state"}) 
+from the context of the currently running thread. This can be used to 
+re-establish the interpreter context with \textsf{PyEval{\_}RestoreThread} 
+in C/C++ code.
+
+To Save/restore the interpreter context:
+
+\textsf{Py{\_}BEGIN{\_}ALLOW{\_}THREADS}
+
+\textsf{[...your code...]}
+
+\textsf{Py{\_}END{\_}ALLOW{\_}THREADS}
+
+To Restore/save the interpreter context:
+
+\textsf{PyEval{\_}RestoreThread(PYTHON{\_}TLS-$>$thread{\_}state)}
+
+\textsf{[... your code...]}
+
+\textsf{PyEval{\_}SaveThread()}
+
+Defined in \textsf{pythread.h} (extends the standard \textsf{thread} 
+module's C API):
+
+\textsf{PyThread{\_}AtExit(void(*)())}
+
+Can be used for registering thread-specific exit functions. In the main 
+thread calling this function has the same effect as calling 
+\textsf{Py{\_}AtExit}. For more information, see G. van Rossum, and F.L. 
+Drake, Jr., editor. [Python] Library Reference. [3].
+
+\begin{enumerate}
+\item Extending Series 60 Python
+	\begin{enumerate}
+	\item Overview
+	\end{enumerate}
+\end{enumerate}
+The general rules and guidelines for writing Python extensions apply in the 
+Series 60 Python environment as well; for more information, see G. van 
+Rossum, and F.L. Drake, Jr., editor. Extending and Embedding [the Python 
+Interpreter].[2]. The Python/C API is available, see 
+G. van Rossum, and F.L. Drake, Jr., editor. Python/C API [Reference Manual]. 
+[3]. In addition, for an example on porting a simple 
+extension to Series 60, see Programming with Python 
+for Series 60 Platform $[$\textit{6].}
+
+The issues that need to be considered in the implementation of the extension 
+modules include:
+
+\begin{itemize}
+\item Preparation of the data structures that make the C/C++ coded extensions visible to the Python interpreter and make it possible to perform calls from Python to C/C++ code
+\item Conversions between C/C++ representations of the Python objects and object types used in the extension code
+\item Maintenance of the reference counts of the C/C++ representations of the Python objects
+\item Passing of exceptions between C/C++ code and Python
+\item Management of interpreter's thread state and the interpreter lock
+\end{itemize}
+In addition to the concerns common for all Python C extensions, the 
+following principles should be considered when implementing new Python 
+interfaces in the Series 60 environment:
+
+\begin{itemize}
+\item Maximize the usage of Python's built-in types at the interfaces.
+\item Related to the above: design interfaces in such a way that information can be passed between them with minimal conversions.
+\item Convert Symbian operating system exceptions / errors to Python exceptions.
+\item Unicode strings are used at the interfaces to represent text that gets shown on the GUI. They can be passed to and from Symbian operating system without conversions.
+\item While performing potentially long-lasting / blocking calls from an extension implementation to services outside the interpreter, the interpreter lock must be released and then re-acquired after the call.
+\item Rather than always implementing a thin wrapper on top of a Symbian OS facility, consider the actual task for which the script writer needs the particular interface. For example, if the task involves interaction with the users using the GUI, the script writer's interest may well be limited to performing the interaction / information exchange in a way that is compatible with the UI style rather than having full control of the low-level details of the GUI implementation.
+\item The C/C++ implementation of a Python interface should be optimized for performance and covering access to the necessary features of the underlying Platform. Where necessary, the Python programming interface can be further refined by wrapper modules written in Python.
+\end{itemize}
+An extension module is packaged in its own dynamically loadable library that 
+must be installed into \textsf{$\backslash $system$\backslash $libs} 
+directory and named \textsf{$<$module{\_}name$>$.pyd}. The module 
+initialization function must be exported at ordinal 1. The module 
+identification is based on the filename only. As a special feature of Series 
+60 Python, an optional module finalizer function may be exported at ordinal 
+2.
+
+The macro versions of memory-management functions \textsf{PyMem{\_}MALLOC} 
+and \textsf{PyObject{\_}NEW} are not included. Use the functions 
+\textsf{PyMem{\_}Malloc} and \textsf{PyObject{\_}New} instead.
+
+\begin{enumerate}
+\item Services for Extensions
+\end{enumerate}
+Series 60 Python Platform implements an adaptation layer between Series 60 
+UI application framework and script language UI extensions to simplify UI 
+extension development. This API is used by the implementation of the 
+\textsf{appuifw} module but not exported in the current release. Some 
+general utility services for extensions are also provided, see 
+\textit{Appendix B, Extensions to C API.}
+
+\begin{enumerate}
+\item Example
+\end{enumerate}
+The extension code snippet in \figurename~\ref{fig7} demonstrates 
+some of the issues mentioned in C.1, 
+Overview:
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=6.00in,height=6.43in]{API_Reference_for_Python13.eps}}
+\label{fig13}
+\end{figure}
+
+\begin{itemize}
+\item Conversion from Python data types, usage of built-in data types at extension interface, usage of Unicode strings (lines 8-12)
+\item Maintenance of the reference counts (line 36)
+\item Passing of exceptions between C/C++ code and Python (line 34)
+\item Releasing the interpreter lock while performing a blocking call to a service outside the interpreter (lines 29, 31)
+\item Simplifying the API to the note facility of the Platform
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,121 @@
+% Copyright (c) 2005-2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{\module{telephone} ---
+	 Telephone services}
+\label{sec:telephone}
+
+\declaremodule{extension}{telephone}
+\platform{S60}
+\modulesynopsis{A telephone related services package.}
+
+This module provides an API to a telephone. 
+
+Since the users of the device can also hang-up the phone explicitly, they 
+might affect the current status of the call. In addition, using this 
+extension in an emulator has no effect since no calls can be connected.
+
+The \module{telephone} module has the following functions:
+
+\begin{funcdesc}{dial}{number}
+
+Dials the number set in \var{number}. \var{number} 
+is a string, for example \code{u'+358501234567'} where \code{'+'} is the 
+international prefix, \code{'358'} is the country code, \code{'50'} is 
+the mobile network code (or the area code), and \code{'1234567'} is the 
+subscriber number. If there is an ongoing phone call prior to calling 
+\method{dial} from Python, then the earlier call is put on hold and a new 
+call is established. Calling \method{dial} multiple times when, for example, 
+the first call has been answered and a line has been established results in 
+subsequent calls not being connected.
+\end{funcdesc}
+
+\begin{funcdesc}{hang\_up}{}
+Hangs up if a call initiated by \method{dial} is in process. If this call 
+has already been finished, \exception{SymbianError: KErrNotReady} is raised.
+\end{funcdesc}
+
+\begin{funcdesc}{incoming_call}{}
+Wait for incoming call, returns immediately. If a call arrives, \code{answer} 
+can be called to answer the call. Without the invocation of function 
+\code{incoming_call}, the function \code{answer} has no effect.
+\end{funcdesc}
+
+\begin{funcdesc}{answer}{}
+
+Answers an incoming call - see also \code{incoming_call}. 
+
+\end{funcdesc}
+
+\begin{funcdesc}{call_state}{callable}
+The \code{callable} will be called when there are changes in the telephone line 
+(lines) in the device. The argument for the call is a tuple with first item the 
+possible new state and the second item, the possible incoming call number as a 
+Unicode string.
+
+The possible states in the tuple are defined as \code{telephone} module 
+constants.
+\end{funcdesc}
+
+The following data items for state information are available in 
+\code{telephone}\footnote{The descriptions are taken from the S60 SDK 
+documentation \cite{S60Doc}}:
+
+\begin{datadesc}{EStatusUnknown}
+Indicates that the status is unknown.
+\end{datadesc}
+
+\begin{datadesc}{EStatusIdle}
+Idle line status (no active calls).
+\end{datadesc}
+
+\begin{datadesc}{EStatusDialling}
+Call dialling status.
+\end{datadesc}
+
+\begin{datadesc}{EStatusRinging}
+Call ringing status.
+\end{datadesc}
+
+\begin{datadesc}{EStatusAnswering}
+Call answering status.
+\end{datadesc}
+
+\begin{datadesc}{EStatusConnecting}
+Call connecting status.
+\end{datadesc}
+
+\begin{datadesc}{EStatusConnected}
+Call connected status.
+\end{datadesc}
+
+\begin{datadesc}{EStatusReconnectPending}
+Call is undergoing temporary channel loss and it may or may not be reconnected.
+\end{datadesc}
+
+\begin{datadesc}{EStatusDisconnecting}
+Call disconnecting status.
+\end{datadesc}
+
+\begin{datadesc}{EStatusHold}
+Call on hold.
+\end{datadesc}
+
+\begin{datadesc}{EStatusTransferring}
+Call is transferring.
+\end{datadesc}
+
+\begin{datadesc}{EStatusTransferAlerting}
+Call in transfer is alerting the remote party.
+\end{datadesc}

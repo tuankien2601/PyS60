@@ -1,0 +1,12 @@
+#include <appinfo.rh>
+
+UID2 KUidAppRegistrationResourceFile
+UID3 0xF020151A
+
+RESOURCE APP_REGISTRATION_INFO
+  {
+  app_file="run-interpretertimer";
+
+  embeddability=KAppNotEmbeddable;
+  newfile=KAppDoesNotSupportNewFile;
+  }

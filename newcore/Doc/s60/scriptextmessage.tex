@@ -1,0 +1,1091 @@
+% Copyright (c) 2009 Nokia Corporation
+%
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+%
+%     http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+\section{Messaging}
+\label{sec:scriptextmessage}
+
+The Messaging service enables Python applications to integrate messaging services of S60 device. It is used either to retrieve message information or use the messaging services, or both. \break
+
+Using the Messaging service, you can access/iterate inbox, send messages (SMS/MMS), register for new message notification, status changes of messages and delete messages.
+
+The following sample code is used to load the provider:
+
+\begin{verbatim}
+import scriptext
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+\end{verbatim}
+
+The following table summarizes the Application Manager Interface:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Service provider} & \code{Service.Messaging} \\
+\hline
+{\bf Supported interfaces} & \code{IMessaging} \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The following table lists the services available in Application Manager:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{11cm}}
+\hline
+{\bf Services} & {\bf Description} \\
+\hline
+\code{GetList} \ref{subsec:msggetlist} & Retrieves list of messaging objects from messaging center based on the search/sort inputs.  \\
+\hline
+\code{Send} \ref{subsec:msgsend} & Sends message.  \\
+\hline
+\code{RegisterNotification} \ref{subsec:msgregnotify} & Registers for new message notification.  \\
+\hline
+\code{CancelNotification} \ref{subsec:msgcanclnotify} & Cancels notification for incoming messages.  \\
+\hline
+\code{ChangeStatus} \ref{subsec:msgchangestat} & Changes status for the message.  \\
+\hline
+\code{Delete} \ref{subsec:msgdel} & Deletes message.
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{GetList}
+\label{subsec:msggetlist}
+
+\code{GetList} is used to retrieve a list of messaging objects from messaging center based on the search / sort inputs. Each object contains messaging information that is, data and metadata about a single message. It is available only in synchronous mode.
+
+The following is an example for using \code{GetList}:
+
+\begin{verbatim}
+sms_iter = messaging_handle.call('GetList', {'Type': u'Inbox'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{GetList}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IMessaging} \\
+\hline
+{\bf Description} & Retrieves an iterable message list based on the search / sort inputs.  \\
+\hline
+{\bf Response Model} & Synchronous \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IMessaging} interface is instantiated. \\
+\hline
+{\bf Post-condition} & Nil \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the folder from which the messages are retrieved, also the Filter criteria and sort order for the returned list. Input parameter has three properties: Type, Filter and SortOrder.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{4cm}|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{Inbox} & Performs operation based on the specified content types.  \\
+\hline
+[Filter] & map \break
+\code{[MessageTypeList]}: List of unicode strings \break
+\code{[MessageId]}: 32 bit int \break
+\code{[SenderList]}: List of unicode strings \break
+\code{[Subject]}: unicode string \break
+\code{[StartDate]}: Date \break
+\code{[EndDate]}: Date & \code {MessageTypeList}: \break
+SMS \break
+MMS & It specifies the search information. \break
+
+If \code{StartDate} alone is specified, all messaging from the data will be returned and if \code{EndDate} alone is specified, all messages before the end date will be returned. And if both are specified then all the messages within the two bounds will be returned. An exception will be raised if \code{EndDate} is earlier than \code{StartDate}.  \\
+\hline
+[SortOrder] & map \break
+Key: unicode string \break
+Order: unicode string \break & {\bf Key:} \break
+\code{Date} \break
+\code{Size} \break
+\code{Sender} \break
+\code{Subject} \break
+\code{MessageId} \break
+
+{\bf Order:} \break
+Ascending \break
+Descending \break & Sort Information. If not specified sorting is done on \code{Date} in ascending order.  \\
+\end{tabular}
+\caption{Input parameters for Getlist}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{4cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ReturnValue} & Iterable List (of maps) \break
+map: \break
+\code{MessageType}: string \break
+\code{Sender}: string \break
+\code{Subject}: string \break
+\code{Time}: Time \break
+\code{Priority}: string \break
+\code{Attachment}: bool \break
+\code{Unread}: bool \break
+\code{MessageId}: 32 bit int \break
+\code{BodyText}: string \break
+\code{To}: List of strings \break
+\code{Cc}: List of strings \break
+\code{Bcc}: List of strings \break
+\code{AttachmentList}: List of map \break
+
+\code{AttachmentList} contains a list of Map (Attachment): \break
+\code{AttachmentMap}: \break
+\code{FileName}: string \break
+\code{FileHandle}: \code{FileBuffer} \break
+\code{MimeType}: string \break
+\code{FileSize}: int & \code {MessageTypeList}: \break
+SMS \break
+MMS \break
+Unknown \break
+
+Priority: \break
+Low \break
+Medium \break
+High & An iterable list of the resultant messages. Current implementation recognizes only SMS and MMS, other types of messages are unknown. SMS does not support subject, so it returns first few characters of the body text. \break
+
+Priority is applicable for Email type of messages. For SMS and MMS, it gives default value set by underlying messaging server. \break
+
+{\bf Note:} \break
+Cc and Bcc fields are not applicable for SMS.
+Also, in case MMS has body text in it ; it appears as attachment. So the output value for body text field in case of MMS will be empty.  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for GetList}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1007} & No memory  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{7cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Messaging:GetList: Type Type Invalid} & Specifies if the type of \code{Type} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:Type Value Incorrect} & Specifies if the value of \code{MessageType} parameter is incorrect.  \\
+\hline
+\code{Messaging:GetList:Type Missing} & Specifies if the \code{MessageType} parameter is missing.  \\
+\hline
+\code{Messaging:GetList:Filter Type Invalid} & Specifies if the type of Filter parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:SenderList Type Invalid} & Specifies if the type of \code{SenderList} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:SenderList Element Value Incorrect} & Specifies if the value of element of \code{SenderList} parameter is incorrect.  \\
+\hline
+\code{Messaging:GetList:SenderList Element Type Invalid} & Specifies if the type of element of \code{SenderList} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:MessageTypeList Type Invalid} & Specifies if the type of \code{MessageTypeList} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:MessageTypeList Element Value Incorrect} & Specifies if the value of element of \code{MessageTypeList} parameter is incorrect.  \\
+\hline
+\code{Messaging:GetList:MessageTypeList Element Type Invalid} & Specifies if the type of element of MessageTypeList parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:MessageId Type Invalid} & Specifies if the type of \code{MessageId} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:Subject Type Invalid} & Specifies if the type of \code{Subject} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:StartDate Type Invalid} & Specifies if the type of \code{StartDate} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:StartDate Value Incorrect} & Specifies if the value of \code{StartDate} parameter is incorrect.  \\
+\hline
+\code{Messaging:GetList:EndDate Type Invalid} & Specifies if the type of \code{EndDate} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:EndDate Value Incorrect} & Specifies if the value of \code{EndDate} parameter is incorrect.  \\
+\hline
+\code{Messaging:GetList:SortOrder Type Invalid} & Specifies if the type of \code{SortOrder} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:SortOrder Value Incorrect} & Specifies if the value of \code{SortOrder} parameter is incorrect.  \\
+\hline
+\code{Messaging:GetList:Key Type Invalid} & Specifies if the type of \code{Key} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:Order Type Invalid} & Specifies if the type of \code{Order} parameter is invalid.  \\
+\hline
+\code{Messaging:GetList:Asynchronous Operation not supported} & Specifies if \code{GetList} is called asynchronously.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to iterate through inbox and print the SMS 'Sender' IDs:
+
+\begin{verbatim}
+import scriptext
+
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+# This 'GetList' request returns all the SMS in the inbox as an iterable map
+sms_iter = messaging_handle.call('GetList', {'Type': u'Inbox'})
+sender_list = []
+for sms_dict in sms_iter:
+    if sms_dict['MessageType'] == 'SMS':
+sender_list.append(sms_dict['Sender'])
+print "ID list :", sender_list
+\end{verbatim}
+
+\subsection{Send}
+\label{subsec:msgsend}
+
+\code{Send} is used to send an SMS or MMS message. It takes a set of input parameters that specifies the message type, and the message details associated with that particular message type.
+
+The following are the examples for using \code{Send}:
+
+{\bf Synchronous} \break
+
+\begin{verbatim}
+messaging_handle.call('Send', {'MessageType': u'SMS', 'To': u'12345678',
+                               'BodyText': u'Hi'})
+\end{verbatim}
+
+{\bf Asynchronous} \break
+
+\begin{verbatim}
+messaging_handle.call('Send', {'MessageType': u'SMS', 'To': u'12345678', 'BodyText': u'Hi'},
+                      callback=callback_function)
+\end{verbatim}
+
+where, \code{callback_function} is a user defined callback function.
+
+The following table summarizes the specification of \code{Send}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IMessaging}  \\
+\hline
+{\bf Description} & Sends the message.  \\
+\hline
+{\bf Response Model} & Synchronous and asynchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IMessaging} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Nil  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the type of messaging object and its details.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{3cm}|p{6cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+MessageType & unicode string & SMS \break
+MMS & This specifies the message type.  \\
+\hline
+To & unicode string & NA & Multiple recipients can be passed using \code{MessageParam}.  \\
+\hline
+[BodyText] & unicode string & NA & Body text for the message.  \\
+\hline
+[Subject] & unicode string & NA & Message subject. Not applicable for SMS.  \\
+\hline
+[Attachment] & unicode string & \code{FileName} with complete path. & Attachment Name (Full path). Valid for MMS only. Additional attachments can be passed using \code{MessageParam}.  \\
+\hline
+[MimeType] & unicode string & NA & Mime type of the attachment mentioned above.  \\
+\hline
+[MessageParam] & map \break
+[To]: List (unicode string) \break
+[Cc]: List (unicode string) \break
+[Bcc]: List (unicode string) \break
+[AttachmentList]: List (map) \break
+[TemplateId]: 32 bit int \break
+[LaunchEditor]: bool \break
+
+\code{AttachmentList} map elements contains: \break
+\code{FileName}: unicode string \break
+\code{[MimeType]}: unicode string & \code{FileName}: \code{FileName} with complete path. \break
+
+\code{MimeType} example: image/gif, image/jpeg and so on. \break
+\code{MimeType} is searched in system for the given file name. It is used if found or, user provided \code{MimeType} is taken. & This parameter specifies the full details of the message depending on its type. It adds the body text as text attachment in case of MMS. Template Id is the message id, which is the template for new message. \code{Bcc} is supported for email only. (Currently email is not supported in the service) \break
+
+In case of template id, if the body text of message is specified and exists for the given template Id then both the body text specified will be appended to the template Id message body text and sent. \break
+
+If Launch Editor Flag is set to {\bf ETrue} then, the Message Editor will be popped up over the application expecting you to act, by default it is {\bf EFalse}.  \\
+\end{tabular}
+\caption{Input parameters for Send}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Send}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1004} & Service not supported  \\
+\hline
+\code{1007} & No memory  \\
+\hline
+\code{1012} & Item Not found
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\scriptsize
+\begin{center}
+\begin{tabular}{p{6cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Messaging:Send:MessageType Type Invalid} & Specifies if the type of \code{MessageType} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:MessageType Value Incorrect} & Specifies if the value of \code{MessageType} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:MessageType Missing} & Specifies if the \code{MessageType} parameter is missing.  \\
+\hline
+\code{Messaging:Send:To Type Invalid} & Specifies if the type of \code{To} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:To Value Incorrect} & Specifies if the value of \code{To} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:To Missing} & Specifies if the \code{To} parameter is missing.  \\
+\hline
+\code{Messaging:Send:BodyText Type Invalid} & Specifies if the type of \code{BodyText} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Subject Type Invalid} & Specifies if the type of \code{Subject} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Attachment Type Invalid} & Specifies if the type of \code{Attachment} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Attachment Value Incorrect} & Specifies if the value of Attachment parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:MimeType Type Invalid} & Specifies  if the type of \code{MimeType} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:MimeType Value Incorrect} & Specifies if the value of \code{MimeType} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:MessageParam Type Invalid} & Specifies if the type of \code{MessageParam} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:TemplateId Type Invalid} & Specifies if the type of \code{TemplateId} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:LaunchEditor Type Invalid} & Specifies if the type of \code{LaunchEditor} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:To Type Invalid} & Specifies if the type of \code{To} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:To List Element Type Invalid} & Specifies if the type of element of \code{To List} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:To List Element Value Incorrect} & Specifies if the value of element of \code{To List} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:Cc Type Invalid} & Specifies if the type of \code{Cc} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Cc List Element Type Invalid} & Specifies if the type of element of \code{Cc List} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Cc List Element Value Incorrect} & Specifies if the value of element of \code{Cc List} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:Bcc Type Invalid} & Specifies if the type of \code{Bcc} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Bcc List Element Type Invalid} & Specifies if the type of element of \code{Bcc List} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:Bcc List Element Value Incorrect} & Specifies if the value of element of \code{Bcc List} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:AttachmentList Type Invalid} & Specifies if the type of \code{AttachmentList} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:AttachmentList Element Type Invalid} & Specifies if the type of element of \code{AttachmentList} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:FileName Type Invalid} & Specifies if the type of \code{FileName} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:FileName Value Incorrect} & Specifies if the value \code{FileName} parameter is incorrect.  \\
+\hline
+\code{Messaging:Send:MimeType Type Invalid} & Specifies if the type of \code{MimeType} parameter is invalid.  \\
+\hline
+\code{Messaging:Send:MimeType Value Incorrect} & Specifies if the value \code{MimeType} parameter is incorrect.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to send SMS message to the specified phone number:
+
+\begin{verbatim}
+import scriptext
+
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+try:
+    messaging_handle.call('Send', {'MessageType': u'SMS', 'To': u'12345678',
+                                   'BodyText': u'Hi'})
+except scriptext.ScriptextError, err:
+    print "Error sending SMS : ", err
+else:
+    print "SMS sent successfully"
+\end{verbatim}
+
+\subsection{RegisterNotification}
+\label{subsec:msgregnotify}
+
+\code{RegisterNotification} method registers the widget to receive notifications of new incoming messages. For each new message, the method returns the header information of that message. It is available only in asynchronous mode.
+
+The following is an example for using \code{RegisterNotification}:
+
+{\bf Asynchronous}
+
+\begin{verbatim}
+sms_id = messaging_handle.call('RegisterNotification', {'Type': u'NewMessage'}, 
+                               callback=new_sms_callback)
+\end{verbatim}
+
+where, \code{new_sms_callback} is a user defined callback function.
+
+The following table summarizes the specification of \code{RegisterNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IMessaging}  \\
+\hline
+{\bf Description} & Registers for getting notification for new messages.  \\
+\hline
+{\bf Response Model} & Asynchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IMessaging} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Nil \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the request for notification of new messages. The object must contain the \code{NotificationType} property (unicode string), and this property must contain the value \code{NewMessage}.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{NewMessage} & Performs operation based on the specified content types.  \\
+\end{tabular}
+\caption{Input parameters for RegisterNotification}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain the requested information. They also contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|p{3cm}|p{2cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (MessageType: string)} & {\bf Description} \\
+\hline
+\code{ReturnValue} & map: \break
+\code{MessageType}: string \break
+\code{Sender}: string \break
+\code{Subject}: string \break
+\code{Time}: Time \break
+\code{Priority}: string \break
+\code{Attachment}: bool \break
+\code{Unread}: bool \break
+\code{MessageId}: 32 bit int & MessageType: \break
+SMS \break
+MMS \break
+Unknown \break
+
+Priority: \break
+Low \break
+Medium \break
+High & It contains the list of message header fields. \break
+
+SMS does not support subject, so it returns first few characters of body text.  \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for RegisterNotification}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1010} & Entry exists  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{9cm}|p{7cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Messaging:RegisterNotification:Type Type Invalid} & Specifies if the type of \code{Type} parameter is invalid.  \\
+\hline
+\code{Messaging:RegisterNotification:Type Value Incorrect} & Specifies if the value of \code{Type} parameter is incorrect.  \\
+\hline
+\code{Messaging:RegisterNotification:Type Missing} & Specifies if the \code{Type} parameter is missing.  \\
+\hline
+\code{Messaging:RegisterNotification:Synchronous Operation not supported} & Specifies if \code{RegisterNotification} is called synchronously.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to register for a new message notification, send a SMS and then cancel the notification request, asynchronously:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+lock = e32.Ao_lock()
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+def new_sms_callback(trans_id, event_id, output_params):
+    if trans_id == sms_id and event_id == scriptext.EventCompleted:
+        print "SMS received from" + output_params['ReturnValue']['Sender'])
+    else:
+        print "Error in callback"
+    # Cancel notification request
+    messaging_handle.call('CancelNotification', {'Type': u'NewMessage'})
+    lock.signal()
+
+# The callback 'new_sms_callback' will be called when a sms is received
+sms_id = messaging_handle.call('RegisterNotification', {'Type': u'NewMessage'}, 
+                               callback=new_sms_callback)
+
+# Send SMS to self so that the notification callback is hit
+messaging_handle.call('Send', {'MessageType': u'SMS', 'To': u'12345678', 
+                               'BodyText': u'Hi self'})
+lock.wait()
+\end{verbatim}
+
+\subsection{CancelNotification}
+\label{subsec:msgcanclnotify}
+
+\code{CancelNotification} method cancels the registration for notification of new messages. It is available only in synchronous mode.
+
+The following is an example for using \code{CancelNotification}:
+
+{\bf Synchronous}
+
+\begin{verbatim}
+messaging_handle.call('CancelNotification',{'Type': u'NewMessage'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{CancelNotification}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IMessaging}  \\
+\hline
+{\bf Description} & Cancels registration for notification of new messages.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IMessaging} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Stop getting new message notifications.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the request for canceling notification of new messages. This must contain the Notification Type, and this property must contain the value \code{NewMessage}.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+Type & unicode string & \code{NewMessage} & Performs operation based on the specified content types.  \\
+\end{tabular}
+\caption{Input parameters for CancelNotification}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for CancelNotification}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{9cm}|p{7cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Messaging:CancelNotification:Type Type Invalid} & Specifies if the type of \code{Type} parameter is invalid.  \\
+\hline
+\code{Messaging:CancelNotification:Type Value Incorrect} & Specifies if the value of \code{Type} parameter is incorrect.  \\
+\hline
+\code{Messaging:CancelNotification:Type Missing} & Specifies if the \code{Type} parameter is missing.  \\
+\hline
+\code{Messaging:CancelNotification:Asynchronous Operation not supported} & Specifies if \code{CancelNotification} is called asynchronously.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to cancel a notification:
+
+\begin{verbatim}
+import scriptext
+import e32
+
+lock = e32.Ao_lock()
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+def new_sms_callback(trans_id, event_id, output_params):
+    if trans_id == sms_id and event_id == scriptext.EventCompleted:
+        print "SMS received from" + output_params['ReturnValue']['Sender'])
+    else:
+        print "Error in callback"
+    # Cancel notification request
+    messaging_handle.call('CancelNotification', {'Type': u'NewMessage'})
+    lock.signal()
+
+# The callback 'new_sms_callback' will be called when a sms is received
+sms_id = messaging_handle.call('RegisterNotification', {'Type': u'NewMessage'},
+                               callback=new_sms_callback)
+
+# Send SMS to self so that the notification callback is hit
+messaging_handle.call('Send', {'MessageType': u'SMS', 'To': u'12345678', 
+                               'BodyText': u'Hi self'})
+lock.wait()
+\end{verbatim}
+
+\subsection{ChangeStatus}
+\label{subsec:msgchangestat}
+
+\code{ChangeStatus} method changes the read status of a message. The status can be \code{Read}, \code{Unread}, \code{Replied}, or \code{Forwarded}. It is available only in synchronous mode.
+
+The following is an example for using \code{ChangeStatus}:
+
+{\bf Synchronous}
+
+\begin{verbatim}
+messaging_handle.call('ChangeStatus', {'MessageId': message_id, 'Status': u'Unread'})
+\end{verbatim}
+
+The following table summarizes the specification of \code{ChangeStatus}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IMessaging}  \\
+\hline
+{\bf Description} & Sets a given value for the given flag.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IMessaging} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Message status changed to new status.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the message ID, and message status to be set.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|p{3cm}|p{8cm}}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{MessageId} & 32 bit int & NA & Message Id  \\
+\hline
+Status & unicode string & \code{Read} \break
+\code{Unread} \break
+\code{Replied} \break
+\code{Forwarded} & Message status to be set. \code{Replied} and \code{Forwarded} are applicable for email type of messages.  \\
+\end{tabular}
+\caption{Input parameters for ChangeStatus}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for ChangeStatus}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1012} & Item Not found
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{8cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Messaging:ChangeStatus:MessageId Type Invalid} & Specifies if the type of \code{MessageId} parameter is invalid.  \\
+\hline
+\code{Messaging:ChangeStatus:MessageId Value Incorrect} & Specifies if the value of \code{MessageId} parameter is incorrect.  \\
+\hline
+\code{Messaging:ChangeStatus:MessageId Missing} & Specifies if the \code{MessageId} parameter is missing.  \\
+\hline
+\code{Messaging:ChangeStatus:Status Type Invalid} & Specifies if the type of \code{Status} parameter is incorrect.  \\
+\hline
+\code{Messaging:ChangeStatus:Status Value Incorrect} & Specifies if the range of \code{Status} parameter is exceeded.  \\
+\hline
+\code{Messaging:ChangeStatus:Status Missing} & Specifies if the \code{Status} parameter is missing.  \\
+\hline
+\code{Messaging:ChangeStatus:Asynchronous Operation not supported} & Specifies if \code{ChangeStatus} is called asynchronously.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to set SMS status as \code{Unread}:
+
+\begin{verbatim}
+import scriptext
+import appuifw
+
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+sms_iter = messaging_handle.call('GetList', {'Type': u'Inbox'})
+id_list = []
+body_list = []
+for sms_dict in sms_iter:
+    if sms_dict['MessageType'] == 'SMS': 
+        id_list.append(sms_dict['MessageId'])
+        body_list.append(sms_dict['BodyText'])
+
+message_index = appuifw.selection_list(body_list)
+try:
+    messaging_handle.call('ChangeStatus', {'MessageId': id_list[message_index],
+                                           'Status': u'Unread'})
+except scriptext.ScriptextError, err:
+    print "Error setting message status to Unread"
+else:
+    print "Message status changed to Unread"
+\end{verbatim}
+
+\subsection{Delete}
+\label{subsec:msgdel}
+
+\code{Delete} method is used to delete a message. It is available only in synchronous mode.
+
+The following is an example for using \code{Delete}:
+
+{\bf Synchronous}
+
+\begin{verbatim}
+messaging_handle.call('Delete', {'MessageId': message_id})
+\end{verbatim}
+
+The following table summarizes the specification of \code{Delete}:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Interface} & \code{IMessaging}  \\
+\hline
+{\bf Description} & Delete deletes the message.  \\
+\hline
+{\bf Response Model} & Synchronous  \\
+\hline
+{\bf Pre-condition} & Valid instance of \code{IMessaging} interface is instantiated.  \\
+\hline
+{\bf Post-condition} & Message no more exists in database.  \\
+\end{tabular}
+\end{center}
+\end{table}
+
+{\bf Input Parameters} \break
+
+Input parameter specifies the \code{MessageId} of the message to delete.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range} & {\bf Description} \\
+\hline
+\code{MessageId} & 32 bit int & \code{MessageId} & Deletes message with the specified message ID.  \\
+\end{tabular}
+\caption{Input parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Output Parameters} \break
+
+Output parameters contain \code{ErrorCode}, and \code{ErrorMessage} if the operation fails.
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l|l|l}
+\hline
+{\bf Name} & {\bf Type} & {\bf Range (Type: string)} & {\bf Description} \\
+\hline
+\code{ErrorCode} & int & NA & Service specific error code on failure of the operation.  \\
+\hline
+\code{ErrorMessage} & string & NA & Error description in Engineering English.  \\
+\end{tabular}
+\caption{Output parameters for Delete}
+\end{center}
+\end{table}
+
+{\bf Errors} \break
+
+The following table lists the error codes and their values:
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+{\bf Error code value} & {\bf Description} \\
+\hline
+\code{0} & Success  \\
+\hline
+\code{1000} & Invalid service argument  \\
+\hline
+\code{1002} & Bad argument type  \\
+\hline
+\code{1003} & Missing argument  \\
+\hline
+\code{1012} & Item Not found
+\end{tabular}
+\caption{Error codes}
+\end{center}
+\end{table}
+
+{\bf Error Messages} \break
+
+The following table lists the error messages and their description: 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{8cm}|p{8cm}}
+\hline
+{\bf Error messages} & {\bf Description} \\
+\hline
+\code{Messaging:Delete:MessageId Type Invalid} & Specifies if the type of \code{MessageId} parameter is mismatched.  \\
+\hline
+\code{Messaging:Delete:MessageId Value Incorrect} & Specifies if the value of \code{MessageId} parameter is negative.  \\
+\hline
+\code{Messaging:Delete:MessageId Missing} & Specifies if the \code{MessageId} parameter is missing.  \\
+\hline
+\code{Messaging:Delete:Asynchronous Operation not supported} & Specifies if \code{Delete} is called asynchronously.  \\
+\end{tabular}
+\caption{Error messages}
+\end{center}
+\end{table}
+
+{\bf Example} \break
+
+The following sample code illustrates how to delete a particular SMS:
+
+\begin{verbatim}
+import scriptext
+import appuifw
+import e32
+
+lock = e32.Ao_lock()
+sms_iter = None
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+
+sms_iter = messaging_handle.call('GetList', {'Type': u'Inbox'})
+
+id_list = []
+body_list = []
+for sms_dict in sms_iter:
+    if sms_dict['MessageType'] == 'SMS':
+        id_list.append(sms_dict['MessageId'])
+        body_list.append(sms_dict['BodyText'])
+
+# Select the message to be deleted
+message_index = appuifw.selection_list(body_list)
+try:
+    messaging_handle.call('Delete', {'MessageId': id_list[message_index]})
+except scriptext.ScriptextError, err:
+    print "Error deleting SMS :", err
+else:
+    print "Message deleted successfully"
+\end{verbatim}
+\pagebreak
+
