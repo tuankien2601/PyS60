@@ -41,7 +41,7 @@ The solution for PyS60 in EKA2 is based on two use cases:
   menu
 
   2. Plain script running and the application to enable this, aka the script
-  shell – the Python application seen in PyS60 1.0 onwards
+  shell â€“ the Python application seen in PyS60 1.0 onwards
 
 In this document we provide information how the new platform security features
 affect PyS60, what will be the development options and offer advices for native
